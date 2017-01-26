@@ -87,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Testing vcs
+
         setContentView(R.layout.activity_main);
 
         mVisible = true;
