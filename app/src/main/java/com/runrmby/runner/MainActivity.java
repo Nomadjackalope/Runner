@@ -11,6 +11,10 @@ import android.view.View;
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
+ *
+ *
+ *
+ * Ben is testing updating the project
  */
 public class MainActivity extends AppCompatActivity {
     /**
