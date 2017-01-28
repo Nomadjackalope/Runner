@@ -14,6 +14,7 @@ import android.view.View;
  *
  * Ben is testing too
  */
+//Mark testing making changes.
 public class MainActivity extends AppCompatActivity {
     /**
      * Whether or not the system UI should be auto-hidden after
