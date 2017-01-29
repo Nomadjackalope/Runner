@@ -1,12 +1,15 @@
 package com.runrmby.runner;
 
 import android.annotation.SuppressLint;
+import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ToggleButton;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -108,6 +111,21 @@ public class MainActivity extends AppCompatActivity {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+
+        //Play looping theme music.
+        final MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+        //Play/pause button listener. If music is playing when button is pressed, pause music. Otherwise play the music.
+        final ToggleButton pauseMusicButton = (ToggleButton)this.findViewById(R.id.pause_music_button);
+        pauseMusicButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                if(mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
+                else mediaPlayer.start();
+            }
+        });
     }
 
     @Override
@@ -162,4 +180,5 @@ public class MainActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
 }
