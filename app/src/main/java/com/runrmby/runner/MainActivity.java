@@ -15,8 +15,11 @@ import android.widget.ToggleButton;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-//Mark testing making changes.
 public class MainActivity extends AppCompatActivity {
+    //Variables
+    MediaPlayer mediaPlayer = new MediaPlayer();
+    boolean musicPausedByLeavingApp;
+
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -113,9 +116,11 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         //Play looping theme music.
-        final MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
+        mediaPlayer = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
         mediaPlayer.setLooping(true);
-        mediaPlayer.start();
+        //if(!mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+        //}
         //Play/pause button listener. If music is playing when button is pressed, pause music. Otherwise play the music.
         final ToggleButton pauseMusicButton = (ToggleButton)this.findViewById(R.id.pause_music_button);
         pauseMusicButton.setOnClickListener(new View.OnClickListener(){
@@ -179,6 +184,32 @@ public class MainActivity extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    /**
+     *Pause music when app is in background.
+     */
+    @Override
+    protected void onPause(){
+        super.onPause();
+        //If music is playing, pause upon leaving the app.
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            musicPausedByLeavingApp = true;
+        }
+    }
+
+    /**
+     *Resume music when app is resumed.
+     */
+    @Override
+    protected void onResume(){
+        super.onResume();
+        //If music was paused upon leaving the app, resume playing the music.
+        if(musicPausedByLeavingApp){
+            mediaPlayer.start();
+            musicPausedByLeavingApp = false;
+        }
     }
 
 }
