@@ -45,6 +45,15 @@
                 android:text="@string/dummy_button" />
 
         </LinearLayout>
+
+        <ToggleButton
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/pause_music_button"
+            android:textOff="@string/play_music"
+            android:textOn="@string/pause_music"
+            android:checked="true" />
+
     </FrameLayout>
 
 </FrameLayout>
