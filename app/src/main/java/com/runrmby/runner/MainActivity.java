@@ -1,6 +1,8 @@
 package com.runrmby.runner;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +10,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ToggleButton;
 
 /**
@@ -18,10 +23,6 @@ import android.widget.ToggleButton;
  * Ben is testing too
  */
 public class MainActivity extends AppCompatActivity {
-    //Variables
-    MediaPlayer mediaPlayer = new MediaPlayer();
-    boolean musicPausedByLeavingApp;
-
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -92,6 +93,34 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    //---------------------- Game variables ----------------------------
+
+    private static final int NONE = 0;
+    private static final int PLAYING_GAME = 1;
+    private static final int LOSE = 2;
+    private static final int WIN = 3;
+    private static final int MAIN_MENU = 4;
+
+
+    MediaPlayer mediaPlayer = new MediaPlayer();
+    boolean musicPausedByLeavingApp;
+
+    private Button playButton;
+    private Button tempButton;
+
+    private FrameLayout loseMenu;
+    private FrameLayout mainMenu;
+    private FrameLayout winMenu;
+    private FrameLayout gameMenu;
+
+    private View titleScreen;
+    private View gameScreen;
+
+    private Point windowSize = new Point();
+
+
+    private int gameState = MAIN_MENU;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,8 +130,6 @@ public class MainActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
-
-        // VCS Here
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+
+        //----------------------- Game Code ---------------------------
 
         //Play looping theme music.
         mediaPlayer = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
@@ -133,6 +162,124 @@ public class MainActivity extends AppCompatActivity {
                 else mediaPlayer.start();
             }
         });
+
+        this.getWindowManager().getDefaultDisplay().getSize(windowSize);
+        System.out.println("MA| windowSize: " + windowSize.x + ", " + windowSize.y);
+
+        // Menus
+        mainMenu = (FrameLayout) findViewById(R.id.mainMenu);
+        gameMenu = (FrameLayout) findViewById(R.id.gameMenu);
+        loseMenu = (FrameLayout) findViewById(R.id.loseMenu);
+        winMenu = (FrameLayout) findViewById(R.id.winMenu);
+
+        //Screens
+        titleScreen = findViewById(R.id.titleScreen);
+        gameScreen = findViewById(R.id.gameScreen);
+
+        gameScreen.setVisibility(View.VISIBLE);
+        gameScreen.setTranslationY(windowSize.y);
+
+
+        setGameState(MAIN_MENU);
+
+
+        playButton = (Button) findViewById(R.id.playButton);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("MA| here");
+                requestGameState(PLAYING_GAME);
+            }
+        });
+
+        tempButton = (Button) findViewById(R.id.tempButton);
+        tempButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestGameState(MAIN_MENU);
+            }
+        });
+    }
+
+    private void requestGameState(int state) {
+        hideAllMenus();
+        switch (state) {
+            case MAIN_MENU:
+                transitionToMainMenu();
+                break;
+            case PLAYING_GAME:
+                transitionToGame();
+                break;
+            case LOSE:
+
+                break;
+            case WIN:
+
+                break;
+            case NONE:
+                // Nothing happens here
+                break;
+        }
+    }
+
+    private void setGameState(int state) {
+        gameState = state;
+        switch (state) {
+            case MAIN_MENU:
+                mainMenu.setVisibility(View.VISIBLE);
+                break;
+            case PLAYING_GAME:
+                gameMenu.setVisibility(View.VISIBLE);
+                break;
+            case LOSE:
+                loseMenu.setVisibility(View.VISIBLE);
+                break;
+            case WIN:
+                winMenu.setVisibility(View.VISIBLE);
+                break;
+            case NONE:
+                // Nothing happens here
+                break;
+        }
+    }
+
+    private void transitionToMainMenu() {
+        gameScreen.animate()
+                .translationYBy(windowSize.y)
+                .setDuration(1000);
+
+        titleScreen.animate()
+                .translationYBy(windowSize.y)
+                .setDuration(1000)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        setGameState(MAIN_MENU);
+                    }
+                });
+    }
+
+    private void transitionToGame() {
+        gameScreen.animate()
+                .translationYBy(-windowSize.y)
+                .setDuration(1000);
+
+        titleScreen.animate()
+                .translationYBy(-windowSize.y)
+                .setDuration(1000)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        setGameState(PLAYING_GAME);
+                    }
+                });
+    }
+
+    private void hideAllMenus() {
+        mainMenu.setVisibility(View.GONE);
+        gameMenu.setVisibility(View.GONE);
+        loseMenu.setVisibility(View.GONE);
+        winMenu.setVisibility(View.GONE);
     }
 
     @Override
