@@ -43,6 +43,8 @@ public class GameView extends SurfaceView implements Runnable {
 
     Point windowSize;
 
+    FingerPoint finger1 = new FingerPoint();
+    FingerPoint finger2 = new FingerPoint();
 
 
     public GameView(Context context, Point windowSize) {
@@ -129,6 +131,7 @@ public class GameView extends SurfaceView implements Runnable {
     public void update() {
         //backgroundPositionY += 15; // This should be set by the person's touches
         //backgroundPositionY2 += 15;
+        // 15 needs to be the amount that the background not being moved has travelled
         if(backgroundPositionY > background.getHeight()) {
             backgroundPositionY = -background.getHeight() + 15;
         }
@@ -161,38 +164,152 @@ public class GameView extends SurfaceView implements Runnable {
 
     // ACTION_POINTER_DOWN is for extra pointers that enter the screen beyond the first
 
+
+    //
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
-            // User touched down
             case MotionEvent.ACTION_DOWN:
-                if(playing) {
-                    pause();
-                } else {
-                    resume();
-                }
+
+                // PointerId remains constant. Pointer index is order in touch list
+                finger1.id = event.getPointerId(0);
+                finger1.isNull = false;
+
+
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
-                if(event.getActionIndex() == 0) {
-                    // do something
+
+                // Change the finger that isn't set yet
+                if(finger2.isNull) {
+                    if(event.getPointerId(0) != finger1.id) {
+                        finger2.id = event.getPointerId(0);
+                        finger2.isNull = false;
+                    } else if(event.getPointerId(1) != finger1.id) {
+                        finger2.id = event.getPointerId(1);
+                        finger2.isNull = false;
+                    } else {
+                        System.out.println("GV| finger2 is null but not set");
+                    }
+                } else if(finger1.isNull) {
+                    if(event.getPointerId(0) != finger2.id) {
+                        finger1.id = event.getPointerId(0);
+                        finger1.isNull = false;
+                    } else if(event.getPointerId(1) != finger2.id) {
+                        finger1.id = event.getPointerId(1);
+                        finger1.isNull = false;
+                    } else {
+                        System.out.println("GV| finger1 is null but not set");
+                    }
+                }else {
+                    System.out.println("GV| no is null");
                 }
 
-                break;
-
-            // User moved finger
             case MotionEvent.ACTION_MOVE:
 
                 break;
 
-            // User lifted finger up
-            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
 
                 break;
 
+            case MotionEvent.ACTION_UP:
+                finger1.isNull = true;
+                finger2.isNull = true;
+                break;
+
+//            // User touched down
+//            case MotionEvent.ACTION_DOWN:
+//                System.out.println("GV| action index: " + event.getActionIndex());
+//                // Set finger x,y
+//                // No more than 2 fingers
+//                if(event.getActionIndex() < 2) {
+//                    if (getFingerFromIndex(event.getActionIndex()).isNull) {
+//                        getFingerFromIndex(event.getActionIndex()).isNull = false;
+//                    }
+//
+//                    getFingerFromIndex(event.getActionIndex()).setXY(event.getX(), event.getY());
+//
+//                    // Don't run with both fingers, just most recent
+//                    setMostRecentFinger(event.getActionIndex());
+//                }
+//
+//
+//                // if the finger lands on object do something here
+//                break;
+//
+//            case MotionEvent.ACTION_POINTER_DOWN:
+//                System.out.println("GV| action pointer index: " + event.getActionIndex());
+//                // Set finger x,y
+//                // No more than 2 fingers
+//                if(event.getActionIndex() < 2) {
+//                    if (getFingerFromIndex(event.getActionIndex()).isNull) {
+//                        getFingerFromIndex(event.getActionIndex()).isNull = false;
+//                    }
+//
+//                    getFingerFromIndex(event.getActionIndex()).setXY(event.getX(), event.getY());
+//
+//                    // Don't run with both fingers, just most recent
+//                    setMostRecentFinger(event.getActionIndex());
+//                }
+//
+//                break;
+//
+//            // User moved finger
+//            case MotionEvent.ACTION_MOVE:
+//                System.out.println("GV| move index: " + event.getActionIndex());
+//                if(event.getActionIndex() == 0) {
+//                    if(finger1.mostRecent) {
+//                        advanceRoad(event.getY() - finger1.y);
+//                        finger1.setXY(event.getX(), event.getY());
+//                    }
+//                } else if(event.getActionIndex() == 1) {
+//                    if(finger2.mostRecent) {
+//                        advanceRoad(event.getY() - finger2.y);
+//                        finger2.setXY(event.getX(), event.getY());
+//                    }
+//                }
+//                break;
+//
+//            // User lifted finger up
+//            case MotionEvent.ACTION_UP:
+//                if(event.getActionIndex() == 0) {
+//                    finger1.isNull = true;
+//                } else if(event.getActionIndex() == 1) {
+//                    finger2.isNull = true;
+//                }
+//                break;
+
         }
         return true;
+    }
+
+    public void setMostRecentFinger(int index) {
+        if(index == 0) {
+            finger1.mostRecent = true;
+            finger2.mostRecent = false;
+        } else if(index == 1) {
+            finger1.mostRecent = false;
+            finger2.mostRecent = true;
+        }
+    }
+
+    public void advanceRoad(float distance) {
+        //distance = distance;
+        backgroundPositionY += distance;
+        backgroundPositionY2 += distance;
+    }
+
+    public FingerPoint getFingerFromIndex(int index) {
+        if(index == 0) {
+            return finger1;
+        } else if(index == 1) {
+            return finger2;
+        } else {
+            return null;
+        }
     }
 
     // Call this from activity
@@ -210,5 +327,21 @@ public class GameView extends SurfaceView implements Runnable {
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
+    }
+
+    public class FingerPoint {
+        float x, y;
+
+        int id;
+
+        // Using this vs null because then we don't create a bunch of these objects
+        boolean isNull;
+
+        boolean mostRecent;
+
+        public void setXY(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 }
