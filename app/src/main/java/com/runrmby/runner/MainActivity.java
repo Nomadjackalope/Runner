@@ -312,6 +312,10 @@ public class MainActivity extends AppCompatActivity {
                         setGameState(PLAYING_GAME);
                     }
                 });
+
+        //Make button and timer visible.
+        root.removeView(gameMenu);
+        root.addView(gameMenu);
     }
 
 
