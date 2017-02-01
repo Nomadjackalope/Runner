@@ -1,5 +1,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
@@ -16,12 +17,6 @@
         android:id="@+id/titleScreen"
         android:visibility="visible" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/road"
-        android:id="@+id/gameScreen"
-        android:visibility="gone" />
 
     <View
         android:layout_width="match_parent"
@@ -52,7 +47,8 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/gameMenu">
+        android:id="@+id/gameMenu"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -68,19 +64,70 @@
             android:layout_height="wrap_content"
             android:text="Main Menu"
             android:id="@+id/tempButton"
-            android:layout_gravity="bottom|center_horizontal" />
+            android:layout_gravity="top|right" />
     </FrameLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/loseMenu"
-        android:visibility="gone"></FrameLayout>
+        android:id="@+id/gameEndMenu"
+        android:visibility="visible">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/winMenu"></FrameLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/play_again"
+            android:id="@+id/playAgainButton"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_menu"
+            android:id="@+id/mainMenuButton"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="PLACEHOLDER"
+            android:id="@+id/endGameText"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="100dp"
+            android:layout_alignLeft="@+id/endGameUserTime"
+            android:layout_alignStart="@+id/endGameUserTime"
+            android:layout_alignRight="@+id/endGameBestTime"
+            android:layout_alignEnd="@+id/endGameBestTime"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time: 1:23.45"
+            android:id="@+id/endGameUserTime"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="45dp"
+            android:layout_marginStart="45dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Best: 1:23.45"
+            android:id="@+id/endGameBestTime"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="45dp"
+            android:layout_marginEnd="45dp" />
+
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

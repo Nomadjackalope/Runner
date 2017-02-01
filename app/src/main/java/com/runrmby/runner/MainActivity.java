@@ -14,6 +14,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 /**
@@ -107,14 +109,20 @@ public class MainActivity extends AppCompatActivity {
 
     private Button playButton;
     private Button tempButton;
+    private Button playAgainButton;
+    private Button mainMenuButton;
 
-    private FrameLayout loseMenu;
+    private TextView endGameUserTime;
+    private TextView endGameBestTime;
+    private TextView endGameText;
+
+    private RelativeLayout gameEndMenu;
     private FrameLayout mainMenu;
-    private FrameLayout winMenu;
     private FrameLayout gameMenu;
+    private FrameLayout root;
 
     private View titleScreen;
-    private View gameScreen;
+    private GameView gameScreen;
 
     private Point windowSize = new Point();
 
@@ -166,21 +174,44 @@ public class MainActivity extends AppCompatActivity {
         this.getWindowManager().getDefaultDisplay().getSize(windowSize);
         System.out.println("MA| windowSize: " + windowSize.x + ", " + windowSize.y);
 
+        root = (FrameLayout) findViewById(R.id.root);
+
         // Menus
         mainMenu = (FrameLayout) findViewById(R.id.mainMenu);
         gameMenu = (FrameLayout) findViewById(R.id.gameMenu);
-        loseMenu = (FrameLayout) findViewById(R.id.loseMenu);
-        winMenu = (FrameLayout) findViewById(R.id.winMenu);
+        gameEndMenu = (RelativeLayout) findViewById(R.id.gameEndMenu);
 
         //Screens
         titleScreen = findViewById(R.id.titleScreen);
-        gameScreen = findViewById(R.id.gameScreen);
+        gameScreen = new GameView(this, windowSize);
+
+        root.addView(gameScreen);
 
         gameScreen.setVisibility(View.VISIBLE);
         gameScreen.setTranslationY(windowSize.y);
 
 
-        setGameState(MAIN_MENU);
+        requestGameState(MAIN_MENU);
+
+        endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
+        endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
+        endGameText = (TextView) findViewById(R.id.endGameText);
+
+        playAgainButton = (Button) findViewById(R.id.playAgainButton);
+        playAgainButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestGameState(PLAYING_GAME);
+            }
+        });
+
+        mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
+        mainMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestGameState(MAIN_MENU);
+            }
+        });
 
 
         playButton = (Button) findViewById(R.id.playButton);
@@ -205,10 +236,18 @@ public class MainActivity extends AppCompatActivity {
         hideAllMenus();
         switch (state) {
             case MAIN_MENU:
-                transitionToMainMenu();
+                if(gameState != MAIN_MENU) {
+                    transitionToMainMenu();
+                } else {
+                    setGameState(MAIN_MENU);
+                }
                 break;
             case PLAYING_GAME:
-                transitionToGame();
+                if(gameState == LOSE || gameState == WIN) {
+                    setGameState(PLAYING_GAME);
+                } else {
+                    transitionToGame();
+                }
                 break;
             case LOSE:
 
@@ -232,10 +271,10 @@ public class MainActivity extends AppCompatActivity {
                 gameMenu.setVisibility(View.VISIBLE);
                 break;
             case LOSE:
-                loseMenu.setVisibility(View.VISIBLE);
+                gameEndMenu.setVisibility(View.VISIBLE);
                 break;
             case WIN:
-                winMenu.setVisibility(View.VISIBLE);
+                gameEndMenu.setVisibility(View.VISIBLE);
                 break;
             case NONE:
                 // Nothing happens here
@@ -275,11 +314,17 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+
+    private void gameVersion1Loop() {
+
+
+
+    }
+
     private void hideAllMenus() {
         mainMenu.setVisibility(View.GONE);
         gameMenu.setVisibility(View.GONE);
-        loseMenu.setVisibility(View.GONE);
-        winMenu.setVisibility(View.GONE);
+        gameEndMenu.setVisibility(View.GONE);
     }
 
     @Override
@@ -346,6 +391,8 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer.pause();
             musicPausedByLeavingApp = true;
         }
+
+        gameScreen.pause();
     }
 
     /**
@@ -359,6 +406,8 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer.start();
             musicPausedByLeavingApp = false;
         }
+
+        gameScreen.resume();
     }
 
 }
