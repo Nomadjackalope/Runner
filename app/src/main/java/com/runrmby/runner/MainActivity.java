@@ -311,11 +311,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        //Fade out and stop game music.
-        for(int i=10000; i >= 0; i--) {
-            volume = i/10000f;
-            gameMusic.setVolume(volume, volume);
-        }
+        //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
+//        for(int i=1000; i >= 0; i--) {
+//            volume = i/1000f;
+//            gameMusic.setVolume(volume, volume);
+//        }
+        //Stop game music.
         gameMusic.stop();
         gameMusic.release();
         gameMusic = null;
@@ -340,11 +341,12 @@ public class MainActivity extends AppCompatActivity {
         root.removeView(gameMenu);
         root.addView(gameMenu);
 
-        //Fade out and stop menu music.
-        for(int i=10000; i >= 0; i--) {
-            volume = i/10000f;
-            menuMusic.setVolume(volume, volume);
-        }
+        //TODO: Fade out menu music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
+//        for(int i=1000; i >= 0; i--) {
+//            volume = i/1000f;
+//            menuMusic.setVolume(volume, volume);
+//        }
+        //Stop menu music.
         menuMusic.stop();
         menuMusic.release();
         menuMusic = null;
