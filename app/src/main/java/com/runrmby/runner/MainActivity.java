@@ -1,7 +1,6 @@
 package com.runrmby.runner;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
@@ -10,8 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -104,8 +101,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int MAIN_MENU = 4;
 
 
-    MediaPlayer mediaPlayer = new MediaPlayer();
+    MediaPlayer menuMusic;
+    MediaPlayer gameMusic;
+    Integer musicCurrentlyPlaying;//0=menu music, 1=game music.
+    boolean musicPausedByButton = false;
     boolean musicPausedByLeavingApp;
+    float volume;
 
     private Button playButton;
     private Button tempButton;
@@ -153,23 +154,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         //----------------------- Game Code ---------------------------
-
-        //Play looping theme music.
-        mediaPlayer = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
-        mediaPlayer.setLooping(true);
-        //if(!mediaPlayer.isPlaying()) {
-            mediaPlayer.start();
-        //}
-        //Play/pause button listener. If music is playing when button is pressed, pause music. Otherwise play the music.
-        final ToggleButton pauseMusicButton = (ToggleButton)this.findViewById(R.id.pause_music_button);
-        pauseMusicButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                if(mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                }
-                else mediaPlayer.start();
-            }
-        });
 
         this.getWindowManager().getDefaultDisplay().getSize(windowSize);
         System.out.println("MA| windowSize: " + windowSize.x + ", " + windowSize.y);
@@ -230,6 +214,21 @@ public class MainActivity extends AppCompatActivity {
                 requestGameState(MAIN_MENU);
             }
         });
+
+        //Play/pause button listener. If music is playing when button is pressed, pause music. Otherwise play the music.
+        final ToggleButton pauseMusicButton = (ToggleButton)this.findViewById(R.id.pause_music_button);
+        pauseMusicButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                if(menuMusic.isPlaying()) {
+                    menuMusic.pause();
+                    musicPausedByButton = true;
+                }
+                else {
+                    menuMusic.start();
+                    musicPausedByButton = false;
+                }
+            }
+        });
     }
 
     private void requestGameState(int state) {
@@ -266,9 +265,24 @@ public class MainActivity extends AppCompatActivity {
         switch (state) {
             case MAIN_MENU:
                 mainMenu.setVisibility(View.VISIBLE);
+                //Start menu music.
+                menuMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
+                menuMusic.setLooping(true);
+                if(!musicPausedByButton) {
+                    menuMusic.start();
+                }
+                musicCurrentlyPlaying = 0;
                 break;
             case PLAYING_GAME:
                 gameMenu.setVisibility(View.VISIBLE);
+                mainMenu.setVisibility(View.VISIBLE);
+                //Start game music.
+                gameMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_straight_beat_version_1);
+                gameMusic.setLooping(true);
+                if(!musicPausedByButton) {
+                    gameMusic.start();
+                }
+                musicCurrentlyPlaying = 1;
                 break;
             case LOSE:
                 gameEndMenu.setVisibility(View.VISIBLE);
@@ -296,6 +310,16 @@ public class MainActivity extends AppCompatActivity {
                         setGameState(MAIN_MENU);
                     }
                 });
+
+        //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
+//        for(int i=1000; i >= 0; i--) {
+//            volume = i/1000f;
+//            gameMusic.setVolume(volume, volume);
+//        }
+        //Stop game music.
+        gameMusic.stop();
+        gameMusic.release();
+        gameMusic = null;
     }
 
     private void transitionToGame() {
@@ -316,6 +340,16 @@ public class MainActivity extends AppCompatActivity {
         //Make button and timer visible.
         root.removeView(gameMenu);
         root.addView(gameMenu);
+
+        //TODO: Fade out menu music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
+//        for(int i=1000; i >= 0; i--) {
+//            volume = i/1000f;
+//            menuMusic.setVolume(volume, volume);
+//        }
+        //Stop menu music.
+        menuMusic.stop();
+        menuMusic.release();
+        menuMusic = null;
     }
 
 
@@ -385,29 +419,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *Pause music when app is in background.
+     *Actions to take when app is moved to background.
      */
     @Override
     protected void onPause(){
         super.onPause();
         //If music is playing, pause upon leaving the app.
-        if(mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            musicPausedByLeavingApp = true;
+        if(musicCurrentlyPlaying==0) {
+            if(menuMusic.isPlaying()){
+                menuMusic.pause();
+                musicPausedByLeavingApp = true;
+            }
+        }
+        else if(musicCurrentlyPlaying==1){
+            if(gameMusic.isPlaying()){
+                gameMusic.pause();
+                musicPausedByLeavingApp = true;
+            }
         }
 
         gameScreen.pause();
     }
 
     /**
-     *Resume music when app is resumed.
+     *Actions to take when app is resumed.
      */
     @Override
     protected void onResume(){
         super.onResume();
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
-            mediaPlayer.start();
+            if(musicCurrentlyPlaying==0) {
+                menuMusic.start();
+            }
+            else if(musicCurrentlyPlaying==1){
+                gameMusic.start();
+            }
             musicPausedByLeavingApp = false;
         }
 
