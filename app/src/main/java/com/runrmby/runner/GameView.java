@@ -44,6 +44,8 @@ public class GameView extends SurfaceView implements Runnable {
     float backgroundPositionY;
     float backgroundPositionY2;
 
+    float velocity;
+
     Point windowSize;
 
     // Touches
@@ -137,10 +139,20 @@ public class GameView extends SurfaceView implements Runnable {
         //backgroundPositionY2 += 15;
         // 15 needs to be the amount that the background not being moved has travelled
         if(backgroundPositionY > background.getHeight()) {
-            backgroundPositionY = -background.getHeight() + 15;
+            backgroundPositionY = -background.getHeight() + backgroundPositionY2;
         }
         if(backgroundPositionY2 > background.getHeight()) {
-            backgroundPositionY2 = -background.getHeight() + 15;
+            backgroundPositionY2 = -background.getHeight() + backgroundPositionY;
+        }
+
+        // if the user is not touching trigger inertia,
+        // if we did it when the users finger was down it would get out of sync
+        if(fingers.isEmpty()) {
+            // We don't want this running all the time using up cpu
+            if(velocity > 1) {
+                advanceRoad(velocity); ///0.016f);
+                velocity *= 0.6f;
+            }
         }
     }
 
@@ -193,9 +205,9 @@ public class GameView extends SurfaceView implements Runnable {
             case MotionEvent.ACTION_POINTER_DOWN:
                 for (int i = 0; i < event.getPointerCount(); i++) {
                     if(!fingers.contains(event.getPointerId(i))) {
-                        activeFinger.setNew(event.getPointerId(i),
-                                event.getX(event.getPointerId(i)),
-                                event.getY(event.getPointerId(i)));
+                        activeFinger.id = event.getPointerId(i);
+                        activeFinger.setXY(event.getX(event.findPointerIndex(activeFinger.id)),
+                                event.getY(event.findPointerIndex(activeFinger.id)));
                         fingers.add(event.getPointerId(i));
                     }
                 }
@@ -204,8 +216,11 @@ public class GameView extends SurfaceView implements Runnable {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                advanceRoad(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
-                activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+                // PROBLEM: might not be the right finger, x,y becomes off, and you get a glitch
+                if(event.findPointerIndex(activeFinger.id) >= 0) {
+                    advanceRoad(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
+                    activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+                }
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
@@ -232,6 +247,8 @@ public class GameView extends SurfaceView implements Runnable {
         //distance = distance;
         backgroundPositionY += distance;
         backgroundPositionY2 += distance;
+
+        velocity = distance;
     }
 
     // Call this from activity
