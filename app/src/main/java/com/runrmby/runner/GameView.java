@@ -1,6 +1,5 @@
 package com.runrmby.runner;
 
-import android.content.AbstractThreadedSyncAdapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -9,8 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.support.v4.view.MotionEventCompat;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -51,6 +48,21 @@ public class GameView extends SurfaceView implements Runnable {
     // Touches
     FingerPoint finger1 = new FingerPoint();
     FingerPoint finger2 = new FingerPoint();
+
+    //------Spawning Obstacles and finishing course--------------------------------------------
+    float odometer = 0f;
+    //Currently an arbitrary course distance to test.
+    float courseDistance = 5000f;
+    //Integer courseLength = 10; //Units of background art
+    //Currently an arbitrary distance between obstacles to test. TODO: Make it slightly random.
+    float distanceBetweenObstacles = 500f;
+    float nextObstacleAt = distanceBetweenObstacles;
+    float distanceToNextObstacle = distanceBetweenObstacles;
+
+    int maxNumObstacles = 4;
+    Bitmap[] obstacleImageArray = new Bitmap[maxNumObstacles];
+    float[][] obstacleLocationArray = new float[maxNumObstacles][2];
+    //-----------------------------------------------------------------------------------------
 
 
     public GameView(Context context, Point windowSize) {
@@ -145,6 +157,14 @@ public class GameView extends SurfaceView implements Runnable {
             backgroundPositionY2 = -background.getHeight() + backgroundPositionY;
         }
 
+        //------------------------Mark's new code-----------------------------------------
+        for(int i = 0; i < maxNumObstacles; i++){
+            if(obstacleLocationArray[i][1] > background.getHeight()){
+                obstacleImageArray[i] = null;
+            }
+        }
+        //--------------------------------------------------------------------------------
+
         // if the user is not touching trigger inertia,
         // if we did it when the users finger was down it would get out of sync
         if(fingers.isEmpty()) {
@@ -169,6 +189,12 @@ public class GameView extends SurfaceView implements Runnable {
             // Draw road
             canvas.drawBitmap(background, 0, backgroundPositionY, paint);
             canvas.drawBitmap(background, 0, backgroundPositionY2, paint);
+
+            for(int i = 0; i < maxNumObstacles; i++) {
+                if(obstacleImageArray[i] != null) {
+                    canvas.drawBitmap(obstacleImageArray[i], obstacleLocationArray[i][0], obstacleLocationArray[i][1], paint);
+                }
+            }
 
             // Draw all to screen and unlock
             holder.unlockCanvasAndPost(canvas);
@@ -249,6 +275,23 @@ public class GameView extends SurfaceView implements Runnable {
         backgroundPositionY2 += distance;
 
         velocity = distance;
+
+        //---------------Mark new code-------------------------------------------------
+        //TODO: Check if course completed.
+        odometer += distance;
+//        if(odometer > courseDistance){
+//            playing = false;
+//        }
+        for(int i = 0; i < maxNumObstacles; i++){
+            obstacleLocationArray[i][1] += distance;
+        }
+        //If enough distance has been covered, spawn an obstacle.
+        distanceToNextObstacle = nextObstacleAt - odometer;
+        if(distanceToNextObstacle <= 0){
+            spawnObstacle();
+            nextObstacleAt = distanceBetweenObstacles + distanceToNextObstacle + odometer;
+        }
+        //-----------------------------------------------------------------------------
     }
 
     // Call this from activity
@@ -288,4 +331,22 @@ public class GameView extends SurfaceView implements Runnable {
             this.y = y;
         }
     }
+
+    //---------Mark attempting to spawn obstacles----------------------------------------------
+    public void spawnObstacle(){
+//        BitmapFactory.Options ops = new BitmapFactory.Options();
+//        ops.inPreferredConfig = Bitmap.Config.RGB_565;
+        for(int i = 0; i < maxNumObstacles; i++){
+            if(obstacleImageArray[i] == null){
+                //Set obstacle spawn image.
+                obstacleImageArray[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.test_obstacle, null);
+                //Set obstacle spawn location.
+                obstacleLocationArray[i][0] = 0;
+                obstacleLocationArray[i][1] = -obstacleImageArray[i].getHeight();
+                break;
+            }
+        }
+
+    }
+    //-----------------------------------------------------------------------------------------
 }
