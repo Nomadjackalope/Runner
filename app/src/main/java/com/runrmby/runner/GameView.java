@@ -66,7 +66,12 @@ public class GameView extends SurfaceView implements Runnable {
     float distanceToNextObstacle = distanceBetweenObstacles;
     int maxNumObstacles = 4;
 
-    Bitmap[] obstacleImageArray = new Bitmap[maxNumObstacles];
+    Bitmap obstacle;
+    int obstacleWidth;
+    int obstacleHeight;
+    Boolean[] obstacleImageArray = new Boolean[maxNumObstacles];
+    static Boolean obstacleDestroyed = false;
+    static Boolean obstacleSpawned = true;
     float[][] obstacleLocationArray = new float[maxNumObstacles][2];
     Random randomNum = new Random();
     //-----------------------------------------------------------------------------------------
@@ -105,6 +110,16 @@ public class GameView extends SurfaceView implements Runnable {
         //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
 
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
+
+        obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
+
+        obstacleWidth = obstacle.getWidth();
+
+        obstacleHeight = obstacle.getHeight();
+
+        for(int i = 0; i < maxNumObstacles; i++){
+            obstacleImageArray[i] = obstacleDestroyed;
+        }
 
         mA = mainActivity;
 
@@ -179,7 +194,7 @@ public class GameView extends SurfaceView implements Runnable {
         //------------------------Mark's new code-----------------------------------------
         for(int i = 0; i < maxNumObstacles; i++){
             if(obstacleLocationArray[i][1] > background.getHeight()){
-                obstacleImageArray[i] = null;
+                obstacleImageArray[i] = obstacleDestroyed;
             }
         }
         //--------------------------------------------------------------------------------
@@ -248,8 +263,8 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(background, 0, backgroundPositionY2, paint);
 
             for(int i = 0; i < maxNumObstacles; i++) {
-                if(obstacleImageArray[i] != null) {
-                    canvas.drawBitmap(obstacleImageArray[i], obstacleLocationArray[i][0], obstacleLocationArray[i][1], paint);
+                if(obstacleImageArray[i] == obstacleSpawned) {
+                    canvas.drawBitmap(obstacle, obstacleLocationArray[i][0], obstacleLocationArray[i][1], paint);
                 }
             }
 
@@ -286,20 +301,15 @@ public class GameView extends SurfaceView implements Runnable {
                 //--------------Mark New Code-----------------------------
                 //Check if an obstacle has been touched.
                 for(int i = 0; i < maxNumObstacles; i++) {
-                    if (obstacleImageArray[i] != null) {
-                        if (activeFinger.x > obstacleLocationArray[i][0] && activeFinger.x < obstacleLocationArray[i][0] + obstacleImageArray[i].getWidth()) {
-                            if (activeFinger.y > obstacleLocationArray[i][1] && activeFinger.y < obstacleLocationArray[i][1] + obstacleImageArray[i].getHeight()) {
-                                //TODO Obstacle has been touched - now what?
+                    if (obstacleImageArray[i] == obstacleSpawned) {
+                        if (activeFinger.x > obstacleLocationArray[i][0] && activeFinger.x < obstacleLocationArray[i][0] + obstacleWidth) {
+                            if (activeFinger.y > obstacleLocationArray[i][1] && activeFinger.y < obstacleLocationArray[i][1] + obstacleHeight) {
+                                //Obstacle has been touched.
                                 mA.requestGameState(MainActivity.LOSE);
                                 System.out.println("HELLO!!");
                             }
                         }
                     }
-                }
-
-                //Check if finish line reached.
-                if(odometer > courseDistance){
-                    mA.requestGameState(MainActivity.WIN);
                 }
                 //--------------------------------------------------------
 
@@ -357,11 +367,11 @@ public class GameView extends SurfaceView implements Runnable {
         velocity = distance;
 
         //---------------Mark new code-------------------------------------------------
-        //TODO: Check if course completed.
+        //Check if finish line has been reached.
         odometer += distance;
-//        if(odometer > courseDistance){
-//            playing = false;
-//        }
+        if(odometer > courseDistance){
+            mA.requestGameState(MainActivity.WIN);
+        }
         for(int i = 0; i < maxNumObstacles; i++){
             obstacleLocationArray[i][1] += distance;
         }
@@ -420,12 +430,12 @@ public class GameView extends SurfaceView implements Runnable {
 //        BitmapFactory.Options ops = new BitmapFactory.Options();
 //        ops.inPreferredConfig = Bitmap.Config.RGB_565;
         for(int i = 0; i < maxNumObstacles; i++){
-            if(obstacleImageArray[i] == null){
+            if(obstacleImageArray[i] == obstacleDestroyed){
                 //Set obstacle spawn image.
-                obstacleImageArray[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
+                obstacleImageArray[i] = obstacleSpawned;
                 //Set obstacle spawn location.
-                obstacleLocationArray[i][0] = randomNum.nextInt(background.getWidth()-obstacleImageArray[i].getWidth());
-                obstacleLocationArray[i][1] = -obstacleImageArray[i].getHeight();
+                obstacleLocationArray[i][0] = randomNum.nextInt(background.getWidth()-obstacleWidth);
+                obstacleLocationArray[i][1] = -obstacleHeight;
                 break;
             }
         }
@@ -439,7 +449,7 @@ public class GameView extends SurfaceView implements Runnable {
         distanceToNextObstacle = distanceBetweenObstacles;
         maxNumObstacles = 4;
         for(int i = 0; i < maxNumObstacles; i++){
-            obstacleImageArray[i] = null;
+            obstacleImageArray[i] = obstacleDestroyed;
         }
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
