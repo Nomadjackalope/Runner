@@ -58,7 +58,7 @@ public class GameView extends SurfaceView implements Runnable {
     //------Spawning Obstacles and finishing course--------------------------------------------
     float odometer = 0f;
     //Currently an arbitrary course distance to test.
-    float courseDistance = 5000f;
+    float courseDistance = 50000f;
     //Integer courseLength = 10; //Units of background art
     //Currently an arbitrary distance between obstacles to test. TODO: Make it slightly random.
     float distanceBetweenObstacles = 500f;
@@ -296,6 +296,11 @@ public class GameView extends SurfaceView implements Runnable {
                         }
                     }
                 }
+
+                //Check if finish line reached.
+                if(odometer > courseDistance){
+                    mA.requestGameState(MainActivity.WIN);
+                }
                 //--------------------------------------------------------
 
                 break;
@@ -428,7 +433,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void resetVariables(){
         odometer = 0f;
-        courseDistance = 5000f;
+        //courseDistance = 5000f;
         distanceBetweenObstacles = 500f;
         nextObstacleAt = distanceBetweenObstacles;
         distanceToNextObstacle = distanceBetweenObstacles;

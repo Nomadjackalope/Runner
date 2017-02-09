@@ -345,9 +345,14 @@ public class MainActivity extends AppCompatActivity
                 break;
             case WIN:
                 gameEndMenu.setVisibility(View.VISIBLE);
+                root.removeView(gameEndMenu);
+                root.addView(gameEndMenu);
                 gameMusic.stop();
                 gameMusic.release();
                 gameMusic = null;
+                endGameUserTime.setText(timer.getText());
+                gameScreen.resetVariables();
+                endGameText.setText(R.string.win3);
                 break;
             case NONE:
                 // Nothing happens here
@@ -577,6 +582,7 @@ public class MainActivity extends AppCompatActivity
             musicPausedByLeavingApp = false;
         }
 
+        //TODO: gameScreen doesn't resume when app is closed during gameplay and then reopened.
         //If not on gamed over screen, resume gameScreen.
         if(gameEndMenu.getVisibility() == View.INVISIBLE) {
             gameScreen.resume();
