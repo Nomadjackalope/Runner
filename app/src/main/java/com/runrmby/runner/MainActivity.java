@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -17,13 +18,17 @@ import android.widget.ToggleButton;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  *
  * Ben is testing too
  */
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity
+        implements GestureDetector.OnGestureListener {
+
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -134,6 +139,8 @@ public class MainActivity extends AppCompatActivity{
 
     private int gameState = MAIN_MENU;
 
+    private ArrayList<Location> locations = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -235,6 +242,28 @@ public class MainActivity extends AppCompatActivity{
                 }
             }
         });
+
+        loadLocations();
+    }
+
+    // Write in all the locations here
+    private void loadLocations() {
+        ArrayList<Integer> tempList = new ArrayList<>();
+        tempList.add(R.drawable.test_obstacle);
+        tempList.add(R.drawable.practice3_small);
+
+        locations.add(new Location("Road",
+                R.drawable.fingerrunner,
+                R.drawable.road,
+                tempList));
+
+//        tempList = new ArrayList<>();
+//
+//        locations.add(new Location("Space",
+//                R.drawable.spaceMainArt,
+//                R.drawable.spaceRoad,
+//                tempList));
+
     }
 
     // This function runs movement animations to get to other states
@@ -396,6 +425,16 @@ public class MainActivity extends AppCompatActivity{
         gameEndMenu.setVisibility(View.GONE);
     }
 
+    // Shows next(to the right) location in list of places
+    private void nextLocation() {
+        // set title screen alternate to slide in, with animation
+    }
+
+    // Shows previous(to the left) location in list of places
+    private void previousLocation() {
+        // do opposite
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -447,6 +486,48 @@ public class MainActivity extends AppCompatActivity{
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+
+    //-------------------- Implementing GestureDetector -----------------
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    // Fling to left or right and change
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        System.out.println("MA| Swiped");
+        if(gameState == MAIN_MENU) {
+            // Move to left
+            if(velocityX > 0) {
+                nextLocation();
+            } else if(velocityX < 0) {
+                previousLocation();
+            }
+        }
+        return true;
     }
 
     /**
