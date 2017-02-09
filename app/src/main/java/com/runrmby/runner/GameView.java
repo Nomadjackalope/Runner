@@ -106,23 +106,8 @@ public class GameView extends SurfaceView implements Runnable {
 
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
 
-        backgroundPositionY2 = -background.getHeight();
-
         mA = mainActivity;
 
-        gameVersion = GameVersion1;
-
-        switch (gameVersion) {
-            case GameVersion1:
-                gameTimeLeft = gameLengthCountUp;
-                break;
-            case GameVersion2:
-                gameTimeLeft = gameLengthCountDown;
-                break;
-        }
-        previousTime = System.currentTimeMillis();
-
-        //resetVariables();
     }
 
     // Bitmap processing
@@ -448,5 +433,19 @@ public class GameView extends SurfaceView implements Runnable {
         backgroundPositionY2 = -background.getHeight();
         fingers.clear();
         velocity = 0;
+
+        gameVersion = GameVersion1;
+
+        switch (gameVersion) {
+            case GameVersion1:
+                gameTimeLeft = gameLengthCountUp;
+                break;
+            case GameVersion2:
+                gameTimeLeft = gameLengthCountDown;
+                break;
+        }
+        previousTime = System.currentTimeMillis();
+
+
     }
 }
