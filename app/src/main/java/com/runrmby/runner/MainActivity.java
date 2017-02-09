@@ -339,6 +339,9 @@ public class MainActivity extends AppCompatActivity
                 gameMusic.stop();
                 gameMusic.release();
                 gameMusic = null;
+                endGameUserTime.setText(timer.getText());
+                gameScreen.resetVariables();
+                endGameText.setText(R.string.lose1);
                 break;
             case WIN:
                 gameEndMenu.setVisibility(View.VISIBLE);
@@ -538,15 +541,19 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         //If music is playing, pause upon leaving the app.
         if(musicCurrentlyPlaying==MENU_MUSIC) {
-            if(menuMusic.isPlaying()){
-                menuMusic.pause();
-                musicPausedByLeavingApp = true;
+            if(menuMusic != null) {
+                if (menuMusic.isPlaying()) {
+                    menuMusic.pause();
+                    musicPausedByLeavingApp = true;
+                }
             }
         }
         else if(musicCurrentlyPlaying==GAME_MUSIC_1){
-            if(gameMusic.isPlaying()){
-                gameMusic.pause();
-                musicPausedByLeavingApp = true;
+            if(gameMusic != null) {
+                if (gameMusic.isPlaying()) {
+                    gameMusic.pause();
+                    musicPausedByLeavingApp = true;
+                }
             }
         }
 
@@ -570,6 +577,9 @@ public class MainActivity extends AppCompatActivity
             musicPausedByLeavingApp = false;
         }
 
-        gameScreen.resume();
+        //If not on gamed over screen, resume gameScreen.
+        if(gameEndMenu.getVisibility() == View.INVISIBLE) {
+            gameScreen.resume();
+        }
     }
 }

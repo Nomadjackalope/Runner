@@ -217,9 +217,15 @@ public class GameView extends SurfaceView implements Runnable {
                 int minutes = (int) time / 60000;
                 int remainder = (int) time - minutes * 60000;
                 int seconds = (int) remainder / 1000;
+                String secondsString;
+                if(seconds > 10) {
+                    secondsString = String.valueOf(seconds);
+                }else {
+                    secondsString = "0" + seconds;
+                }
                 remainder = remainder - seconds * 1000;
                 int milSec = remainder;
-                String string = minutes + ":" + seconds + "." + milSec;
+                String string = minutes + ":" + secondsString + "." + milSec;
                 mA.timer.setText(string);
             }
         });
@@ -376,7 +382,8 @@ public class GameView extends SurfaceView implements Runnable {
     // Call this from activity
     public void resume() {
         playing = true;
-        resetVariables();
+        //resetVariables();
+        velocity = 0;
         gameThread = new Thread(this);
         gameThread.start();
         previousTime = System.currentTimeMillis();
