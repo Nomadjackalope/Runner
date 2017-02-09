@@ -63,8 +63,8 @@ public class GameView extends SurfaceView implements Runnable {
     float distanceBetweenObstacles = 500f;
     float nextObstacleAt = distanceBetweenObstacles;
     float distanceToNextObstacle = distanceBetweenObstacles;
-
     int maxNumObstacles = 4;
+
     Bitmap[] obstacleImageArray = new Bitmap[maxNumObstacles];
     float[][] obstacleLocationArray = new float[maxNumObstacles][2];
     Random randomNum = new Random();
@@ -99,6 +99,8 @@ public class GameView extends SurfaceView implements Runnable {
         backgroundPositionY2 = -background.getHeight();
 
         mA = mainActivity;
+
+        //resetVariables();
     }
 
     // Bitmap processing
@@ -245,12 +247,7 @@ public class GameView extends SurfaceView implements Runnable {
                                 //TODO Obstacle has been touched - now what?
                                 mA.requestGameState(MainActivity.LOSE);
                                 System.out.println("HELLO!!");
-
-                                //pause();
-                                //playing = false;
-                                //mainActivity.setGameState(MainActivity.LOSE);
                             }
-
                         }
                     }
                 }
@@ -340,6 +337,7 @@ public class GameView extends SurfaceView implements Runnable {
     // Call this from activity
     public void resume() {
         playing = true;
+        resetVariables();
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -372,13 +370,28 @@ public class GameView extends SurfaceView implements Runnable {
         for(int i = 0; i < maxNumObstacles; i++){
             if(obstacleImageArray[i] == null){
                 //Set obstacle spawn image.
-                obstacleImageArray[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.test_obstacle, null);
+                obstacleImageArray[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
                 //Set obstacle spawn location.
                 obstacleLocationArray[i][0] = randomNum.nextInt(background.getWidth()-obstacleImageArray[i].getWidth());
                 obstacleLocationArray[i][1] = -obstacleImageArray[i].getHeight();
                 break;
             }
         }
+    }
 
+    public void resetVariables(){
+        odometer = 0f;
+        courseDistance = 5000f;
+        distanceBetweenObstacles = 500f;
+        nextObstacleAt = distanceBetweenObstacles;
+        distanceToNextObstacle = distanceBetweenObstacles;
+        maxNumObstacles = 4;
+        for(int i = 0; i < maxNumObstacles; i++){
+            obstacleImageArray[i] = null;
+        }
+        backgroundPositionY = 0;
+        backgroundPositionY2 = -background.getHeight();
+        fingers.clear();
+        velocity = 0;
     }
 }
