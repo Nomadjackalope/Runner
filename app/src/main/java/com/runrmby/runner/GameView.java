@@ -1,5 +1,6 @@
 package com.runrmby.runner;
 
+import android.content.AbstractThreadedSyncAdapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -8,6 +9,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.support.v4.view.MotionEventCompat;
+import android.text.method.Touch;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -66,13 +70,15 @@ public class GameView extends SurfaceView implements Runnable {
     Random randomNum = new Random();
     //-----------------------------------------------------------------------------------------
 
+    MainActivity mA;
 
-    public GameView(Context context, Point windowSize) {
-        super(context);
-        init(windowSize);
+
+    public GameView(MainActivity mainActivity, Point windowSize) {
+        super(mainActivity.getApplicationContext());
+        init(windowSize, mainActivity);
     }
 
-    public void init(Point p) {
+    public void init(Point p, MainActivity mainActivity) {
 
         this.windowSize = p;
         holder = getHolder();
@@ -91,6 +97,8 @@ public class GameView extends SurfaceView implements Runnable {
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
 
         backgroundPositionY2 = -background.getHeight();
+
+        mA = mainActivity;
     }
 
     // Bitmap processing
@@ -173,7 +181,7 @@ public class GameView extends SurfaceView implements Runnable {
             // We don't want this running all the time using up cpu
             if(velocity > 1) {
                 advanceRoad(velocity); ///0.016f);
-                velocity *= 0.6f;
+                velocity *= 0.9f;
             }
         }
     }
@@ -235,6 +243,8 @@ public class GameView extends SurfaceView implements Runnable {
                         if (activeFinger.x > obstacleLocationArray[i][0] && activeFinger.x < obstacleLocationArray[i][0] + obstacleImageArray[i].getWidth()) {
                             if (activeFinger.y > obstacleLocationArray[i][1] && activeFinger.y < obstacleLocationArray[i][1] + obstacleImageArray[i].getHeight()) {
                                 //TODO Obstacle has been touched - now what?
+                                mA.requestGameState(MainActivity.LOSE);
+                                System.out.println("HELLO!!");
 
                                 //pause();
                                 //playing = false;
@@ -289,6 +299,9 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void advanceRoad(float distance) {
+        // Don't go backward
+        if(distance < 0) { return; }
+
         System.out.println("GV| distance: " + distance);
         //distance = distance;
         backgroundPositionY += distance;

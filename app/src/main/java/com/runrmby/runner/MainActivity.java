@@ -94,11 +94,11 @@ public class MainActivity extends AppCompatActivity{
 
     //---------------------- Game variables ----------------------------
 
-    private static final int NONE = 0;
-    private static final int PLAYING_GAME = 1;
-    private static final int LOSE = 2;
-    private static final int WIN = 3;
-    private static final int MAIN_MENU = 4;
+    public static final int NONE = 0;
+    public static final int PLAYING_GAME = 1;
+    public static final int LOSE = 2;
+    public static final int WIN = 3;
+    public static final int MAIN_MENU = 4;
 
 
     MediaPlayer menuMusic;
@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity{
     private GameView gameScreen;
 
     private Point windowSize = new Point();
-
 
     private int gameState = MAIN_MENU;
 
@@ -233,7 +232,7 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    private void requestGameState(int state) {
+    public void requestGameState(int state) {
         hideAllMenus();
         switch (state) {
             case MAIN_MENU:
@@ -251,9 +250,14 @@ public class MainActivity extends AppCompatActivity{
                 }
                 break;
             case LOSE:
+                System.out.println("hi");
+                gameScreen.pause();
+                setGameState(LOSE);
 
                 break;
             case WIN:
+                gameScreen.pause();
+                setGameState(WIN);
 
                 break;
             case NONE:
@@ -288,6 +292,8 @@ public class MainActivity extends AppCompatActivity{
                 break;
             case LOSE:
                 gameEndMenu.setVisibility(View.VISIBLE);
+                root.removeView(gameEndMenu);
+                root.addView(gameEndMenu);
                 break;
             case WIN:
                 gameEndMenu.setVisibility(View.VISIBLE);
