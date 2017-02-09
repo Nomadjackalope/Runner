@@ -21,7 +21,7 @@ import android.widget.ToggleButton;
  *
  * Ben is testing too
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -103,7 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
     MediaPlayer menuMusic;
     MediaPlayer gameMusic;
-    Integer musicCurrentlyPlaying;//0=menu music, 1=game music.
+    private static final int MENU_MUSIC = 0;
+    private static final int GAME_MUSIC_1 = 1;
+    private int musicCurrentlyPlaying;//0=menu music, 1=game music.
     boolean musicPausedByButton = false;
     boolean musicPausedByLeavingApp;
     float volume;
@@ -271,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!musicPausedByButton) {
                     menuMusic.start();
                 }
-                musicCurrentlyPlaying = 0;
+                musicCurrentlyPlaying = MENU_MUSIC;
                 break;
             case PLAYING_GAME:
                 gameMenu.setVisibility(View.VISIBLE);
@@ -282,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!musicPausedByButton) {
                     gameMusic.start();
                 }
-                musicCurrentlyPlaying = 1;
+                musicCurrentlyPlaying = GAME_MUSIC_1;
                 break;
             case LOSE:
                 gameEndMenu.setVisibility(View.VISIBLE);
@@ -425,13 +427,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause(){
         super.onPause();
         //If music is playing, pause upon leaving the app.
-        if(musicCurrentlyPlaying==0) {
+        if(musicCurrentlyPlaying==MENU_MUSIC) {
             if(menuMusic.isPlaying()){
                 menuMusic.pause();
                 musicPausedByLeavingApp = true;
             }
         }
-        else if(musicCurrentlyPlaying==1){
+        else if(musicCurrentlyPlaying==GAME_MUSIC_1){
             if(gameMusic.isPlaying()){
                 gameMusic.pause();
                 musicPausedByLeavingApp = true;
@@ -449,10 +451,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
-            if(musicCurrentlyPlaying==0) {
+            if(musicCurrentlyPlaying==MENU_MUSIC) {
                 menuMusic.start();
             }
-            else if(musicCurrentlyPlaying==1){
+            else if(musicCurrentlyPlaying==GAME_MUSIC_1){
                 gameMusic.start();
             }
             musicPausedByLeavingApp = false;
@@ -460,5 +462,4 @@ public class MainActivity extends AppCompatActivity {
 
         gameScreen.resume();
     }
-
 }

@@ -14,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by benjamin on 1/31/17.
@@ -62,6 +63,7 @@ public class GameView extends SurfaceView implements Runnable {
     int maxNumObstacles = 4;
     Bitmap[] obstacleImageArray = new Bitmap[maxNumObstacles];
     float[][] obstacleLocationArray = new float[maxNumObstacles][2];
+    Random randomNum = new Random();
     //-----------------------------------------------------------------------------------------
 
 
@@ -226,6 +228,24 @@ public class GameView extends SurfaceView implements Runnable {
                 activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
                 fingers.add(event.getPointerId(0));
 
+                //--------------Mark New Code-----------------------------
+                //Check if an obstacle has been touched.
+                for(int i = 0; i < maxNumObstacles; i++) {
+                    if (obstacleImageArray[i] != null) {
+                        if (activeFinger.x > obstacleLocationArray[i][0] && activeFinger.x < obstacleLocationArray[i][0] + obstacleImageArray[i].getWidth()) {
+                            if (activeFinger.y > obstacleLocationArray[i][1] && activeFinger.y < obstacleLocationArray[i][1] + obstacleImageArray[i].getHeight()) {
+                                //TODO Obstacle has been touched - now what?
+
+                                //pause();
+                                //playing = false;
+                                //mainActivity.setGameState(MainActivity.LOSE);
+                            }
+
+                        }
+                    }
+                }
+                //--------------------------------------------------------
+
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -341,12 +361,11 @@ public class GameView extends SurfaceView implements Runnable {
                 //Set obstacle spawn image.
                 obstacleImageArray[i] = BitmapFactory.decodeResource(this.getResources(), R.drawable.test_obstacle, null);
                 //Set obstacle spawn location.
-                obstacleLocationArray[i][0] = 0;
+                obstacleLocationArray[i][0] = randomNum.nextInt(background.getWidth()-obstacleImageArray[i].getWidth());
                 obstacleLocationArray[i][1] = -obstacleImageArray[i].getHeight();
                 break;
             }
         }
 
     }
-    //-----------------------------------------------------------------------------------------
 }
