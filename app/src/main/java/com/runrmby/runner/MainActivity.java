@@ -15,6 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import org.w3c.dom.Text;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -118,6 +120,7 @@ public class MainActivity extends AppCompatActivity{
     private TextView endGameUserTime;
     private TextView endGameBestTime;
     private TextView endGameText;
+    public TextView timer;
 
     private RelativeLayout gameEndMenu;
     private FrameLayout mainMenu;
@@ -165,6 +168,8 @@ public class MainActivity extends AppCompatActivity{
         mainMenu = (FrameLayout) findViewById(R.id.mainMenu);
         gameMenu = (FrameLayout) findViewById(R.id.gameMenu);
         gameEndMenu = (RelativeLayout) findViewById(R.id.gameEndMenu);
+
+        timer = (TextView) findViewById(R.id.timer);
 
         //Screens
         titleScreen = findViewById(R.id.titleScreen);
@@ -232,6 +237,8 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+    // This function runs movement animations to get to other states
+    //  then calls setGameState when they have completed
     public void requestGameState(int state) {
         hideAllMenus();
         switch (state) {
@@ -266,6 +273,8 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    // This function changes the state
+    // Don't call this directly. Call requestGameState
     private void setGameState(int state) {
         gameState = state;
         switch (state) {

@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -72,6 +73,15 @@ public class GameView extends SurfaceView implements Runnable {
 
     MainActivity mA;
 
+    long gameTimeLeft;
+    long gameLengthCountUp = 0; // 1000 = 1 second
+    long gameLengthCountDown = 20000;
+    long previousTime;
+
+    private static final int GameVersion1 = 0; // Count up
+    private static final int GameVersion2 = 1; // Count down
+    private int gameVersion;
+
 
     public GameView(MainActivity mainActivity, Point windowSize) {
         super(mainActivity.getApplicationContext());
@@ -99,6 +109,18 @@ public class GameView extends SurfaceView implements Runnable {
         backgroundPositionY2 = -background.getHeight();
 
         mA = mainActivity;
+
+        gameVersion = GameVersion1;
+
+        switch (gameVersion) {
+            case GameVersion1:
+                gameTimeLeft = gameLengthCountUp;
+                break;
+            case GameVersion2:
+                gameTimeLeft = gameLengthCountDown;
+                break;
+        }
+        previousTime = System.currentTimeMillis();
     }
 
     // Bitmap processing
@@ -184,7 +206,39 @@ public class GameView extends SurfaceView implements Runnable {
                 velocity *= 0.9f;
             }
         }
+
+        // Update Time using delta time compared to last time update was run
+        gameTimeLeft -= System.currentTimeMillis() - previousTime;
+        previousTime = System.currentTimeMillis();
+
+        switch (gameVersion) {
+            case GameVersion1:
+                changeTimerText(-gameTimeLeft);
+                break;
+
+            case GameVersion2:
+                changeTimerText(gameTimeLeft);
+                break;
+        }
+
     }
+
+    public void changeTimerText(final long time) {
+        mA.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int minutes = (int) time / 60000;
+                int remainder = (int) time - minutes * 60000;
+                int seconds = (int) remainder / 1000;
+                remainder = remainder - seconds * 1000;
+                int milSec = remainder;
+                String string = minutes + ":" + seconds + "." + milSec;
+                mA.timer.setText(string);
+            }
+        });
+
+    }
+
 
     public void draw() {
 
@@ -342,6 +396,7 @@ public class GameView extends SurfaceView implements Runnable {
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
+        previousTime = System.currentTimeMillis();
     }
 
     public class FingerPoint {
