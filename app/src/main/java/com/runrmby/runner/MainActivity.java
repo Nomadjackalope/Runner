@@ -244,6 +244,7 @@ public class MainActivity extends AppCompatActivity{
         switch (state) {
             case MAIN_MENU:
                 if(gameState != MAIN_MENU) {
+                    gameScreen.pause();
                     transitionToMainMenu();
                 } else {
                     setGameState(MAIN_MENU);
@@ -251,13 +252,16 @@ public class MainActivity extends AppCompatActivity{
                 break;
             case PLAYING_GAME:
                 if(gameState == LOSE || gameState == WIN) {
+                    gameScreen.resume();
                     setGameState(PLAYING_GAME);
                 } else {
+                    gameScreen.resume();
                     transitionToGame();
                 }
                 break;
             case LOSE:
                 System.out.println("hi");
+                gameMusic.pause();
                 gameScreen.pause();
                 setGameState(LOSE);
 
@@ -303,9 +307,15 @@ public class MainActivity extends AppCompatActivity{
                 gameEndMenu.setVisibility(View.VISIBLE);
                 root.removeView(gameEndMenu);
                 root.addView(gameEndMenu);
+                gameMusic.stop();
+                gameMusic.release();
+                gameMusic = null;
                 break;
             case WIN:
                 gameEndMenu.setVisibility(View.VISIBLE);
+                gameMusic.stop();
+                gameMusic.release();
+                gameMusic = null;
                 break;
             case NONE:
                 // Nothing happens here
@@ -334,9 +344,11 @@ public class MainActivity extends AppCompatActivity{
 //            gameMusic.setVolume(volume, volume);
 //        }
         //Stop game music.
-        gameMusic.stop();
-        gameMusic.release();
-        gameMusic = null;
+        if(gameMusic != null) {
+            gameMusic.stop();
+            gameMusic.release();
+            gameMusic = null;
+        }
     }
 
     private void transitionToGame() {
@@ -364,9 +376,11 @@ public class MainActivity extends AppCompatActivity{
 //            menuMusic.setVolume(volume, volume);
 //        }
         //Stop menu music.
-        menuMusic.stop();
-        menuMusic.release();
-        menuMusic = null;
+        if(menuMusic != null) {
+            menuMusic.stop();
+            menuMusic.release();
+            menuMusic = null;
+        }
     }
 
 
