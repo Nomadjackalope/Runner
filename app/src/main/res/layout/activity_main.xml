@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/gameMenu"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -71,7 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/gameEndMenu"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <Button
             android:layout_width="wrap_content"
@@ -133,7 +133,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/mainMenu"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <Button
             android:layout_width="wrap_content"
@@ -158,6 +158,20 @@
             android:id="@+id/textView"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="75dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_location"
+            android:id="@+id/nextLocation"
+            android:layout_gravity="right|bottom" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/prev_location"
+            android:id="@+id/prevLocation"
+            android:layout_gravity="left|bottom" />
     </FrameLayout>
 
     <FrameLayout

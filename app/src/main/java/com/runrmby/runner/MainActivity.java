@@ -3,6 +3,7 @@ package com.runrmby.runner;
 import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.media.MediaPlayer;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,8 +27,7 @@ import java.util.ArrayList;
  *
  * Ben is testing too
  */
-public class MainActivity extends AppCompatActivity
-        implements GestureDetector.OnGestureListener {
+public class MainActivity extends AppCompatActivity {
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -122,6 +122,9 @@ public class MainActivity extends AppCompatActivity
     private Button playAgainButton;
     private Button mainMenuButton;
 
+    private Button nextLocationButton;
+    private Button prevLocationButton;
+
     private TextView endGameUserTime;
     private TextView endGameBestTime;
     private TextView endGameText;
@@ -133,6 +136,7 @@ public class MainActivity extends AppCompatActivity
     private FrameLayout root;
 
     private View titleScreen;
+    private View titleScreenAlt;
     private GameView gameScreen;
 
     private Point windowSize = new Point();
@@ -140,6 +144,7 @@ public class MainActivity extends AppCompatActivity
     private int gameState = MAIN_MENU;
 
     private ArrayList<Location> locations = new ArrayList<>();
+    public Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +185,7 @@ public class MainActivity extends AppCompatActivity
 
         //Screens
         titleScreen = findViewById(R.id.titleScreen);
+        titleScreenAlt = findViewById(R.id.titleScreenAlternate);
         gameScreen = new GameView(this, windowSize);
 
         root.addView(gameScreen);
@@ -243,6 +249,23 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        nextLocationButton = (Button) findViewById(R.id.nextLocation);
+        prevLocationButton = (Button) findViewById(R.id.prevLocation);
+
+        nextLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextLocation();
+            }
+        });
+
+        prevLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                previousLocation();
+            }
+        });
+
         loadLocations();
     }
 
@@ -257,12 +280,20 @@ public class MainActivity extends AppCompatActivity
                 R.drawable.road,
                 tempList));
 
-//        tempList = new ArrayList<>();
-//
-//        locations.add(new Location("Space",
-//                R.drawable.spaceMainArt,
-//                R.drawable.spaceRoad,
-//                tempList));
+        tempList = new ArrayList<>();
+
+        locations.add(new Location("Moon",
+                R.drawable.moon,
+                R.drawable.moonroad,
+                tempList));
+
+        currentLocation = locations.get(0);
+
+        // Set location visibility buttons
+        if(locations.size() > 1) {
+            nextLocationButton.setVisibility(View.VISIBLE);
+        }
+        prevLocationButton.setVisibility(View.GONE);
 
     }
 
@@ -289,7 +320,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case LOSE:
-                System.out.println("hi");
                 gameMusic.pause();
                 gameScreen.pause();
                 setGameState(LOSE);
@@ -436,11 +466,83 @@ public class MainActivity extends AppCompatActivity
     // Shows next(to the right) location in list of places
     private void nextLocation() {
         // set title screen alternate to slide in, with animation
+        if(locations.indexOf(currentLocation) < locations.size() - 1) {
+            currentLocation = locations.get(locations.indexOf(currentLocation) + 1);
+
+            // Use titleScreenAlt to hold the location we are going to and set its location accordingly
+            titleScreenAlt.setVisibility(View.VISIBLE);
+            titleScreenAlt.setBackground(ContextCompat.getDrawable(this, currentLocation.titleScreenArt));
+            titleScreenAlt.setX(windowSize.x);
+
+            // Animate the views moving sideways
+            titleScreenAlt.animate()
+                    .translationXBy(-windowSize.x)
+                    .setDuration(1000);
+
+            titleScreen.animate()
+                    .translationXBy(-windowSize.x)
+                    .setDuration(1000)
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            nextLocationSet();
+                        }
+                    });
+
+
+            // Show previous button because we just came from there
+            // Hide next button if there are no more places to go to
+            prevLocationButton.setVisibility(View.VISIBLE);
+            if(locations.indexOf(currentLocation) == locations.size() - 1) {
+                nextLocationButton.setVisibility(View.GONE);
+            }
+
+        }
+    }
+
+    // Resets titleScreen to be the main screen view
+    private void nextLocationSet() {
+        titleScreen.setBackground(ContextCompat.getDrawable(this, currentLocation.titleScreenArt));
+        titleScreen.setX(0);
+        titleScreenAlt.setX(windowSize.x);
+        titleScreenAlt.setVisibility(View.GONE);
+
     }
 
     // Shows previous(to the left) location in list of places
     private void previousLocation() {
         // do opposite
+        if(locations.indexOf(currentLocation) > 0) {
+            currentLocation = locations.get(locations.indexOf(currentLocation) - 1);
+
+            // Use titleScreenAlt to hold the location we are going to and set its location accordingly
+            titleScreenAlt.setVisibility(View.VISIBLE);
+            titleScreenAlt.setBackground(ContextCompat.getDrawable(this, currentLocation.titleScreenArt));
+            titleScreenAlt.setX(-windowSize.x);
+
+            // Animate the views moving sideways
+
+            titleScreenAlt.animate()
+                    .translationXBy(windowSize.x)
+                    .setDuration(1000);
+
+            titleScreen.animate()
+                    .translationXBy(windowSize.x)
+                    .setDuration(1000)
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            nextLocationSet();
+                        }
+                    });
+
+            // Show next button because we just came from there
+            // Hide previous button if there are no more places to go to
+            nextLocationButton.setVisibility(View.VISIBLE);
+            if(locations.indexOf(currentLocation) == 0) {
+                prevLocationButton.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -497,46 +599,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //-------------------- Implementing GestureDetector -----------------
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
 
-    @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    // Fling to left or right and change
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        System.out.println("MA| Swiped");
-        if(gameState == MAIN_MENU) {
-            // Move to left
-            if(velocityX > 0) {
-                nextLocation();
-            } else if(velocityX < 0) {
-                previousLocation();
-            }
-        }
-        return true;
-    }
 
     /**
      *Actions to take when app is moved to background.

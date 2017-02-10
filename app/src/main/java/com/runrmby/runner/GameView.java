@@ -52,8 +52,8 @@ public class GameView extends SurfaceView implements Runnable {
     Point windowSize;
 
     // Touches
-    FingerPoint finger1 = new FingerPoint();
-    FingerPoint finger2 = new FingerPoint();
+    FingerPoint activeFinger = new FingerPoint();
+    ArrayList<Integer> fingers = new ArrayList<>();
 
     //------Spawning Obstacles and finishing course--------------------------------------------
     float odometer = 0f;
@@ -96,22 +96,12 @@ public class GameView extends SurfaceView implements Runnable {
     public void init(Point p, MainActivity mainActivity) {
 
         this.windowSize = p;
+        mA = mainActivity;
+
         holder = getHolder();
         paint = new Paint();
 
-        BitmapFactory.Options ops = new BitmapFactory.Options();
-
-        ops.inPreferredConfig = Bitmap.Config.RGB_565;
-
-        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.road, ops);
-
-        System.out.println("GV| bitmap type: " + background.getConfig().name());
-
-        //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
-
-        background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
-
-        obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
+        loadLocationBitmaps();
 
         obstacleWidth = obstacle.getWidth();
 
@@ -121,7 +111,28 @@ public class GameView extends SurfaceView implements Runnable {
             obstacleImageArray[i] = obstacleDestroyed;
         }
 
-        mA = mainActivity;
+
+
+    }
+
+    private void loadLocationBitmaps() {
+        BitmapFactory.Options ops = new BitmapFactory.Options();
+
+        ops.inPreferredConfig = Bitmap.Config.RGB_565;
+
+        background = BitmapFactory.decodeResource(this.getResources(), mA.currentLocation.roadArt, ops);
+
+        System.out.println("GV| bitmap type: " + background.getConfig().name());
+
+        //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
+
+        background = Bitmap.createScaledBitmap(background, windowSize.x, windowSize.y, true);
+
+        if(!mA.currentLocation.itemArtArray.isEmpty()) {
+            obstacle = BitmapFactory.decodeResource(this.getResources(), mA.currentLocation.itemArtArray.get(0), null);
+        } else {
+            obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
+        }
 
     }
 
@@ -278,15 +289,6 @@ public class GameView extends SurfaceView implements Runnable {
 
     // ACTION_POINTER_DOWN is for extra pointers that enter the screen beyond the first
 
-
-    //
-
-    int pointerIndex;
-
-    FingerPoint activeFinger = new FingerPoint();
-
-    ArrayList<Integer> fingers = new ArrayList<>();
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -404,27 +406,6 @@ public class GameView extends SurfaceView implements Runnable {
         previousTime = System.currentTimeMillis();
     }
 
-    public class FingerPoint {
-        float x, y;
-
-        int id;
-
-        // Using this vs null because then we don't create a bunch of these objects
-        //boolean isNull = true;
-
-        public void setXY(float x, float y) {
-            System.out.println("GV| finger1 y: " + y);
-            this.x = x;
-            this.y = y;
-        }
-
-        public void setNew(int id, float x, float y) {
-            this.id = id;
-            this.x = x;
-            this.y = y;
-        }
-    }
-
     //---------Mark attempting to spawn obstacles----------------------------------------------
     public void spawnObstacle(){
 //        BitmapFactory.Options ops = new BitmapFactory.Options();
@@ -454,6 +435,7 @@ public class GameView extends SurfaceView implements Runnable {
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
         fingers.clear();
+        activeFinger = null;
         velocity = 0;
 
         gameVersion = GameVersion1;
@@ -469,5 +451,26 @@ public class GameView extends SurfaceView implements Runnable {
         previousTime = System.currentTimeMillis();
 
 
+    }
+
+    public class FingerPoint {
+        float x, y;
+
+        int id;
+
+        // Using this vs null because then we don't create a bunch of these objects
+        //boolean isNull = true;
+
+        public void setXY(float x, float y) {
+            System.out.println("GV| finger1 y: " + y);
+            this.x = x;
+            this.y = y;
+        }
+
+        public void setNew(int id, float x, float y) {
+            this.id = id;
+            this.x = x;
+            this.y = y;
+        }
     }
 }
