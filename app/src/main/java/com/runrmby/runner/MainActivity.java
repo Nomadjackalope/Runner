@@ -535,8 +535,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     /**
      *Actions to take when app is moved to background.
      */

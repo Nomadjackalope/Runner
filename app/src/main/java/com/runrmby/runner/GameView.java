@@ -79,12 +79,13 @@ public class GameView extends SurfaceView implements Runnable {
 
     MainActivity mA;
 
+    // Time
     long gameTimeLeft;
     long gameLengthCountUp = 0; // 1000 = 1 second
     long gameLengthCountDown = 20000;
     long previousTime;
-
     public Time gameTimer = new Time();
+    boolean gameRunning = false;
 
     private static final int GameVersion1 = 0; // Count up
     private static final int GameVersion2 = 1; // Count down
@@ -191,13 +192,13 @@ public class GameView extends SurfaceView implements Runnable {
         }
         //--------------------------------------------------------------------------------
 
-        // if the user is not touching trigger inertia,
+        // Inertia,
         // if we did it when the users finger was down it would get out of sync
         if(fingers.isEmpty()) {
             // We don't want this running all the time using up cpu
             if(velocity > 1) {
                 advanceRoad(velocity); ///0.016f);
-                velocity *= 0.9f;
+                velocity *= 0.75f;
             }
         }
 
@@ -206,9 +207,11 @@ public class GameView extends SurfaceView implements Runnable {
             fingerMoveDist = 0;
         }
 
-        // Update Time using delta time compared to last time update was run
-        gameTimeLeft -= System.currentTimeMillis() - previousTime;
-        previousTime = System.currentTimeMillis();
+        if(gameRunning) {
+            // Update Time using delta time compared to last time update was run
+            gameTimeLeft -= System.currentTimeMillis() - previousTime;
+            previousTime = System.currentTimeMillis();
+        }
 
         switch (gameVersion) {
             case GameVersion1:
@@ -295,7 +298,6 @@ public class GameView extends SurfaceView implements Runnable {
                             if (activeFinger.y > obstacleLocationArray[i][1] && activeFinger.y < obstacleLocationArray[i][1] + obstacleHeight) {
                                 //Obstacle has been touched.
                                 mA.requestGameState(MainActivity.LOSE);
-                                System.out.println("HELLO!!");
                             }
                         }
                     }
@@ -305,6 +307,11 @@ public class GameView extends SurfaceView implements Runnable {
                     mA.requestGameState(MainActivity.WIN);
                 }
                 //--------------------------------------------------------
+
+                if(!gameRunning) {
+                    gameRunning = true;
+                    previousTime = System.currentTimeMillis();
+                }
 
                 break;
 
@@ -356,7 +363,8 @@ public class GameView extends SurfaceView implements Runnable {
     //  this should keep two sections of road closer together
     void addToFingerMoveDist(float dist) {
         System.out.println("GV| addToFingerMoveDist: " + dist);
-        fingerMoveDist += dist;
+
+        fingerMoveDist += (dist * 0.575);
     }
 
     public void advanceRoad(float distance) {
@@ -411,7 +419,9 @@ public class GameView extends SurfaceView implements Runnable {
         velocity = 0;
         gameThread = new Thread(this);
         gameThread.start();
+
         previousTime = System.currentTimeMillis();
+        gameRunning = false;
     }
 
     public class FingerPoint {
@@ -476,6 +486,7 @@ public class GameView extends SurfaceView implements Runnable {
                 break;
         }
         previousTime = System.currentTimeMillis();
+        gameRunning = false;
 
 
     }
