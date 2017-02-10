@@ -113,6 +113,8 @@ public class GameView extends SurfaceView implements Runnable {
 
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
 
+        backgroundPositionY2 = background.getHeight();
+
         obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
 
         obstacleWidth = obstacle.getWidth();
@@ -339,8 +341,10 @@ public class GameView extends SurfaceView implements Runnable {
             case MotionEvent.ACTION_MOVE:
                 // PROBLEM: might not be the right finger, x,y becomes off, and you get a glitch
                 if(event.findPointerIndex(activeFinger.id) >= 0) {
-                    advanceRoad(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
-                    activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+                    if(gameTimeLeft != 0) {
+                        advanceRoad(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
+                        activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+                    }
                 }
                 break;
 
