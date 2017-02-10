@@ -1,6 +1,7 @@
 package com.runrmby.runner;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
@@ -175,7 +176,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         bestTimeFilePath = new File(this.getFilesDir(), "best_time");
-        bestTimeFilePath.mkdir();
+        if(!bestTimeFilePath.exists()) {
+            bestTimeFilePath.mkdir();
+        }
 
         //bestTimeFilePath.delete(); //Deletes best time on start for testing.
         //----------------------- Game Code ---------------------------
@@ -348,22 +351,16 @@ public class MainActivity extends AppCompatActivity {
 
                 //Set end game textviews for losing.
                 endGameUserTime.setText("Your Time: \nYou didn't finish!");
-                if(bestTime.getTime() != 0) {
-                    //There is already a loaded best time.
+                savedTime = loadBestTime();
+                if(savedTime != 0) {
+                    //There was a saved best time.
+                    bestTime.changeTime(savedTime);
                     endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
                     endGameText.setText(R.string.lose2);
-                }else{
-                    savedTime = loadBestTime(); //Load saved time.
-                    if(savedTime != null) {
-                        //The loaded best time is not null (there was a previous best time).
-                        bestTime.changeTime(savedTime);
-                        endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
-                        endGameText.setText(R.string.lose2);
-                    }else {
-                        //The loaded best time was null (there has never been a best time saved).
-                        endGameBestTime.setText("Best Time: \n" + "You've never finished!");
-                        endGameText.setText(R.string.lose1);
-                    }
+                }else {
+                    //The loaded best time was null (there has never been a best time saved).
+                    endGameBestTime.setText("Best Time: \n" + "You've never finished!");
+                    endGameText.setText(R.string.lose1);
                 }
                 gameScreen.resetVariables();
                 break;
@@ -378,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
                 //If new time was less than best time, save new time as best time. Display best time.
                 yourTime = gameScreen.gameTimer;
                 savedTime = loadBestTime();
-                if(savedTime != null) {
+                if(savedTime != 0) {
                     //A best time exists.
                     bestTime.changeTime(savedTime); //Put best time into Time class.
                     if (yourTime.getTime() < bestTime.getTime()) {
@@ -592,28 +589,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveNewBestTime(long newBestTime){
-        try {
-            FileOutputStream fileOut = new FileOutputStream(bestTimeFilePath);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(newBestTime);
-            out.close();
-            fileOut.close();
-        } catch (IOException i) {
-            i.printStackTrace();
-        }
+        SharedPreferences sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = sharedPref.edit();
+        prefEditor.putLong("bestTime", newBestTime);
+        prefEditor.commit();
+//        try {
+//            FileOutputStream fileOut = new FileOutputStream(bestTimeFilePath);
+//            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+//            out.writeObject(newBestTime);
+//            out.close();
+//            fileOut.close();
+//        } catch (IOException i) {
+//            i.printStackTrace();
+//        }
     }
 
     private Long loadBestTime (){
-        Long time = null;
-        try {
-            FileInputStream fileIn = new FileInputStream(bestTimeFilePath);
-            ObjectInputStream in = new ObjectInputStream(fileIn);
-            time = (long) in.readObject();
-            in.close();
-            fileIn.close();
-        } catch (IOException | ClassNotFoundException i){
-            i.printStackTrace();
-        }
+        //Long time = null;
+        SharedPreferences sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
+        Long time = sharedPref.getLong("bestTime", 0l);
+//        try {
+//            FileInputStream fileIn = new FileInputStream(bestTimeFilePath);
+//            ObjectInputStream in = new ObjectInputStream(fileIn);
+//            time = (long) in.readObject();
+//            in.close();
+//            fileIn.close();
+//        } catch (IOException | ClassNotFoundException i){
+//            i.printStackTrace();
+//        }
         return time;
     }
 }

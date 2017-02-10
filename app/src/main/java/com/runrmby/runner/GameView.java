@@ -120,10 +120,6 @@ public class GameView extends SurfaceView implements Runnable {
 
         obstacleHeight = obstacle.getHeight();
 
-        for(int i = 0; i < maxNumObstacles; i++){
-            obstacleImageArray[i] = obstacleDestroyed;
-        }
-
         mA = mainActivity;
 
         resetVariables();
