@@ -52,8 +52,9 @@ public class GameView extends SurfaceView implements Runnable {
     Point windowSize;
 
     // Touches
-    FingerPoint finger1 = new FingerPoint();
-    FingerPoint finger2 = new FingerPoint();
+    FingerPoint activeFinger = new FingerPoint();
+
+    ArrayList<Integer> fingers = new ArrayList<>();
 
     //------Spawning Obstacles and finishing course--------------------------------------------
     float odometer = 0f;
@@ -113,8 +114,6 @@ public class GameView extends SurfaceView implements Runnable {
 
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
 
-        backgroundPositionY2 = background.getHeight();
-
         obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
 
         obstacleWidth = obstacle.getWidth();
@@ -126,6 +125,8 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         mA = mainActivity;
+
+        resetVariables();
 
     }
 
@@ -185,15 +186,6 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void update() {
-        //backgroundPositionY += 15; // This should be set by the person's touches
-        //backgroundPositionY2 += 15;
-        // 15 needs to be the amount that the background not being moved has travelled
-        if(backgroundPositionY > background.getHeight()) {
-            backgroundPositionY = -background.getHeight() + backgroundPositionY2;
-        }
-        if(backgroundPositionY2 > background.getHeight()) {
-            backgroundPositionY2 = -background.getHeight() + backgroundPositionY;
-        }
 
         //------------------------Mark's new code-----------------------------------------
         for(int i = 0; i < maxNumObstacles; i++){
@@ -211,6 +203,11 @@ public class GameView extends SurfaceView implements Runnable {
                 advanceRoad(velocity); ///0.016f);
                 velocity *= 0.9f;
             }
+        }
+
+        if(fingerMoveDist > 0) {
+            advanceRoad(fingerMoveDist);
+            fingerMoveDist = 0;
         }
 
         // Update Time using delta time compared to last time update was run
@@ -284,19 +281,9 @@ public class GameView extends SurfaceView implements Runnable {
 
     // ACTION_POINTER_DOWN is for extra pointers that enter the screen beyond the first
 
-
-    //
-
-    int pointerIndex;
-
-    FingerPoint activeFinger = new FingerPoint();
-
-    ArrayList<Integer> fingers = new ArrayList<>();
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        //final int action = MotionEventCompat.getActionMasked(event);
 
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
@@ -342,7 +329,7 @@ public class GameView extends SurfaceView implements Runnable {
                 // PROBLEM: might not be the right finger, x,y becomes off, and you get a glitch
                 if(event.findPointerIndex(activeFinger.id) >= 0) {
                     if(gameTimeLeft != 0) {
-                        advanceRoad(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
+                        addToFingerMoveDist(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
                         activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
                     }
                 }
@@ -367,11 +354,20 @@ public class GameView extends SurfaceView implements Runnable {
         return true;
     }
 
+    volatile float fingerMoveDist = 0;
+
+    // This gets called from onTouch thread which then lets update call advanceRoad
+    //  this should keep two sections of road closer together
+    void addToFingerMoveDist(float dist) {
+        System.out.println("GV| addToFingerMoveDist: " + dist);
+        fingerMoveDist += dist;
+    }
+
     public void advanceRoad(float distance) {
         // Don't go backward
         if(distance < 0) { return; }
 
-        System.out.println("GV| distance: " + distance);
+        System.out.println("GV| distance moved: " + distance);
         //distance = distance;
         backgroundPositionY += distance;
         backgroundPositionY2 += distance;
@@ -390,6 +386,16 @@ public class GameView extends SurfaceView implements Runnable {
             nextObstacleAt = distanceBetweenObstacles + distanceToNextObstacle + odometer;
         }
         //-----------------------------------------------------------------------------
+
+        //backgroundPositionY += 15; // This should be set by the person's touches
+        //backgroundPositionY2 += 15;
+        // 15 needs to be the amount that the background not being moved has travelled
+        if(backgroundPositionY > background.getHeight()) {
+            backgroundPositionY = -background.getHeight() + backgroundPositionY2;
+        }
+        if(backgroundPositionY2 > background.getHeight()) {
+            backgroundPositionY2 = -background.getHeight() + backgroundPositionY;
+        }
     }
 
     // Call this from activity
@@ -461,6 +467,7 @@ public class GameView extends SurfaceView implements Runnable {
         backgroundPositionY2 = -background.getHeight();
         fingers.clear();
         velocity = 0;
+        fingerMoveDist = 0;
 
         gameVersion = GameVersion1;
 

@@ -10,6 +10,7 @@
     <string name="finger_runner">Finger Runner</string>
     <string name="play_again">Play Again</string>
     <string name="main_menu">Main Menu</string>
+    <string name="resume">Resume</string>
     
     <string name="lose1">That was pretty bad</string>
     <string name="lose2">You really can do better</string>

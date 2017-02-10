@@ -62,7 +62,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Main Menu"
+            android:text="Pause"
             android:id="@+id/tempButton"
             android:layout_gravity="top|right" />
     </FrameLayout>
@@ -159,6 +159,28 @@
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="75dp" />
     </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/pauseMenu">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/resume"
+            android:id="@+id/resumeButton"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_menu"
+            android:id="@+id/pauseMMButton"
+            android:layout_below="@+id/resumeButton"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

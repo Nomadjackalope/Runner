@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int LOSE = 2;
     public static final int WIN = 3;
     public static final int MAIN_MENU = 4;
+    public static final int PAUSE = 5;
 
 
     MediaPlayer menuMusic;
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
     private Button tempButton;
     private Button playAgainButton;
     private Button mainMenuButton;
+    private Button resumeButton;
+    private Button pauseMMButton;
 
     private TextView endGameUserTime;
     private TextView endGameBestTime;
@@ -129,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView timer;
 
     private RelativeLayout gameEndMenu;
+    private RelativeLayout pauseMenu;
     private FrameLayout mainMenu;
     private FrameLayout gameMenu;
     private FrameLayout root;
@@ -185,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         mainMenu = (FrameLayout) findViewById(R.id.mainMenu);
         gameMenu = (FrameLayout) findViewById(R.id.gameMenu);
         gameEndMenu = (RelativeLayout) findViewById(R.id.gameEndMenu);
+        pauseMenu = (RelativeLayout) findViewById(R.id.pauseMenu);
 
         timer = (TextView) findViewById(R.id.timer);
 
@@ -253,6 +258,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        pauseMMButton = (Button) findViewById(R.id.pauseMMButton);
+        pauseMMButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestGameState(PAUSE);
+            }
+        });
+
     }
 
     // This function runs movement animations to get to other states
@@ -289,6 +302,9 @@ public class MainActivity extends AppCompatActivity {
                 gameScreen.pause();
                 setGameState(WIN);
 
+                break;
+            case PAUSE:
+                setGameState(PAUSE);
                 break;
             case NONE:
                 // Nothing happens here
@@ -391,6 +407,10 @@ public class MainActivity extends AppCompatActivity {
 
                 gameScreen.resetVariables();
                 break;
+            case PAUSE:
+                pauseMenu.setVisibility(View.VISIBLE);
+
+                break;
             case NONE:
                 // Nothing happens here
                 break;
@@ -461,6 +481,7 @@ public class MainActivity extends AppCompatActivity {
         mainMenu.setVisibility(View.GONE);
         gameMenu.setVisibility(View.GONE);
         gameEndMenu.setVisibility(View.GONE);
+        pauseMenu.setVisibility(View.GONE);
     }
 
     @Override
