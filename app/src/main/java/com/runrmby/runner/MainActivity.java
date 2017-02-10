@@ -30,8 +30,7 @@ import java.util.ArrayList;
  *
  * Ben is testing too
  */
-public class MainActivity extends AppCompatActivity
-        implements GestureDetector.OnGestureListener {
+public class MainActivity extends AppCompatActivity {
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -143,7 +142,6 @@ public class MainActivity extends AppCompatActivity
 
     private int gameState = MAIN_MENU;
 
-    private ArrayList<Location> locations = new ArrayList<>();
 
     private File bestTimeFilePath;
     private Time bestTime = new Time();
@@ -253,27 +251,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-        loadLocations();
-    }
-
-    // Write in all the locations here
-    private void loadLocations() {
-        ArrayList<Integer> tempList = new ArrayList<>();
-        tempList.add(R.drawable.test_obstacle);
-        tempList.add(R.drawable.practice3_small);
-
-        locations.add(new Location("Road",
-                R.drawable.fingerrunner,
-                R.drawable.road,
-                tempList));
-
-//        tempList = new ArrayList<>();
-//
-//        locations.add(new Location("Space",
-//                R.drawable.spaceMainArt,
-//                R.drawable.spaceRoad,
-//                tempList));
 
     }
 
@@ -463,27 +440,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-    private void gameVersion1Loop() {
-
-
-
-    }
-
     private void hideAllMenus() {
         mainMenu.setVisibility(View.GONE);
         gameMenu.setVisibility(View.GONE);
         gameEndMenu.setVisibility(View.GONE);
-    }
-
-    // Shows next(to the right) location in list of places
-    private void nextLocation() {
-        // set title screen alternate to slide in, with animation
-    }
-
-    // Shows previous(to the left) location in list of places
-    private void previousLocation() {
-        // do opposite
     }
 
     @Override
@@ -540,46 +500,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //-------------------- Implementing GestureDetector -----------------
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
 
-    @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    // Fling to left or right and change
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        System.out.println("MA| Swiped");
-        if(gameState == MAIN_MENU) {
-            // Move to left
-            if(velocityX > 0) {
-                nextLocation();
-            } else if(velocityX < 0) {
-                previousLocation();
-            }
-        }
-        return true;
-    }
 
     /**
      *Actions to take when app is moved to background.
