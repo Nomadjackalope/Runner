@@ -16,8 +16,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import org.w3c.dom.Text;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -141,6 +145,10 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<Location> locations = new ArrayList<>();
 
+    private File bestTimeFilePath;
+    private Time bestTime = new Time();
+    private Time mostRecentTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,6 +171,9 @@ public class MainActivity extends AppCompatActivity
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+
+        bestTimeFilePath = new File(this.getFilesDir(), "best_time");
+        bestTimeFilePath.mkdir();
 
         //----------------------- Game Code ---------------------------
 
@@ -296,6 +307,7 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case WIN:
+                gameMusic.pause();
                 gameScreen.pause();
                 setGameState(WIN);
 
@@ -339,7 +351,19 @@ public class MainActivity extends AppCompatActivity
                 gameMusic.stop();
                 gameMusic.release();
                 gameMusic = null;
-                endGameUserTime.setText(timer.getText());
+                //endGameUserTime.setText(timer.getText());
+                //TODO: display best time if not null (if a run has been completed before). Do we want to display this?
+                endGameUserTime.setText("Your Time: \nYou didn't finish!");
+                if(bestTime.getTime() != 0) {
+                    endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                }else{
+                    bestTime.changeTime(loadBestTime());
+                    if(bestTime.getTime() != 0){
+                        endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                    }else {
+                        endGameBestTime.setText("Best Time: \n" + "You've never finished!");
+                    }
+                }
                 gameScreen.resetVariables();
                 endGameText.setText(R.string.lose1);
                 break;
@@ -350,7 +374,26 @@ public class MainActivity extends AppCompatActivity
                 gameMusic.stop();
                 gameMusic.release();
                 gameMusic = null;
-                endGameUserTime.setText(timer.getText());
+
+                //TODO: If best time then save new time. Display best time.
+                mostRecentTime = gameScreen.gameTimer;
+                if(loadBestTime() != null) {
+                    bestTime.changeTime(loadBestTime());
+                    //Check if most recent time is a new best time.
+                    if (bestTime != null) {
+                        if (mostRecentTime.getTime() < bestTime.getTime()) {
+                            saveNewBestTime(mostRecentTime.getTime());
+                            bestTime.changeTime(mostRecentTime.getTime());
+                        }
+                    }
+                } else {
+                    //No best time has been saved (a run has never been completed).
+                    saveNewBestTime(mostRecentTime.getTime());
+                    bestTime.changeTime(mostRecentTime.getTime());
+                }
+
+                endGameUserTime.setText("Your Time: \n" + mostRecentTime.getTimeForDisplay());
+                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
                 gameScreen.resetVariables();
                 endGameText.setText(R.string.win3);
                 break;
@@ -587,5 +630,31 @@ public class MainActivity extends AppCompatActivity
         if(gameEndMenu.getVisibility() == View.INVISIBLE) {
             gameScreen.resume();
         }
+    }
+
+    private void saveNewBestTime(long newBestTime){
+        try {
+            FileOutputStream fileOut = new FileOutputStream(bestTimeFilePath);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(newBestTime);
+            out.close();
+            fileOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    private Long loadBestTime (){
+        Long time = 0l;
+        try {
+            FileInputStream fileIn = new FileInputStream(bestTimeFilePath);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            time = (long) in.readObject();
+            in.close();
+            fileIn.close();
+        } catch (IOException | ClassNotFoundException i){
+            i.printStackTrace();
+        }
+        return time;
     }
 }

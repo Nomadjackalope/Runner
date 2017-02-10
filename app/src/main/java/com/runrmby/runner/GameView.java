@@ -58,7 +58,7 @@ public class GameView extends SurfaceView implements Runnable {
     //------Spawning Obstacles and finishing course--------------------------------------------
     float odometer = 0f;
     //Currently an arbitrary course distance to test.
-    float courseDistance = 50000f;
+    float courseDistance = 10000f;
     //Integer courseLength = 10; //Units of background art
     //Currently an arbitrary distance between obstacles to test. TODO: Make it slightly random.
     float distanceBetweenObstacles = 500f;
@@ -82,6 +82,8 @@ public class GameView extends SurfaceView implements Runnable {
     long gameLengthCountUp = 0; // 1000 = 1 second
     long gameLengthCountDown = 20000;
     long previousTime;
+
+    public Time gameTimer = new Time();
 
     private static final int GameVersion1 = 0; // Count up
     private static final int GameVersion2 = 1; // Count down
@@ -229,19 +231,21 @@ public class GameView extends SurfaceView implements Runnable {
         mA.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int minutes = (int) time / 60000;
-                int remainder = (int) time - minutes * 60000;
-                int seconds = (int) remainder / 1000;
-                String secondsString;
-                if(seconds > 10) {
-                    secondsString = String.valueOf(seconds);
-                }else {
-                    secondsString = "0" + seconds;
-                }
-                remainder = remainder - seconds * 1000;
-                int milSec = remainder;
-                String string = minutes + ":" + secondsString + "." + milSec;
-                mA.timer.setText(string);
+//                int minutes = (int) time / 60000;
+//                int remainder = (int) time - minutes * 60000;
+//                int seconds = (int) remainder / 1000;
+//                String secondsString;
+//                if(seconds > 10) {
+//                    secondsString = String.valueOf(seconds);
+//                }else {
+//                    secondsString = "0" + seconds;
+//                }
+//                remainder = remainder - seconds * 1000;
+//                int milSec = remainder;
+//                String string = minutes + ":" + secondsString + "." + milSec;
+//                mA.timer.setText(string);
+                gameTimer.changeTime(time);
+                mA.timer.setText(gameTimer.getTimeForDisplay());
             }
         });
 
@@ -311,6 +315,10 @@ public class GameView extends SurfaceView implements Runnable {
                         }
                     }
                 }
+                //Check if finish line has been reached.
+                if(odometer > courseDistance){
+                    mA.requestGameState(MainActivity.WIN);
+                }
                 //--------------------------------------------------------
 
                 break;
@@ -367,11 +375,7 @@ public class GameView extends SurfaceView implements Runnable {
         velocity = distance;
 
         //---------------Mark new code-------------------------------------------------
-        //Check if finish line has been reached.
         odometer += distance;
-        if(odometer > courseDistance){
-            mA.requestGameState(MainActivity.WIN);
-        }
         for(int i = 0; i < maxNumObstacles; i++){
             obstacleLocationArray[i][1] += distance;
         }
@@ -443,8 +447,6 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void resetVariables(){
         odometer = 0f;
-        //courseDistance = 5000f;
-        distanceBetweenObstacles = 500f;
         nextObstacleAt = distanceBetweenObstacles;
         distanceToNextObstacle = distanceBetweenObstacles;
         maxNumObstacles = 4;
