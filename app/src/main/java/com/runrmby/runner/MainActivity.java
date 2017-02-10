@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -22,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -144,8 +142,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     private File bestTimeFilePath;
+    private Long savedTime;
     private Time bestTime = new Time();
-    private Time mostRecentTime;
+    private Time timeDifferential = new Time();
+    private Time yourTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         bestTimeFilePath = new File(this.getFilesDir(), "best_time");
         bestTimeFilePath.mkdir();
 
+        //bestTimeFilePath.delete(); //Deletes best time on start for testing.
         //----------------------- Game Code ---------------------------
 
         this.getWindowManager().getDefaultDisplay().getSize(windowSize);
@@ -328,21 +329,27 @@ public class MainActivity extends AppCompatActivity {
                 gameMusic.stop();
                 gameMusic.release();
                 gameMusic = null;
-                //endGameUserTime.setText(timer.getText());
-                //TODO: display best time if not null (if a run has been completed before). Do we want to display this?
+
+                //Set end game textviews for losing.
                 endGameUserTime.setText("Your Time: \nYou didn't finish!");
                 if(bestTime.getTime() != 0) {
+                    //There is already a loaded best time.
                     endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                    endGameText.setText(R.string.lose2);
                 }else{
-                    bestTime.changeTime(loadBestTime());
-                    if(bestTime.getTime() != 0){
+                    savedTime = loadBestTime(); //Load saved time.
+                    if(savedTime != null) {
+                        //The loaded best time is not null (there was a previous best time).
+                        bestTime.changeTime(savedTime);
                         endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                        endGameText.setText(R.string.lose2);
                     }else {
+                        //The loaded best time was null (there has never been a best time saved).
                         endGameBestTime.setText("Best Time: \n" + "You've never finished!");
+                        endGameText.setText(R.string.lose1);
                     }
                 }
                 gameScreen.resetVariables();
-                endGameText.setText(R.string.lose1);
                 break;
             case WIN:
                 gameEndMenu.setVisibility(View.VISIBLE);
@@ -352,27 +359,37 @@ public class MainActivity extends AppCompatActivity {
                 gameMusic.release();
                 gameMusic = null;
 
-                //TODO: If best time then save new time. Display best time.
-                mostRecentTime = gameScreen.gameTimer;
-                if(loadBestTime() != null) {
-                    bestTime.changeTime(loadBestTime());
-                    //Check if most recent time is a new best time.
-                    if (bestTime != null) {
-                        if (mostRecentTime.getTime() < bestTime.getTime()) {
-                            saveNewBestTime(mostRecentTime.getTime());
-                            bestTime.changeTime(mostRecentTime.getTime());
-                        }
+                //If new time was less than best time, save new time as best time. Display best time.
+                yourTime = gameScreen.gameTimer;
+                savedTime = loadBestTime();
+                if(savedTime != null) {
+                    //A best time exists.
+                    bestTime.changeTime(savedTime); //Put best time into Time class.
+                    if (yourTime.getTime() < bestTime.getTime()) {
+                        //Your time is a new best time.
+                        timeDifferential.changeTime(bestTime.getTime() - yourTime.getTime());
+                        saveNewBestTime(yourTime.getTime());
+                        endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
+                        endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
+                        endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay());
+
+                        bestTime.changeTime(yourTime.getTime());
+                    } else {
+                        //Your time isn't a new best time.
+                        endGameText.setText(R.string.win3);
+                        endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
+                        endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
                     }
                 } else {
-                    //No best time has been saved (a run has never been completed).
-                    saveNewBestTime(mostRecentTime.getTime());
-                    bestTime.changeTime(mostRecentTime.getTime());
+                    //No best time has been saved (a run has never been completed), so your time is a new best time.
+                    saveNewBestTime(yourTime.getTime());
+                    bestTime.changeTime(yourTime.getTime());
+                    endGameText.setText(R.string.win2);
+                    endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
+                    endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
                 }
 
-                endGameUserTime.setText("Your Time: \n" + mostRecentTime.getTimeForDisplay());
-                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
                 gameScreen.resetVariables();
-                endGameText.setText(R.string.win3);
                 break;
             case NONE:
                 // Nothing happens here
@@ -566,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Long loadBestTime (){
-        Long time = 0l;
+        Long time = null;
         try {
             FileInputStream fileIn = new FileInputStream(bestTimeFilePath);
             ObjectInputStream in = new ObjectInputStream(fileIn);
