@@ -79,6 +79,7 @@ public class GameView extends SurfaceView implements Runnable {
     Bitmap obstacleType2;
     int obstacleType2Width;
     int obstacleType2Height;
+    int obstacleType2HorizontalSpeed = 2; //Number of pixels to move horizontally every time draw updates. The implementation might need to be based on real time.
     int maxNumType2Obstacles = 2;
     Boolean[] obstacleType2SpawnArray = new Boolean[maxNumType2Obstacles];
     float[][] obstacleType2LocationArray = new float[maxNumType2Obstacles][2];
@@ -129,7 +130,7 @@ public class GameView extends SurfaceView implements Runnable {
         obstacleWidth = obstacle.getWidth();
         obstacleHeight = obstacle.getHeight();
 
-        obstacleType2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.test_obstacle, null);
+        obstacleType2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
         obstacleType2Width = obstacleType2.getWidth();
         obstacleType2Height = obstacleType2.getHeight();
 
@@ -289,6 +290,9 @@ public class GameView extends SurfaceView implements Runnable {
 
             for(int i = 0; i < maxNumType2Obstacles; i++) {
                 if(obstacleType2SpawnArray[i] == obstacleSpawned) {
+                    if(obstacleType2LocationArray[i][0] < background.getWidth()){
+                        obstacleType2LocationArray[i][0] += obstacleType2HorizontalSpeed;
+                    }
                     canvas.drawBitmap(obstacleType2, obstacleType2LocationArray[i][0], obstacleType2LocationArray[i][1], paint);
                 }
             }
