@@ -143,6 +143,9 @@ public class GameView extends SurfaceView implements Runnable {
 
         resetVariables();
 
+        //Call these once to draw the initial screen before gameRunning is set to true.
+        update();
+        draw();
     }
 
     public void setBackgroundSizePos(Point p) {
@@ -198,11 +201,13 @@ public class GameView extends SurfaceView implements Runnable {
     @Override
     public void run() {
         while(playing) {
+            if(gameRunning) {
 
-            update();
+                update();
 
-            draw();
+                draw();
 
+            }
         }
     }
 
@@ -299,24 +304,19 @@ public class GameView extends SurfaceView implements Runnable {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
             case MotionEvent.ACTION_DOWN:
                 activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
                 fingers.add(event.getPointerId(0));
 
+                if(!gameRunning) {
+                    gameRunning = true;
+                    previousTime = System.currentTimeMillis();
+                }
+
                 //--------------Check if an obstacle has been touched-----------------------------
-                if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y)){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y)){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y)){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y)){
+                if (checkObstaclesTouched()){
                     mA.requestGameState(MainActivity.LOSE);
                 }
                 //---------------------------------------------------------------------------
@@ -324,11 +324,6 @@ public class GameView extends SurfaceView implements Runnable {
                 //Check if finish line has been reached.
                 if(odometer > courseDistance){
                     mA.requestGameState(MainActivity.WIN);
-                }
-
-                if(!gameRunning) {
-                    gameRunning = true;
-                    previousTime = System.currentTimeMillis();
                 }
 
                 break;
@@ -352,6 +347,12 @@ public class GameView extends SurfaceView implements Runnable {
                     if(gameTimeLeft != 0) {
                         addToFingerMoveDist(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
                         activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+
+                        //--------------Check if an obstacle has run into finger-----------------------------
+                        if (checkObstaclesTouched()){
+                            mA.requestGameState(MainActivity.LOSE);
+                        }
+                        //---------------------------------------------------------------------------
                     }
                 }
                 break;
@@ -418,6 +419,22 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    //--------------Check if an obstacle was touched-----------------------------
+    public Boolean checkObstaclesTouched() {
+        if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //---------------------------------------------------------------------------
+
     // Call this from activity
     public void pause() {
         playing = false;
@@ -437,6 +454,10 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread.start();
         previousTime = System.currentTimeMillis();
         gameRunning = false;
+
+        //Runnable begins on touch, so need to draw screen once.
+        update();
+        draw();
     }
 
     public class FingerPoint {
