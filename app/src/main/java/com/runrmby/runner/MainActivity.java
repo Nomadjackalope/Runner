@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
                 menuMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
                 menuMusic.setLooping(true);
                 if(!musicPausedByButton) {
-                    //menuMusic.start();
+                    menuMusic.start();
                 }
                 musicCurrentlyPlaying = MENU_MUSIC;
                 break;
@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
                 gameMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_straight_beat_version_1);
                 gameMusic.setLooping(true);
                 if(!musicPausedByButton) {
-                    //gameMusic.start();
+                    gameMusic.start();
                 }
                 musicCurrentlyPlaying = GAME_MUSIC_1;
                 break;
@@ -604,10 +604,10 @@ public class MainActivity extends AppCompatActivity {
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
             if(musicCurrentlyPlaying==MENU_MUSIC) {
-                //menuMusic.start();
+                menuMusic.start();
             }
             else if(musicCurrentlyPlaying==GAME_MUSIC_1){
-                //gameMusic.start();
+                gameMusic.start();
             }
             musicPausedByLeavingApp = false;
         }
