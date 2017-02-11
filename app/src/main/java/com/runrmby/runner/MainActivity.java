@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
-    //private View mContentView;
+    private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -60,17 +59,15 @@ public class MainActivity extends AppCompatActivity {
             // Note that some of these constants are new as of API 16 (Jelly Bean)
             // and API 19 (KitKat). It is safe to use them, as they are inlined
             // at compile-time and do nothing on earlier devices.
-            root.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-
-
         }
     };
-    //private View mControlsView;
+    private View mControlsView;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -79,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             if (actionBar != null) {
                 actionBar.show();
             }
-            //mControlsView.setVisibility(View.VISIBLE);
+            mControlsView.setVisibility(View.VISIBLE);
         }
     };
     private boolean mVisible;
@@ -144,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private View titleScreen;
     private GameView gameScreen;
 
-    private Point windowSize = new Point(1000, 2000); // arbitrary values
+    private Point windowSize = new Point();
 
     private int gameState = MAIN_MENU;
 
@@ -161,22 +158,22 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        //mVisible = true;
-        //mControlsView = findViewById(R.id.fullscreen_content_controls);
-        //mContentView = findViewById(R.id.fullscreen_content);
+        mVisible = true;
+        mControlsView = findViewById(R.id.fullscreen_content_controls);
+        mContentView = findViewById(R.id.fullscreen_content);
 
         // Set up the user interaction to manually show or hide the system UI.
-//        mContentView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //toggle();
-//            }
-//        });
+        mContentView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //toggle();
+            }
+        });
 
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         bestTimeFilePath = new File(this.getFilesDir(), "best_time");
         if(!bestTimeFilePath.exists()) {
@@ -186,9 +183,8 @@ public class MainActivity extends AppCompatActivity {
         //bestTimeFilePath.delete(); //Deletes best time on start for testing.
         //----------------------- Game Code ---------------------------
 
-//        this.getWindowManager().getDefaultDisplay().getSize(windowSize);
-//        System.out.println("MA| windowSize: " + windowSize.x + ", " + windowSize.y);
-
+        this.getWindowManager().getDefaultDisplay().getSize(windowSize);
+        System.out.println("MA| windowSize: " + windowSize.x + ", " + windowSize.y);
 
         root = (FrameLayout) findViewById(R.id.root);
 
@@ -273,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        hideImmediately();
     }
 
     // This function runs movement animations to get to other states
@@ -493,20 +488,7 @@ public class MainActivity extends AppCompatActivity {
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        //delayedHide(100);
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        System.out.println("MA| title screen size: " + titleScreen.getWidth() + ", " + titleScreen.getHeight());
-
-        windowSize.set(titleScreen.getWidth(), titleScreen.getHeight());
-        if(windowSize.x > 0 && windowSize.y > 0) {
-            gameScreen.init(windowSize, this);
-        }
-
+        delayedHide(100);
     }
 
     private void toggle() {
@@ -523,7 +505,7 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.hide();
         }
-        //mControlsView.setVisibility(View.GONE);
+        mControlsView.setVisibility(View.GONE);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
@@ -531,27 +513,10 @@ public class MainActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    private void hideImmediately() {
-        // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        //mControlsView.setVisibility(View.GONE);
-        mVisible = false;
-
-        root.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-    }
-
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
-        root.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
@@ -603,8 +568,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-
-        hide();
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
             if(musicCurrentlyPlaying==MENU_MUSIC) {
@@ -618,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO: gameScreen doesn't resume when app is closed during gameplay and then reopened.
         //If not on gamed over screen, resume gameScreen.
-        if(gameEndMenu.getVisibility() == View.INVISIBLE) {
+        if(gameScreen.getVisibility() == View.VISIBLE) {
             gameScreen.resume();
         }
     }
