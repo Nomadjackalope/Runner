@@ -56,25 +56,39 @@ public class GameView extends SurfaceView implements Runnable {
 
     ArrayList<Integer> fingers = new ArrayList<>();
 
-    //------Spawning Obstacles and finishing course--------------------------------------------
+    //------Obstacles and course length------------------------------------------------------
     float odometer = 0f;
     //Currently an arbitrary course distance to test.
     float courseDistance = 10000f;
     //Integer courseLength = 10; //Units of background art
-    //Currently an arbitrary distance between obstacles to test. TODO: Make it slightly random.
-    float distanceBetweenObstacles = 500f;
-    float nextObstacleAt = distanceBetweenObstacles;
-    float distanceToNextObstacle = distanceBetweenObstacles;
-    int maxNumObstacles = 4;
 
-    Bitmap obstacle;
-    int obstacleWidth;
-    int obstacleHeight;
-    Boolean[] obstacleImageArray = new Boolean[maxNumObstacles];
-    static Boolean obstacleDestroyed = false;
-    static Boolean obstacleSpawned = true;
-    float[][] obstacleLocationArray = new float[maxNumObstacles][2];
-    Random randomNum = new Random();
+    Obstacles obsA;
+    int obsAImageResID = R.drawable.practice3_small;
+    int obsAMaxNumObs = 4;
+    float obsADistBetweenObs = 500f;
+    float obsAHorizontalSpeed = 0f;
+    float obsAVerticalSpeed = -1f;
+
+    Obstacles obsB;
+    int obsBImageResID = R.drawable.practice3_small;
+    int obsBMaxNumObs = 2;
+    float obsBDistBetweenObs = 600f;
+    float obsBHorizontalSpeed = 2f;
+    float obsBVerticalSpeed = 0f;
+
+    Obstacles obsC;
+    int obsCImageResID = R.drawable.practice3_small;
+    int obsCMaxNumObs = 2;
+    float obsCDistBetweenObs = 400f;
+    float obsCHorizontalSpeed = -2f;
+    float obsCVerticalSpeed = 2f;
+
+    Obstacles obsD;
+    int obsDImageResID = R.drawable.practice3_small;
+    int obsDMaxNumObs = 1;
+    float obsDDistBetweenObs = 900f;
+    float obsDHorizontalSpeed = 3f;
+    float obsDVerticalSpeed = 10f;
     //-----------------------------------------------------------------------------------------
 
     MainActivity mA;
@@ -84,8 +98,9 @@ public class GameView extends SurfaceView implements Runnable {
     long gameLengthCountUp = 0; // 1000 = 1 second
     long gameLengthCountDown = 20000;
     long previousTime;
-    public Time gameTimer = new Time();
     boolean gameRunning = false;
+
+    public Time gameTimer = new Time();
 
     private static final int GameVersion1 = 0; // Count up
     private static final int GameVersion2 = 1; // Count down
@@ -115,11 +130,14 @@ public class GameView extends SurfaceView implements Runnable {
 
         setBackgroundSizePos(p);
 
-        obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
-
-        obstacleWidth = obstacle.getWidth();
-
-        obstacleHeight = obstacle.getHeight();
+        //-----------------Initialize obstacles----------------------------------------------------
+        int backgroundWidth = background.getWidth();
+        int backgroundHeight = background.getHeight();
+        obsA = new Obstacles(this.getContext(), obsAImageResID, obsAMaxNumObs, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        obsB = new Obstacles(this.getContext(), obsBImageResID, obsBMaxNumObs, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        obsC = new Obstacles(this.getContext(), obsCImageResID, obsCMaxNumObs, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        obsD = new Obstacles(this.getContext(), obsDImageResID, obsDMaxNumObs, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        //-----------------------------------------------------------------------------------------
 
         mA = mainActivity;
 
@@ -189,22 +207,13 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void update() {
-
-        //------------------------Mark's new code-----------------------------------------
-        for(int i = 0; i < maxNumObstacles; i++){
-            if(obstacleLocationArray[i][1] > background.getHeight()){
-                obstacleImageArray[i] = obstacleDestroyed;
-            }
-        }
-        //--------------------------------------------------------------------------------
-
-        // Inertia,
+        // if the user is not touching trigger inertia,
         // if we did it when the users finger was down it would get out of sync
         if(fingers.isEmpty()) {
             // We don't want this running all the time using up cpu
             if(velocity > 1) {
                 advanceRoad(velocity); ///0.016f);
-                velocity *= 0.75f;
+                velocity *= 0.75;//0.8f;//0.9f;
             }
         }
 
@@ -270,11 +279,12 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(background, 0, backgroundPositionY, paint);
             canvas.drawBitmap(background, 0, backgroundPositionY2, paint);
 
-            for(int i = 0; i < maxNumObstacles; i++) {
-                if(obstacleImageArray[i] == obstacleSpawned) {
-                    canvas.drawBitmap(obstacle, obstacleLocationArray[i][0], obstacleLocationArray[i][1], paint);
-                }
-            }
+            //---------------------Draw obstacles---------------------------------------------
+            obsA.drawObstacles(canvas, paint);
+            obsB.drawObstacles(canvas, paint);
+            obsC.drawObstacles(canvas, paint);
+            obsD.drawObstacles(canvas, paint);
+            //---------------------------------------------------------------------------------
 
             // Draw all to screen and unlock
             holder.unlockCanvasAndPost(canvas);
@@ -296,23 +306,25 @@ public class GameView extends SurfaceView implements Runnable {
                 activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
                 fingers.add(event.getPointerId(0));
 
-                //--------------Mark New Code-----------------------------
-                //Check if an obstacle has been touched.
-                for(int i = 0; i < maxNumObstacles; i++) {
-                    if (obstacleImageArray[i] == obstacleSpawned) {
-                        if (activeFinger.x > obstacleLocationArray[i][0] && activeFinger.x < obstacleLocationArray[i][0] + obstacleWidth) {
-                            if (activeFinger.y > obstacleLocationArray[i][1] && activeFinger.y < obstacleLocationArray[i][1] + obstacleHeight) {
-                                //Obstacle has been touched.
-                                mA.requestGameState(MainActivity.LOSE);
-                            }
-                        }
-                    }
+                //--------------Check if an obstacle has been touched-----------------------------
+                if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y)){
+                    mA.requestGameState(MainActivity.LOSE);
                 }
+                if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y)){
+                    mA.requestGameState(MainActivity.LOSE);
+                }
+                if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y)){
+                    mA.requestGameState(MainActivity.LOSE);
+                }
+                if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y)){
+                    mA.requestGameState(MainActivity.LOSE);
+                }
+                //---------------------------------------------------------------------------
+
                 //Check if finish line has been reached.
                 if(odometer > courseDistance){
                     mA.requestGameState(MainActivity.WIN);
                 }
-                //--------------------------------------------------------
 
                 if(!gameRunning) {
                     gameRunning = true;
@@ -368,14 +380,16 @@ public class GameView extends SurfaceView implements Runnable {
     // This gets called from onTouch thread which then lets update call advanceRoad
     //  this should keep two sections of road closer together
     void addToFingerMoveDist(float dist) {
+        dist *= 0.75;
         System.out.println("GV| addToFingerMoveDist: " + dist);
-
-        fingerMoveDist += (dist * 0.575);
+        fingerMoveDist += dist;
     }
 
     public void advanceRoad(float distance) {
         // Don't go backward
         if(distance < 0) { return; }
+
+        distance *= 0.75;
 
         System.out.println("GV| distance moved: " + distance);
         //distance = distance;
@@ -384,17 +398,13 @@ public class GameView extends SurfaceView implements Runnable {
 
         velocity = distance;
 
-        //---------------Mark new code-------------------------------------------------
         odometer += distance;
-        for(int i = 0; i < maxNumObstacles; i++){
-            obstacleLocationArray[i][1] += distance;
-        }
-        //If enough distance has been covered, spawn an obstacle.
-        distanceToNextObstacle = nextObstacleAt - odometer;
-        if(distanceToNextObstacle <= 0){
-            spawnObstacle();
-            nextObstacleAt = distanceBetweenObstacles + distanceToNextObstacle + odometer;
-        }
+
+        //---------------Update Obstacles---------------------------------------------------
+        obsA.updateObstacles(distance);
+        obsB.updateObstacles(distance);
+        obsC.updateObstacles(distance);
+        obsD.updateObstacles(distance);
         //-----------------------------------------------------------------------------
 
         //backgroundPositionY += 15; // This should be set by the person's touches
@@ -425,7 +435,6 @@ public class GameView extends SurfaceView implements Runnable {
         velocity = 0;
         gameThread = new Thread(this);
         gameThread.start();
-
         previousTime = System.currentTimeMillis();
         gameRunning = false;
     }
@@ -451,30 +460,14 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    //---------Mark attempting to spawn obstacles----------------------------------------------
-    public void spawnObstacle(){
-//        BitmapFactory.Options ops = new BitmapFactory.Options();
-//        ops.inPreferredConfig = Bitmap.Config.RGB_565;
-        for(int i = 0; i < maxNumObstacles; i++){
-            if(obstacleImageArray[i] == obstacleDestroyed){
-                //Set obstacle spawn image.
-                obstacleImageArray[i] = obstacleSpawned;
-                //Set obstacle spawn location.
-                obstacleLocationArray[i][0] = randomNum.nextInt(background.getWidth()-obstacleWidth);
-                obstacleLocationArray[i][1] = -obstacleHeight;
-                break;
-            }
-        }
-    }
-
     public void resetVariables(){
         odometer = 0f;
-        nextObstacleAt = distanceBetweenObstacles;
-        distanceToNextObstacle = distanceBetweenObstacles;
-        maxNumObstacles = 4;
-        for(int i = 0; i < maxNumObstacles; i++){
-            obstacleImageArray[i] = obstacleDestroyed;
-        }
+        //--------------------------Reset obstacles------------------------------------------
+        obsA.resetObstacles();
+        obsB.resetObstacles();
+        obsC.resetObstacles();
+        obsD.resetObstacles();
+        //-----------------------------------------------------------------------------------
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
         fingers.clear();
@@ -493,7 +486,6 @@ public class GameView extends SurfaceView implements Runnable {
         }
         previousTime = System.currentTimeMillis();
         gameRunning = false;
-
 
     }
 }

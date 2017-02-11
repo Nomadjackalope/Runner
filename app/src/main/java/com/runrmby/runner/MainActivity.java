@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.TimerTask;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
 
     //---------------------- Game variables ----------------------------
 
+    SharedPreferences sharedPref;
+
     public static final int NONE = 0;
     public static final int PLAYING_GAME = 1;
     public static final int LOSE = 2;
@@ -186,12 +188,13 @@ public class MainActivity extends AppCompatActivity {
         // while interacting with the UI.
         //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
-        bestTimeFilePath = new File(this.getFilesDir(), "best_time");
-        if(!bestTimeFilePath.exists()) {
-            bestTimeFilePath.mkdir();
-        }
-
+        sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
+//        bestTimeFilePath = new File(this.getFilesDir(), "best_time");
+//        if(!bestTimeFilePath.exists()) {
+//            bestTimeFilePath.mkdir();
+//        }
         //bestTimeFilePath.delete(); //Deletes best time on start for testing.
+
         //----------------------- Game Code ---------------------------
 
 //        this.getWindowManager().getDefaultDisplay().getSize(windowSize);
@@ -279,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                 requestGameState(PAUSE);
             }
         });
+
     }
 
     // This function runs movement animations to get to other states
@@ -444,12 +448,12 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
-//        for(int i=1000; i >= 0; i--) {
-//            volume = i/1000f;
-//            gameMusic.setVolume(volume, volume);
-//        }
-        //Stop game music.
         if(gameMusic != null) {
+//            for (int i = 1000; i >= 0; i--) {
+//                volume = i / 1000f;
+//                gameMusic.setVolume(volume, volume);
+//            }
+            //Stop game music.
             gameMusic.stop();
             gameMusic.release();
             gameMusic = null;
@@ -476,12 +480,12 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameMenu);
 
         //TODO: Fade out menu music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
-//        for(int i=1000; i >= 0; i--) {
-//            volume = i/1000f;
-//            menuMusic.setVolume(volume, volume);
-//        }
-        //Stop menu music.
         if(menuMusic != null) {
+//            for (int i = 1000; i >= 0; i--) {
+//                volume = i / 1000f;
+//                menuMusic.setVolume(volume, volume);
+//            }
+            //Stop menu music.
             menuMusic.stop();
             menuMusic.release();
             menuMusic = null;
@@ -620,7 +624,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveNewBestTime(long newBestTime){
-        SharedPreferences sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putLong("bestTime", newBestTime);
         prefEditor.commit();
@@ -637,7 +640,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Long loadBestTime (){
         //Long time = null;
-        SharedPreferences sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
         Long time = sharedPref.getLong("bestTime", 0l);
 //        try {
 //            FileInputStream fileIn = new FileInputStream(bestTimeFilePath);
