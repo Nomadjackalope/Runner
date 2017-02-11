@@ -67,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
+            titleScreen.post(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("MA| titleScreen Size: " + titleScreen.getMeasuredWidth() + ", " + titleScreen.getMeasuredHeight());
+                    windowSize.set(titleScreen.getMeasuredWidth(), titleScreen.getMeasuredHeight());
+                    gameScreen.setBackgroundSizePos(windowSize);
+                }
+            });
 
         }
     };
@@ -237,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("MA| here");
                 requestGameState(PLAYING_GAME);
             }
         });
@@ -272,8 +279,6 @@ public class MainActivity extends AppCompatActivity {
                 requestGameState(PAUSE);
             }
         });
-
-        hideImmediately();
     }
 
     // This function runs movement animations to get to other states
@@ -294,6 +299,11 @@ public class MainActivity extends AppCompatActivity {
                     gameScreen.resume();
                     setGameState(PLAYING_GAME);
                 } else {
+                    // Make sure gameScreen is in the right position
+                    if(gameScreen.getTranslationY() != windowSize.y) {
+                        gameScreen.setTranslationY(windowSize.y);
+                        gameScreen.setBackgroundSizePos(windowSize);
+                    }
                     gameScreen.resume();
                     transitionToGame();
                 }
@@ -331,18 +341,17 @@ public class MainActivity extends AppCompatActivity {
                 menuMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
                 menuMusic.setLooping(true);
                 if(!musicPausedByButton) {
-                    menuMusic.start();
+                    //menuMusic.start();
                 }
                 musicCurrentlyPlaying = MENU_MUSIC;
                 break;
             case PLAYING_GAME:
                 gameMenu.setVisibility(View.VISIBLE);
-                mainMenu.setVisibility(View.VISIBLE);
                 //Start game music.
                 gameMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_straight_beat_version_1);
                 gameMusic.setLooping(true);
                 if(!musicPausedByButton) {
-                    gameMusic.start();
+                    //gameMusic.start();
                 }
                 musicCurrentlyPlaying = GAME_MUSIC_1;
                 break;
@@ -421,11 +430,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void transitionToMainMenu() {
         gameScreen.animate()
-                .translationYBy(windowSize.y)
+                .translationY(windowSize.y)
                 .setDuration(1000);
 
         titleScreen.animate()
-                .translationYBy(windowSize.y)
+                .translationY(0)//windowSize.y)
                 .setDuration(1000)
                 .withEndAction(new Runnable() {
                     @Override
@@ -449,11 +458,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void transitionToGame() {
         gameScreen.animate()
-                .translationYBy(-windowSize.y)
+                .translationY(0)//-windowSize.y)
                 .setDuration(1000);
 
         titleScreen.animate()
-                .translationYBy(-windowSize.y)
+                .translationY(-windowSize.y)
                 .setDuration(1000)
                 .withEndAction(new Runnable() {
                     @Override
@@ -494,18 +503,6 @@ public class MainActivity extends AppCompatActivity {
         // created, to briefly hint to the user that UI controls
         // are available.
         //delayedHide(100);
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        System.out.println("MA| title screen size: " + titleScreen.getWidth() + ", " + titleScreen.getHeight());
-
-        windowSize.set(titleScreen.getWidth(), titleScreen.getHeight());
-        if(windowSize.x > 0 && windowSize.y > 0) {
-            gameScreen.init(windowSize, this);
-        }
 
     }
 
@@ -603,24 +600,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-
         hide();
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
             if(musicCurrentlyPlaying==MENU_MUSIC) {
-                menuMusic.start();
+                //menuMusic.start();
             }
             else if(musicCurrentlyPlaying==GAME_MUSIC_1){
-                gameMusic.start();
+                //gameMusic.start();
             }
             musicPausedByLeavingApp = false;
         }
 
         //TODO: gameScreen doesn't resume when app is closed during gameplay and then reopened.
         //If not on gamed over screen, resume gameScreen.
-        if(gameEndMenu.getVisibility() == View.INVISIBLE) {
+        //if(gameScreen.getVisibility() == View.INVISIBLE) {
             gameScreen.resume();
-        }
+        //}
     }
 
     private void saveNewBestTime(long newBestTime){

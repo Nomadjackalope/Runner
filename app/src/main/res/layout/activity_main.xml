@@ -59,7 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/gameEndMenu"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <Button
             android:layout_width="wrap_content"
@@ -151,7 +151,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/pauseMenu">
+        android:id="@+id/pauseMenu"
+        android:visibility="gone">
 
         <Button
             android:layout_width="wrap_content"

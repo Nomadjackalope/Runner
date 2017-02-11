@@ -113,7 +113,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
 
-        background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
+        setBackgroundSizePos(p);
 
         obstacle = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
 
@@ -125,6 +125,12 @@ public class GameView extends SurfaceView implements Runnable {
 
         resetVariables();
 
+    }
+
+    public void setBackgroundSizePos(Point p) {
+        background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
+        backgroundPositionY = 0;
+        backgroundPositionY2 = -background.getHeight();
     }
 
     // Bitmap processing
