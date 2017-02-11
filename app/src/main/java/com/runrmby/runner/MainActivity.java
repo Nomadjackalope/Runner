@@ -67,10 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
-            System.out.println("MA| title screen size: " + titleScreen.getWidth() + ", " + titleScreen.getHeight());
 
-            windowSize.set(titleScreen.getWidth(), titleScreen.getHeight());
-            gameScreen.setTranslationY(windowSize.y);
         }
     };
     //private View mControlsView;
@@ -277,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         hideImmediately();
-
     }
 
     // This function runs movement animations to get to other states
@@ -498,6 +494,19 @@ public class MainActivity extends AppCompatActivity {
         // created, to briefly hint to the user that UI controls
         // are available.
         //delayedHide(100);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("MA| title screen size: " + titleScreen.getWidth() + ", " + titleScreen.getHeight());
+
+        windowSize.set(titleScreen.getWidth(), titleScreen.getHeight());
+        if(windowSize.x > 0 && windowSize.y > 0) {
+            gameScreen.init(windowSize, this);
+        }
+
     }
 
     private void toggle() {
@@ -531,9 +540,12 @@ public class MainActivity extends AppCompatActivity {
         //mControlsView.setVisibility(View.GONE);
         mVisible = false;
 
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        mHideHandler.removeCallbacks(mShowPart2Runnable);
-        mHideHandler.postDelayed(mHidePart2Runnable, 0);
+        root.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
 
     @SuppressLint("InlinedApi")
