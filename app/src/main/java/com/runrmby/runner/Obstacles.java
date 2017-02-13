@@ -116,11 +116,12 @@ public class Obstacles {
         }
     }
 
-    public Boolean wasObstacleTouched(float touchX, float touchY) {
+    //x and y are view coordinates. Width and height should be 0f if checking a point instead of an area.
+    public Boolean wasObstacleTouched(float x, float y, float width, float height) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] == obstacleSpawned) {
-                if (touchX > coordinatesArray[i][0] && touchX < coordinatesArray[i][0] + obstacleWidth
-                        && touchY > coordinatesArray[i][1] && touchY < coordinatesArray[i][1] + obstacleHeight) {
+                if (x + width > coordinatesArray[i][0] && x < coordinatesArray[i][0] + obstacleWidth
+                        && y + height > coordinatesArray[i][1] && y < coordinatesArray[i][1] + obstacleHeight) {
                     return true;
                 }
             }

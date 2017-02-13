@@ -1,7 +1,5 @@
 package com.runrmby.runner;
 
-import android.content.AbstractThreadedSyncAdapter;
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,17 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.support.v4.view.MotionEventCompat;
-import android.text.method.Touch;
-import android.util.AttributeSet;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by benjamin on 1/31/17.
@@ -46,6 +40,8 @@ public class GameView extends SurfaceView implements Runnable {
     Bitmap background;
     float backgroundPositionY;
     float backgroundPositionY2;
+    int backgroundWidth;
+    int backgroundHeight;
 
     float velocity;
 
@@ -89,6 +85,12 @@ public class GameView extends SurfaceView implements Runnable {
     float obsDDistBetweenObs = 900f;
     float obsDHorizontalSpeed = 3f;
     float obsDVerticalSpeed = 10f;
+
+    Bitmap touchFollower;
+    float tFX;
+    float tFY;
+    float tFXOffset;
+    float tFYOffset;
     //-----------------------------------------------------------------------------------------
 
     MainActivity mA;
@@ -131,12 +133,15 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        int backgroundWidth = background.getWidth();
-        int backgroundHeight = background.getHeight();
         obsA = new Obstacles(this.getContext(), obsAImageResID, obsAMaxNumObs, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
         obsB = new Obstacles(this.getContext(), obsBImageResID, obsBMaxNumObs, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
         obsC = new Obstacles(this.getContext(), obsCImageResID, obsCMaxNumObs, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
         obsD = new Obstacles(this.getContext(), obsDImageResID, obsDMaxNumObs, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+
+        //Initialize touch follower.
+        touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
+        tFXOffset = -touchFollower.getWidth() / 2;
+        tFYOffset = -touchFollower.getHeight();
         //-----------------------------------------------------------------------------------------
 
         mA = mainActivity;
@@ -149,6 +154,11 @@ public class GameView extends SurfaceView implements Runnable {
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
+        //For some reason, these need to be here to get initialized correctly the first time.
+        backgroundWidth = background.getWidth();
+        backgroundHeight = background.getHeight();
+        tFX = tFXOffset + backgroundWidth/2;
+        tFY = tFYOffset + backgroundHeight;
     }
 
     // Bitmap processing
@@ -215,6 +225,17 @@ public class GameView extends SurfaceView implements Runnable {
                 advanceRoad(velocity); ///0.016f);
                 velocity *= 0.75;//0.8f;//0.9f;
             }
+            //--------------TODO: Check if an obstacle has run into touch follower when no fingers are down-----------------------------
+            if (checkObstaclesTouched()){
+                mA.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis()+100, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
+//                    mA.requestGameState(MainActivity.LOSE);
+                    }
+                });
+            }
+            //---------------------------------------------------------------------------
         }
 
         if(fingerMoveDist > 0) {
@@ -226,6 +247,15 @@ public class GameView extends SurfaceView implements Runnable {
             // Update Time using delta time compared to last time update was run
             gameTimeLeft -= System.currentTimeMillis() - previousTime;
             previousTime = System.currentTimeMillis();
+
+            //Update touch follower position. Could put outside of if(gameRunning) if want to resume movement after game paused while touchFollower is moving
+            //...but then you could possibly cheat the timer by pausing right after the start of a big move.
+            if(tFX != activeFinger.x + tFXOffset) {
+                tFX += 0.1 * (activeFinger.x + tFXOffset - tFX);
+            }
+            if(tFY != activeFinger.y + tFYOffset){
+                tFY += 0.1 * (activeFinger.y + tFYOffset - tFY);
+            }
         }
 
         switch (gameVersion) {
@@ -284,6 +314,9 @@ public class GameView extends SurfaceView implements Runnable {
             obsB.drawObstacles(canvas, paint);
             obsC.drawObstacles(canvas, paint);
             obsD.drawObstacles(canvas, paint);
+
+            //Draw touch follower.
+            canvas.drawBitmap(touchFollower, tFX, tFY, paint);
             //---------------------------------------------------------------------------------
 
             // Draw all to screen and unlock
@@ -303,20 +336,12 @@ public class GameView extends SurfaceView implements Runnable {
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
             case MotionEvent.ACTION_DOWN:
+
                 activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
                 fingers.add(event.getPointerId(0));
 
                 //--------------Check if an obstacle has been touched-----------------------------
-                if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y)){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y)){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y)){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y)){
+                if (checkObstaclesTouched()){
                     mA.requestGameState(MainActivity.LOSE);
                 }
                 //---------------------------------------------------------------------------
@@ -341,6 +366,11 @@ public class GameView extends SurfaceView implements Runnable {
                                 event.getY(event.findPointerIndex(activeFinger.id)));
                         fingers.add(event.getPointerId(i));
                     }
+//                    //--------------Check if an obstacle has been touched-----------------------------
+//                    if (checkObstaclesTouched()){
+//                        mA.requestGameState(MainActivity.LOSE);
+//                    }
+//                    //---------------------------------------------------------------------------
                 }
 
 
@@ -354,6 +384,11 @@ public class GameView extends SurfaceView implements Runnable {
                         activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
                     }
                 }
+                //--------------Check if an obstacle has been touched-----------------------------
+                if (checkObstaclesTouched()){
+                    mA.requestGameState(MainActivity.LOSE);
+                }
+                //---------------------------------------------------------------------------
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
@@ -460,6 +495,36 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    //--------------Check if an obstacle was touched-----------------------------
+    public Boolean checkObstaclesTouched() {
+        //First check if active finger is touching obstacle.
+        if(!fingers.isEmpty()) {
+            if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
+                return true;
+            } else if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
+                return true;
+            } else if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
+                return true;
+            } else if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
+                return true;
+            }
+        }
+
+        //Now check if touch follower is touching an obstacle.
+        if (obsA.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else if (obsB.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else if (obsC.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+//---------------------------------------------------------------------------
+
     public void resetVariables(){
         odometer = 0f;
         //--------------------------Reset obstacles------------------------------------------
@@ -467,6 +532,10 @@ public class GameView extends SurfaceView implements Runnable {
         obsB.resetObstacles();
         obsC.resetObstacles();
         obsD.resetObstacles();
+
+        //TODO: Reset touch follower to bottom middle of screen. This isn't working the very first time through.
+        tFX = tFXOffset + backgroundWidth/2;
+        tFY = tFYOffset + backgroundHeight;
         //-----------------------------------------------------------------------------------
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
