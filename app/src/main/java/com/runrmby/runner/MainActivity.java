@@ -309,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case PLAYING_GAME:
+                gameScreen.handleTouches = true;
                 if(gameState == LOSE || gameState == WIN) {
                     gameScreen.resume();
                     setGameState(PLAYING_GAME);
@@ -323,13 +324,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case LOSE:
+                gameScreen.handleTouches = false;
                 System.out.println("hi");
                 gameMusic1.pause();
                 gameScreen.pause();
                 setGameState(LOSE);
-
                 break;
             case WIN:
+                gameScreen.handleTouches = false;
                 gameMusic1.pause();
                 gameScreen.pause();
                 setGameState(WIN);
@@ -752,11 +754,10 @@ public class MainActivity extends AppCompatActivity {
             musicPausedByLeavingApp = false;
         }
 
-        //TODO: gameScreen doesn't resume when app is closed during gameplay and then reopened.
-        //If not on gamed over screen, resume gameScreen.
-        //if(gameScreen.getVisibility() == View.INVISIBLE) {
+        //If not on game over screen, resume gameScreen.
+        if(gameEndMenu.getVisibility() == View.GONE) {
             gameScreen.resume();
-        //}
+        }
     }
 
     private void saveNewBestTime(long newBestTime){

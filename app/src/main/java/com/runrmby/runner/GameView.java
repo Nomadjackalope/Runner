@@ -329,9 +329,15 @@ public class GameView extends SurfaceView implements Runnable {
 
     // ACTION_POINTER_DOWN is for extra pointers that enter the screen beyond the first
 
+    //
+    boolean handleTouches = true;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        if(!handleTouches) {
+            return true;
+        }
 
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
