@@ -22,7 +22,6 @@ import java.io.File;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  *
- * Ben is testing too
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -169,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Testing vcs
 
         setContentView(R.layout.activity_main);
 
