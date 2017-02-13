@@ -65,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     System.out.println("MA| titleScreen Size: " + titleScreen.getMeasuredWidth() + ", " + titleScreen.getMeasuredHeight());
                     windowSize.set(titleScreen.getMeasuredWidth(), titleScreen.getMeasuredHeight());
-                    gameScreen.setBackgroundSizePos(windowSize);
+                    if(gameState != PLAYING_GAME && gameState != LOSE && gameState != WIN) {
+                        gameScreen.setBackgroundSizePos(windowSize);
+                    }
                 }
             });
 
