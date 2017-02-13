@@ -145,9 +145,9 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/pause_music_button"
+            android:id="@+id/mute_music_button"
             android:textOff="@string/play_music"
-            android:textOn="@string/pause_music"
+            android:textOn="@string/mute_music"
             android:checked="true" />
 
         <TextView

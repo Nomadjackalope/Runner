@@ -4,7 +4,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="play_music">Play Music</string>
-    <string name="pause_music">Pause Music</string>
+    <string name="mute_music">Mute Music</string>
 
     <string name="play">Play</string>
     <string name="finger_runner">Finger Runner</string>

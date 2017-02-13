@@ -17,12 +17,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.TimerTask;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -115,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
     //---------------------- Game variables ----------------------------
 
     SharedPreferences sharedPref;
+    SharedPreferences.Editor prefEditor;
 
     public static final int NONE = 0;
     public static final int PLAYING_GAME = 1;
@@ -128,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
     MediaPlayer gameMusic;
     private static final int MENU_MUSIC = 0;
     private static final int GAME_MUSIC_1 = 1;
-    private int musicCurrentlyPlaying;//0=menu music, 1=game music.
-    boolean musicPausedByButton = false;
+    private int nowPlaying;//0=menu music, 1=game music.
+    boolean musicMuted;
     boolean musicPausedByLeavingApp;
     float volume;
 
@@ -189,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
+        prefEditor = sharedPref.edit();
 //        bestTimeFilePath = new File(this.getFilesDir(), "best_time");
 //        if(!bestTimeFilePath.exists()) {
 //            bestTimeFilePath.mkdir();
@@ -219,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
 
         gameScreen.setVisibility(View.VISIBLE);
         gameScreen.setTranslationY(windowSize.y);
+
+        //Music
+        musicMuted = sharedPref.getBoolean("musicMuted", false);
 
 
         requestGameState(MAIN_MENU);
@@ -261,16 +260,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Play/pause button listener. If music is playing when button is pressed, pause music. Otherwise play the music.
-        final ToggleButton pauseMusicButton = (ToggleButton)this.findViewById(R.id.pause_music_button);
-        pauseMusicButton.setOnClickListener(new View.OnClickListener(){
+        final ToggleButton musicMuteButton = (ToggleButton)this.findViewById(R.id.mute_music_button);
+        if(musicMuted){
+            musicMuteButton.setChecked(false);
+        }
+        musicMuteButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                if(menuMusic.isPlaying()) {
+                if(!musicMuted) {
                     menuMusic.pause();
-                    musicPausedByButton = true;
+                    musicMuted = true;
+                    //musicPausedByButton = true;
                 }
                 else {
                     menuMusic.start();
-                    musicPausedByButton = false;
+                    musicMuted = false;
+                    //musicPausedByButton = false;
                 }
             }
         });
@@ -344,20 +348,20 @@ public class MainActivity extends AppCompatActivity {
                 //Start menu music.
                 menuMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
                 menuMusic.setLooping(true);
-                if(!musicPausedByButton) {
+                if(!musicMuted) {
                     menuMusic.start();
                 }
-                musicCurrentlyPlaying = MENU_MUSIC;
+                nowPlaying = MENU_MUSIC;
                 break;
             case PLAYING_GAME:
                 gameMenu.setVisibility(View.VISIBLE);
                 //Start game music.
                 gameMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_straight_beat_version_1);
                 gameMusic.setLooping(true);
-                if(!musicPausedByButton) {
+                if(!musicMuted) {
                     gameMusic.start();
                 }
-                musicCurrentlyPlaying = GAME_MUSIC_1;
+                nowPlaying = GAME_MUSIC_1;
                 break;
             case LOSE:
                 gameEndMenu.setVisibility(View.VISIBLE);
@@ -578,7 +582,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause(){
         super.onPause();
         //If music is playing, pause upon leaving the app.
-        if(musicCurrentlyPlaying==MENU_MUSIC) {
+        prefEditor.putBoolean("musicMuted", musicMuted);
+        prefEditor.commit();
+//        prefEditor.putInt("nowPlaying", nowPlaying);
+//        prefEditor.commit();
+        if(nowPlaying == MENU_MUSIC) {
             if(menuMusic != null) {
                 if (menuMusic.isPlaying()) {
                     menuMusic.pause();
@@ -586,7 +594,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        else if(musicCurrentlyPlaying==GAME_MUSIC_1){
+        else if(nowPlaying == GAME_MUSIC_1){
             if(gameMusic != null) {
                 if (gameMusic.isPlaying()) {
                     gameMusic.pause();
@@ -607,10 +615,10 @@ public class MainActivity extends AppCompatActivity {
         hide();
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
-            if(musicCurrentlyPlaying==MENU_MUSIC) {
+            if(nowPlaying == MENU_MUSIC) {
                 menuMusic.start();
             }
-            else if(musicCurrentlyPlaying==GAME_MUSIC_1){
+            else if(nowPlaying == GAME_MUSIC_1){
                 gameMusic.start();
             }
             musicPausedByLeavingApp = false;
@@ -624,7 +632,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveNewBestTime(long newBestTime){
-        SharedPreferences.Editor prefEditor = sharedPref.edit();
         prefEditor.putLong("bestTime", newBestTime);
         prefEditor.commit();
 //        try {
