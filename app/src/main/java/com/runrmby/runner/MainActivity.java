@@ -120,10 +120,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     MediaPlayer menuMusic;
-    MediaPlayer gameMusic;
+    MediaPlayer gameMusic1;
+    MediaPlayer loseMusic1;
+    MediaPlayer winMusic1;
+    MediaPlayer winMusicNewRecord;
     private static final int MENU_MUSIC = 0;
     private static final int GAME_MUSIC_1 = 1;
-    private int nowPlaying;//0=menu music, 1=game music.
+    private static final int LOSE_MUSIC_1 = 2;
+    private static final int WIN_MUSIC_1 = 3;
+    private static final int WIN_MUSIC_NEW_RECORD = 4;
+    private int nowPlaying;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
     float volume;
@@ -318,13 +324,13 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case LOSE:
                 System.out.println("hi");
-                gameMusic.pause();
+                gameMusic1.pause();
                 gameScreen.pause();
                 setGameState(LOSE);
 
                 break;
             case WIN:
-                gameMusic.pause();
+                gameMusic1.pause();
                 gameScreen.pause();
                 setGameState(WIN);
 
@@ -346,7 +352,28 @@ public class MainActivity extends AppCompatActivity {
             case MAIN_MENU:
                 mainMenu.setVisibility(View.VISIBLE);
                 //Start menu music.
-                menuMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_swing_beat_version_1);
+                if(loseMusic1 != null){
+                    if(loseMusic1.isPlaying()){
+                        loseMusic1.stop();
+                    }
+                    loseMusic1.release();
+                    loseMusic1 = null;
+                }
+                if(winMusic1 != null){
+                    if(winMusic1.isPlaying()){
+                        winMusic1.stop();
+                    }
+                    winMusic1.release();
+                    winMusic1 = null;
+                }
+                if(winMusicNewRecord != null){
+                    if(winMusicNewRecord.isPlaying()){
+                        winMusicNewRecord.stop();
+                    }
+                    winMusicNewRecord.release();
+                    winMusicNewRecord = null;
+                }
+                menuMusic = MediaPlayer.create(this, R.raw.finger_runner_main_menu);
                 menuMusic.setLooping(true);
                 if(!musicMuted) {
                     menuMusic.start();
@@ -356,10 +383,31 @@ public class MainActivity extends AppCompatActivity {
             case PLAYING_GAME:
                 gameMenu.setVisibility(View.VISIBLE);
                 //Start game music.
-                gameMusic = MediaPlayer.create(this, R.raw.finger_runner_theme_straight_beat_version_1);
-                gameMusic.setLooping(true);
+                if(loseMusic1 != null){
+                    if(loseMusic1.isPlaying()){
+                        loseMusic1.stop();
+                    }
+                    loseMusic1.release();
+                    loseMusic1 = null;
+                }
+                if(winMusic1 != null){
+                    if(winMusic1.isPlaying()){
+                        winMusic1.stop();
+                    }
+                    winMusic1.release();
+                    winMusic1 = null;
+                }
+                if(winMusicNewRecord != null){
+                    if(winMusicNewRecord.isPlaying()){
+                        winMusicNewRecord.stop();
+                    }
+                    winMusicNewRecord.release();
+                    winMusicNewRecord = null;
+                }
+                gameMusic1 = MediaPlayer.create(this, R.raw.finger_runner_game_music_1);
+                gameMusic1.setLooping(true);
                 if(!musicMuted) {
-                    gameMusic.start();
+                    gameMusic1.start();
                 }
                 nowPlaying = GAME_MUSIC_1;
                 break;
@@ -367,10 +415,16 @@ public class MainActivity extends AppCompatActivity {
                 gameEndMenu.setVisibility(View.VISIBLE);
                 root.removeView(gameEndMenu);
                 root.addView(gameEndMenu);
-                gameMusic.stop();
-                gameMusic.release();
-                gameMusic = null;
-
+                gameMusic1.stop();
+                gameMusic1.release();
+                gameMusic1 = null;
+                //Start lose music.
+                loseMusic1 = MediaPlayer.create(this, R.raw.finger_runner_lose_1);
+                loseMusic1.setLooping(false);
+                if(!musicMuted) {
+                    loseMusic1.start();
+                }
+                nowPlaying = LOSE_MUSIC_1;
                 //Set end game textviews for losing.
                 endGameUserTime.setText("Your Time: \nYou didn't finish!");
                 savedTime = loadBestTime();
@@ -390,10 +444,9 @@ public class MainActivity extends AppCompatActivity {
                 gameEndMenu.setVisibility(View.VISIBLE);
                 root.removeView(gameEndMenu);
                 root.addView(gameEndMenu);
-                gameMusic.stop();
-                gameMusic.release();
-                gameMusic = null;
-
+                gameMusic1.stop();
+                gameMusic1.release();
+                gameMusic1 = null;
                 //If new time was less than best time, save new time as best time. Display best time.
                 yourTime = gameScreen.gameTimer;
                 savedTime = loadBestTime();
@@ -407,13 +460,24 @@ public class MainActivity extends AppCompatActivity {
                         endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
                         endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
                         endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay());
-
                         bestTime.changeTime(yourTime.getTime());
+                        //Start win music.
+                        winMusicNewRecord = MediaPlayer.create(this, R.raw.finger_runner_win_new_record);
+                        winMusicNewRecord.setLooping(false);
+                        if(!musicMuted) {
+                            winMusicNewRecord.start();
+                        }
                     } else {
                         //Your time isn't a new best time.
                         endGameText.setText(R.string.win3);
                         endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
                         endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                        //Start win music.
+                        winMusic1 = MediaPlayer.create(this, R.raw.finger_runner_win_1);
+                        winMusic1.setLooping(false);
+                        if(!musicMuted) {
+                            winMusic1.start();
+                        }
                     }
                 } else {
                     //No best time has been saved (a run has never been completed), so your time is a new best time.
@@ -422,6 +486,12 @@ public class MainActivity extends AppCompatActivity {
                     endGameText.setText(R.string.win2);
                     endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
                     endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
+                    //Start win music.
+                    winMusicNewRecord = MediaPlayer.create(this, R.raw.finger_runner_win_new_record);
+                    winMusicNewRecord.setLooping(false);
+                    if(!musicMuted) {
+                        winMusicNewRecord.start();
+                    }
                 }
 
                 gameScreen.resetVariables();
@@ -452,15 +522,15 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
-        if(gameMusic != null) {
+        if(gameMusic1 != null) {
 //            for (int i = 1000; i >= 0; i--) {
 //                volume = i / 1000f;
-//                gameMusic.setVolume(volume, volume);
+//                gameMusic1.setVolume(volume, volume);
 //            }
             //Stop game music.
-            gameMusic.stop();
-            gameMusic.release();
-            gameMusic = null;
+            gameMusic1.stop();
+            gameMusic1.release();
+            gameMusic1 = null;
         }
     }
 
@@ -502,6 +572,43 @@ public class MainActivity extends AppCompatActivity {
         gameEndMenu.setVisibility(View.GONE);
         pauseMenu.setVisibility(View.GONE);
     }
+
+    //TODO: Start music function.
+//    public void startMusic(int musicToPlay){
+//        switch(musicToPlay) {
+//            case MENU_MUSIC:
+//                stopMusic(nowPlaying);
+//                nowPlaying = MENU_MUSIC;
+//                menuMusic = MediaPlayer.create(this, R.raw.finger_runner_main_menu);
+//                menuMusic.setLooping(true);
+//                if(!musicMuted){
+//                    menuMusic.start();
+//                }
+//                break;
+//
+//            case GAME_MUSIC_1:
+//        }
+//    }
+
+    //TODO: Pause music function.
+//    public void pauseMusic(int musicToPause){
+//        switch(musicToPause) {
+//            case MENU_MUSIC:
+//                //
+//                break;
+//            case GAME_MUSIC_1:
+//        }
+//    }
+
+    //TODO: Stop music function.
+//    public void stopMusic(int musicToStop){
+//        switch(musicToStop) {
+//            case MENU_MUSIC:
+//                //
+//                break;
+//            case GAME_MUSIC_1:
+//        }
+//    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -595,9 +702,30 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else if(nowPlaying == GAME_MUSIC_1){
-            if(gameMusic != null) {
-                if (gameMusic.isPlaying()) {
-                    gameMusic.pause();
+            if(gameMusic1 != null) {
+                if (gameMusic1.isPlaying()) {
+                    gameMusic1.pause();
+                    musicPausedByLeavingApp = true;
+                }
+            }
+        }else if(nowPlaying == LOSE_MUSIC_1){
+            if(loseMusic1 != null) {
+                if (loseMusic1.isPlaying()) {
+                    loseMusic1.pause();
+                    musicPausedByLeavingApp = true;
+                }
+            }
+        }else if(nowPlaying == WIN_MUSIC_1){
+            if(winMusic1 != null) {
+                if (winMusic1.isPlaying()) {
+                    winMusic1.pause();
+                    musicPausedByLeavingApp = true;
+                }
+            }
+        }else if(nowPlaying == WIN_MUSIC_NEW_RECORD){
+            if(winMusicNewRecord != null) {
+                if (winMusicNewRecord.isPlaying()) {
+                    winMusicNewRecord.pause();
                     musicPausedByLeavingApp = true;
                 }
             }
@@ -619,7 +747,7 @@ public class MainActivity extends AppCompatActivity {
                 menuMusic.start();
             }
             else if(nowPlaying == GAME_MUSIC_1){
-                gameMusic.start();
+                gameMusic1.start();
             }
             musicPausedByLeavingApp = false;
         }
