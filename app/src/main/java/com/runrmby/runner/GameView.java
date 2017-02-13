@@ -249,19 +249,6 @@ public class GameView extends SurfaceView implements Runnable {
         mA.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                int minutes = (int) time / 60000;
-//                int remainder = (int) time - minutes * 60000;
-//                int seconds = (int) remainder / 1000;
-//                String secondsString;
-//                if(seconds > 10) {
-//                    secondsString = String.valueOf(seconds);
-//                }else {
-//                    secondsString = "0" + seconds;
-//                }
-//                remainder = remainder - seconds * 1000;
-//                int milSec = remainder;
-//                String string = minutes + ":" + secondsString + "." + milSec;
-//                mA.timer.setText(string);
                 gameTimer.changeTime(time);
                 mA.timer.setText(gameTimer.getTimeForDisplay());
             }
@@ -408,9 +395,8 @@ public class GameView extends SurfaceView implements Runnable {
         obsD.updateObstacles(distance);
         //-----------------------------------------------------------------------------
 
-        //backgroundPositionY += 15; // This should be set by the person's touches
-        //backgroundPositionY2 += 15;
-        // 15 needs to be the amount that the background not being moved has travelled
+
+        // Loop backgrounds if they have passed beyond screen
         if(backgroundPositionY > background.getHeight()) {
             backgroundPositionY = -background.getHeight() + backgroundPositionY2;
         }
@@ -464,9 +450,6 @@ public class GameView extends SurfaceView implements Runnable {
         float x, y;
 
         int id;
-
-        // Using this vs null because then we don't create a bunch of these objects
-        //boolean isNull = true;
 
         public void setXY(float x, float y) {
             System.out.println("GV| finger1 y: " + y);
