@@ -126,7 +126,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         background = BitmapFactory.decodeResource(this.getResources(), R.drawable.road, ops);
 
-        System.out.println("GV| bitmap type: " + background.getConfig().name());
+        //System.out.println("GV| bitmap type: " + background.getConfig().name());
 
         //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
 
@@ -404,8 +404,8 @@ public class GameView extends SurfaceView implements Runnable {
 
             case MotionEvent.ACTION_POINTER_UP:
                 // Figure out what number isn't in pointers
-                fingers.remove(Integer.valueOf(event.getActionIndex()));
-                if(event.getActionIndex() == activeFinger.id) {
+                fingers.remove(Integer.valueOf(event.getPointerId(event.getActionIndex())));
+                if(event.getPointerId(event.getActionIndex()) == activeFinger.id) {
                     int f = fingers.get(fingers.size() - 1);
                     if(event.findPointerIndex(f) >= 0) {//TODO: Temporary fix to prevent invalid pointer index from causing crash.
                         activeFinger.setNew(f, event.getX(event.findPointerIndex(f)), event.getY(event.findPointerIndex(f)));
