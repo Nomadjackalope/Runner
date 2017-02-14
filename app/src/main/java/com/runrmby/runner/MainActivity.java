@@ -205,12 +205,13 @@ public class MainActivity extends AppCompatActivity {
 
         gameScreen.setVisibility(View.VISIBLE);
         gameScreen.setTranslationY(windowSize.y);
+        gameScreen.setBackgroundColor(0x00000000); // Wish there was a way to get this from colors.xml
 
         //Music
         musicMuted = sharedPref.getBoolean("musicMuted", false);
 
 
-        setGameState2(MAIN_MENU);
+        setGameState(MAIN_MENU);
 
         endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
         endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
@@ -220,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         playAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setGameState2(GAME_INITIALIZING);
+                setGameState(GAME_INITIALIZING);
             }
         });
 
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setGameState2(TRANSIT_TO_MM);
+                setGameState(TRANSIT_TO_MM);
             }
         });
 
@@ -237,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setGameState2(TRANSIT_TO_GAME);
+                setGameState(TRANSIT_TO_GAME);
             }
         });
 
@@ -245,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
         tempButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setGameState2(PAUSED);
+                setGameState(PAUSED);
             }
         });
 
@@ -277,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
         pauseMMButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setGameState2(TRANSIT_TO_MM);
+                setGameState(TRANSIT_TO_MM);
             }
         });
 
@@ -285,13 +286,13 @@ public class MainActivity extends AppCompatActivity {
         resumeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setGameState2(GAME_PLAYING);
+                setGameState(GAME_PLAYING);
             }
         });
 
     }
 
-    public void setGameState2(int state) {
+    public void setGameState(int state) {
         if(gameState != state) {
             previousGameState = gameState;
         }
@@ -336,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
     public void setGameInitState() {
         gameScreen.resetVariables();
         gameScreen.resumeGame();
-        setGameState2(GAME_PLAYING);
+        setGameState(GAME_PLAYING);
         //Start music.
         setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
     }
@@ -442,6 +443,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTransitMMState() {
+
         gameScreen.animate()
                 .translationY(windowSize.y)
                 .setDuration(1000);
@@ -452,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        setGameState2(MAIN_MENU);
+                        setGameState(MAIN_MENU);
                     }
                 });
 
@@ -473,11 +475,11 @@ public class MainActivity extends AppCompatActivity {
 //        gameScreen.draw();
 
         gameScreen.animate()
-                .translationY(0)//-windowSize.y)
+                .translationY(50)//-windowSize.y)
                 .setDuration(1000);
 
         //Update gameScreen to look reset.
-        gameScreen.resetVariables();
+        //gameScreen.resetVariables();
 
         titleScreen.animate()
                 .translationY(-windowSize.y)
@@ -485,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        setGameState2(GAME_INITIALIZING);
+                        setGameState(GAME_INITIALIZING);
                     }
                 });
 
@@ -625,7 +627,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(gameState == GAME_PLAYING){
-            setGameState2(PAUSED);
+            setGameState(PAUSED);
         }
         gameScreen.pause();
     }
@@ -651,15 +653,15 @@ public class MainActivity extends AppCompatActivity {
         gameScreen.resume();
 
         if(gameState == PAUSED){
-            setGameState2(GAME_PLAYING);
+            setGameState(GAME_PLAYING);
             gameScreen.pauseGame();
             pauseMenu.setVisibility(View.VISIBLE);
             root.removeView(pauseMenu);
             root.addView(pauseMenu);
             //gameState = PAUSED;
-            //setGameState2(PAUSED); //TODO: Resuming to PAUSED state doesn't seem to work.
+            //setGameState(PAUSED); //TODO: Resuming to PAUSED state doesn't seem to work.
         } else {
-            setGameState2(gameState);//setGameState2(previousGameState);
+            setGameState(gameState);//setGameState(previousGameState);
         }
     }
 

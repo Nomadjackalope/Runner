@@ -358,13 +358,13 @@ public class GameView extends SurfaceView implements Runnable {
 
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
-                    mA.setGameState2(MainActivity.GAME_LOST);
+                    mA.setGameState(MainActivity.GAME_LOST);
                 }
                 //---------------------------------------------------------------------------
 
                 //Check if finish line has been reached.
                 if(odometer > courseDistance){
-                    mA.setGameState2(MainActivity.GAME_WON);
+                    mA.setGameState(MainActivity.GAME_WON);
                 }
 
                 break;
@@ -397,7 +397,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
-                    mA.setGameState2(MainActivity.GAME_LOST);
+                    mA.setGameState(MainActivity.GAME_LOST);
                 }
                 //---------------------------------------------------------------------------
                 break;
