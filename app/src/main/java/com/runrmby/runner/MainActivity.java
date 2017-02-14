@@ -344,6 +344,13 @@ public class MainActivity extends AppCompatActivity {
     public void setGamePlayingState() {
         gameMenu.setVisibility(View.VISIBLE);
         gameScreen.handleTouches = true;
+        if(activeMusic != null) {
+            if (!activeMusic.isPlaying()) {
+                if(!musicMuted) {
+                    activeMusic.start();
+                }
+            }
+        }
     }
 
     public void setGameWonState() {
@@ -421,6 +428,12 @@ public class MainActivity extends AppCompatActivity {
     // Game paused. Not app paused.
     public void setPausedState() {
         gameScreen.pauseGame();
+
+        if(activeMusic != null) {
+            if (activeMusic.isPlaying()) {
+                activeMusic.pause();
+            }
+        }
 
         pauseMenu.setVisibility(View.VISIBLE);
 
