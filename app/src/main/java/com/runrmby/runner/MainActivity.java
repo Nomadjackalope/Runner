@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     System.out.println("MA| titleScreen Size: " + titleScreen.getMeasuredWidth() + ", " + titleScreen.getMeasuredHeight());
                     windowSize.set(titleScreen.getMeasuredWidth(), titleScreen.getMeasuredHeight());
-                    if(gameState != PLAYING_GAME && gameState != LOSE && gameState != WIN) {
+                    if(gameState != GAME_PLAYING && gameState != GAME_INITIALIZING && gameState != GAME_LOST && gameState != GAME_WON) {
                         gameScreen.setBackgroundSizePos(windowSize);
                         gameScreen.setTranslationY(windowSize.y);
                     }
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     private int nowPlaying;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
-    float volume;
+    //float volume;
 
     private Button playButton;
     private Button tempButton;
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
     private int previousGameState = MAIN_MENU;
 
 
-    private File bestTimeFilePath;
+    //private File bestTimeFilePath;
     private Long savedTime;
     private Time bestTime = new Time();
     private Time timeDifferential = new Time();
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Play/pause button listener. If music is playing when button is pressed, pause music. Otherwise play the music.
+        //Mute music toggle button.
         final ToggleButton musicMuteButton = (ToggleButton)this.findViewById(R.id.mute_music_button);
         if(musicMuted){
             musicMuteButton.setChecked(false);
@@ -263,9 +263,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     musicMuted = false;
-                    setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC);
+                    setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
                     //musicPausedByButton = false;
                 }
+
+                //Store mute preference.
+                prefEditor.putBoolean("musicMuted", musicMuted);
+                prefEditor.commit();
             }
         });
 
@@ -325,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
     public void setMenuState() {
         mainMenu.setVisibility(View.VISIBLE);
         //Start win music.
-        setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC);
+        setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
 
     }
 
@@ -334,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         gameScreen.resetVariables();
         setGameState2(GAME_PLAYING);
         //Start music.
-        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1);
+        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
     }
 
     public void setGamePlayingState() {
@@ -345,6 +349,8 @@ public class MainActivity extends AppCompatActivity {
     public void setGameWonState() {
         gameScreen.pauseGame();
         gameEndMenu.setVisibility(View.VISIBLE);
+        root.removeView(gameEndMenu);
+        root.addView(gameEndMenu);
 
         // TODO Shrink this or at least separate it into its functional parts
         yourTime = gameScreen.gameTimer;
@@ -362,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
                 bestTime.changeTime(yourTime.getTime());
 
                 //Start win music.
-                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD);
+                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
 
             } else {
                 //Your time isn't a new best time.
@@ -371,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                 endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
 
                 //Start win music.
-                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_1);
+                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_1, false);
             }
         } else {
             //No best time has been saved (a run has never been completed), so your time is a new best time.
@@ -382,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
             endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
 
             //Start win music.
-            setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD);
+            setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
         }
     }
 
@@ -394,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Start lose music with
-        setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1);
+        setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
 
         //Set end game textviews for losing.
         endGameUserTime.setText("Your Time: \nYou didn't finish!");
@@ -482,11 +488,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // id should be from R.raw
-    public void setMusicState(int id, int musicState) {
+    public void setMusicState(int id, int musicState, boolean loop) {
         stopMusic();
 
         activeMusic = MediaPlayer.create(this, id);
-        activeMusic.setLooping(true);
+        activeMusic.setLooping(loop);
         if(!musicMuted) {
             activeMusic.start();
         }
@@ -592,11 +598,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause(){
         super.onPause();
         //If music is playing, pause upon leaving the app.
-        prefEditor.putBoolean("musicMuted", musicMuted);
-        prefEditor.commit();
-//        prefEditor.putInt("nowPlaying", nowPlaying);
-//        prefEditor.commit();
-
         if(activeMusic != null) {
             if(activeMusic.isPlaying()) {
                 activeMusic.pause();
