@@ -111,12 +111,21 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
 
-    public static final int NONE = 0;
-    public static final int PLAYING_GAME = 1;
-    public static final int LOSE = 2;
-    public static final int WIN = 3;
-    public static final int MAIN_MENU = 4;
-    public static final int PAUSE = 5;
+    //public static final int NONE = 0;
+    //public static final int PLAYING_GAME = 1;
+    //public static final int LOSE = 2;
+    //    public static final int WIN = 3;
+
+    // NEW STATES
+    public static final int MAIN_MENUD = 4;
+    public static final int PAUSED = 5;
+    public static final int GAME_INITIALIZING = 6;
+    public static final int GAME_PLAYING = 7;
+    public static final int GAME_WON = 8;
+    public static final int GAME_LOST = 9;
+    public static final int TRANSIT_TO_GAME = 10;
+    public static final int TRANSIT_TO_MM = 11;
+
 
 
     MediaPlayer menuMusic;
@@ -130,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int WIN_MUSIC_1 = 3;
     private static final int WIN_MUSIC_NEW_RECORD = 4;
     private int nowPlaying;
+    private MediaPlayer activeMusic;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
     float volume;
@@ -157,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Point windowSize = new Point(1000, 2000); // arbitrary values
 
-    private int gameState = MAIN_MENU;
+    private int gameState = MAIN_MENUD;
+    private int previousGameState = MAIN_MENUD;
 
 
     private File bestTimeFilePath;
@@ -170,26 +181,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Testing vcs
-
         setContentView(R.layout.activity_main);
 
-        //mVisible = true;
-        //mControlsView = findViewById(R.id.fullscreen_content_controls);
-        //mContentView = findViewById(R.id.fullscreen_content);
 
-        // Set up the user interaction to manually show or hide the system UI.
-//        mContentView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //toggle();
-//            }
-//        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
         prefEditor = sharedPref.edit();
@@ -199,10 +193,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
         //bestTimeFilePath.delete(); //Deletes best time on start for testing.
 
-        //----------------------- Game Code ---------------------------
-
-//        this.getWindowManager().getDefaultDisplay().getSize(windowSize);
-//        System.out.println("MA| windowSize: " + windowSize.x + ", " + windowSize.y);
 
 
         root = (FrameLayout) findViewById(R.id.root);
@@ -228,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         musicMuted = sharedPref.getBoolean("musicMuted", false);
 
 
-        requestGameState(MAIN_MENU);
+        setGameState2(MAIN_MENUD);
 
         endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
         endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
@@ -238,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         playAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestGameState(PLAYING_GAME);
+                setGameState2(GAME_INITIALIZING);
             }
         });
 
@@ -246,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestGameState(MAIN_MENU);
+                setGameState2(TRANSIT_TO_MM);
             }
         });
 
@@ -255,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestGameState(PLAYING_GAME);
+                setGameState2(TRANSIT_TO_GAME);
             }
         });
 
@@ -263,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
         tempButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestGameState(MAIN_MENU);
+                setGameState2(PAUSED);
             }
         });
 
@@ -275,13 +265,13 @@ public class MainActivity extends AppCompatActivity {
         musicMuteButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 if(!musicMuted) {
-                    menuMusic.pause();
+                    stopMusic();
                     musicMuted = true;
                     //musicPausedByButton = true;
                 }
                 else {
-                    menuMusic.start();
                     musicMuted = false;
+                    setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC);
                     //musicPausedByButton = false;
                 }
             }
@@ -291,226 +281,156 @@ public class MainActivity extends AppCompatActivity {
         pauseMMButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestGameState(PAUSE);
+                setGameState2(TRANSIT_TO_MM);
+            }
+        });
+
+        resumeButton = (Button) findViewById(R.id.resumeButton);
+        resumeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setGameState2(GAME_PLAYING);
             }
         });
 
     }
 
-    // This function runs movement animations to get to other states
-    //  then calls setGameState when they have completed
-    public void requestGameState(int state) {
-        hideAllMenus();
-        switch (state) {
-            case MAIN_MENU:
-                if(gameState != MAIN_MENU) {
-                    gameScreen.pause();
-                    transitionToMainMenu();
-                } else {
-                    setGameState(MAIN_MENU);
-                }
-                break;
-            case PLAYING_GAME:
-                gameScreen.handleTouches = true;
-                if(gameState == LOSE || gameState == WIN) {
-                    gameScreen.resume();
-                    setGameState(PLAYING_GAME);
-                } else {
-                    // Make sure gameScreen is in the right position
-                    if(gameScreen.getTranslationY() != windowSize.y) {
-                        gameScreen.setTranslationY(windowSize.y);
-                        gameScreen.setBackgroundSizePos(windowSize);
-                    }
-                    gameScreen.resume();
-                    transitionToGame();
-                }
-                break;
-            case LOSE:
-                gameScreen.handleTouches = false;
-                System.out.println("hi");
-                gameMusic1.pause();
-                gameScreen.pause();
-                setGameState(LOSE);
-                break;
-            case WIN:
-                gameScreen.handleTouches = false;
-                gameMusic1.pause();
-                gameScreen.pause();
-                setGameState(WIN);
-
-                break;
-            case PAUSE:
-                setGameState(PAUSE);
-                break;
-            case NONE:
-                // Nothing happens here
-                break;
+    public void setGameState2(int state) {
+        if(gameState != state) {
+            previousGameState = gameState;
         }
-    }
-
-    // This function changes the state
-    // Don't call this directly. Call requestGameState
-    private void setGameState(int state) {
         gameState = state;
+        hideAllMenus();
+
         switch (state) {
-            case MAIN_MENU:
-                mainMenu.setVisibility(View.VISIBLE);
-                //Start menu music.
-                if(loseMusic1 != null){
-                    if(loseMusic1.isPlaying()){
-                        loseMusic1.stop();
-                    }
-                    loseMusic1.release();
-                    loseMusic1 = null;
-                }
-                if(winMusic1 != null){
-                    if(winMusic1.isPlaying()){
-                        winMusic1.stop();
-                    }
-                    winMusic1.release();
-                    winMusic1 = null;
-                }
-                if(winMusicNewRecord != null){
-                    if(winMusicNewRecord.isPlaying()){
-                        winMusicNewRecord.stop();
-                    }
-                    winMusicNewRecord.release();
-                    winMusicNewRecord = null;
-                }
-                menuMusic = MediaPlayer.create(this, R.raw.finger_runner_main_menu);
-                menuMusic.setLooping(true);
-                if(!musicMuted) {
-                    menuMusic.start();
-                }
-                nowPlaying = MENU_MUSIC;
+            case MAIN_MENUD:
+                setMenuState();
                 break;
-            case PLAYING_GAME:
-                gameMenu.setVisibility(View.VISIBLE);
-                //Start game music.
-                if(loseMusic1 != null){
-                    if(loseMusic1.isPlaying()){
-                        loseMusic1.stop();
-                    }
-                    loseMusic1.release();
-                    loseMusic1 = null;
-                }
-                if(winMusic1 != null){
-                    if(winMusic1.isPlaying()){
-                        winMusic1.stop();
-                    }
-                    winMusic1.release();
-                    winMusic1 = null;
-                }
-                if(winMusicNewRecord != null){
-                    if(winMusicNewRecord.isPlaying()){
-                        winMusicNewRecord.stop();
-                    }
-                    winMusicNewRecord.release();
-                    winMusicNewRecord = null;
-                }
-                gameMusic1 = MediaPlayer.create(this, R.raw.finger_runner_game_music_1);
-                gameMusic1.setLooping(true);
-                if(!musicMuted) {
-                    gameMusic1.start();
-                }
-                nowPlaying = GAME_MUSIC_1;
+            case GAME_INITIALIZING:
+                setGameInitState();
                 break;
-            case LOSE:
-                gameEndMenu.setVisibility(View.VISIBLE);
-                root.removeView(gameEndMenu);
-                root.addView(gameEndMenu);
-                gameMusic1.stop();
-                gameMusic1.release();
-                gameMusic1 = null;
-                //Start lose music.
-                loseMusic1 = MediaPlayer.create(this, R.raw.finger_runner_lose_1);
-                loseMusic1.setLooping(false);
-                if(!musicMuted) {
-                    loseMusic1.start();
-                }
-                nowPlaying = LOSE_MUSIC_1;
-                //Set end game textviews for losing.
-                endGameUserTime.setText("Your Time: \nYou didn't finish!");
-                savedTime = loadBestTime();
-                if(savedTime != 0) {
-                    //There was a saved best time.
-                    bestTime.changeTime(savedTime);
-                    endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
-                    endGameText.setText(R.string.lose2);
-                }else {
-                    //The loaded best time was null (there has never been a best time saved).
-                    endGameBestTime.setText("Best Time: \n" + "You've never finished!");
-                    endGameText.setText(R.string.lose1);
-                }
-                gameScreen.resetVariables();
+            case GAME_PLAYING:
+                setGamePlayingState();
                 break;
-            case WIN:
-                gameEndMenu.setVisibility(View.VISIBLE);
-                root.removeView(gameEndMenu);
-                root.addView(gameEndMenu);
-                gameMusic1.stop();
-                gameMusic1.release();
-                gameMusic1 = null;
-                //If new time was less than best time, save new time as best time. Display best time.
-                yourTime = gameScreen.gameTimer;
-                savedTime = loadBestTime();
-                if(savedTime != 0) {
-                    //A best time exists.
-                    bestTime.changeTime(savedTime); //Put best time into Time class.
-                    if (yourTime.getTime() < bestTime.getTime()) {
-                        //Your time is a new best time.
-                        timeDifferential.changeTime(bestTime.getTime() - yourTime.getTime());
-                        saveNewBestTime(yourTime.getTime());
-                        endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
-                        endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
-                        endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay());
-                        bestTime.changeTime(yourTime.getTime());
-                        //Start win music.
-                        winMusicNewRecord = MediaPlayer.create(this, R.raw.finger_runner_win_new_record);
-                        winMusicNewRecord.setLooping(false);
-                        if(!musicMuted) {
-                            winMusicNewRecord.start();
-                        }
-                    } else {
-                        //Your time isn't a new best time.
-                        endGameText.setText(R.string.win3);
-                        endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
-                        endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
-                        //Start win music.
-                        winMusic1 = MediaPlayer.create(this, R.raw.finger_runner_win_1);
-                        winMusic1.setLooping(false);
-                        if(!musicMuted) {
-                            winMusic1.start();
-                        }
-                    }
-                } else {
-                    //No best time has been saved (a run has never been completed), so your time is a new best time.
-                    saveNewBestTime(yourTime.getTime());
-                    bestTime.changeTime(yourTime.getTime());
-                    endGameText.setText(R.string.win2);
-                    endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
-                    endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
-                    //Start win music.
-                    winMusicNewRecord = MediaPlayer.create(this, R.raw.finger_runner_win_new_record);
-                    winMusicNewRecord.setLooping(false);
-                    if(!musicMuted) {
-                        winMusicNewRecord.start();
-                    }
-                }
-
-                gameScreen.resetVariables();
+            case GAME_WON:
+                setGameWonState();
                 break;
-            case PAUSE:
-                pauseMenu.setVisibility(View.VISIBLE);
-
+            case GAME_LOST:
+                setGameLostState();
                 break;
-            case NONE:
-                // Nothing happens here
+            case PAUSED:
+                setPausedState();
+                break;
+            case TRANSIT_TO_MM:
+                setTransitMMState();
+                break;
+            case TRANSIT_TO_GAME:
+                setTransitGameState();
                 break;
         }
     }
 
-    private void transitionToMainMenu() {
+    public void setMenuState() {
+        mainMenu.setVisibility(View.VISIBLE);
+        //Start win music.
+        setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC);
+
+    }
+
+    public void setGameInitState() {
+        gameScreen.resumeGame();
+        gameScreen.resetVariables();
+        setGameState2(GAME_PLAYING);
+        //Start music.
+        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1);
+    }
+
+    public void setGamePlayingState() {
+        gameMenu.setVisibility(View.VISIBLE);
+        gameScreen.handleTouches = true;
+    }
+
+    public void setGameWonState() {
+        gameScreen.pauseGame();
+        gameEndMenu.setVisibility(View.VISIBLE);
+
+        // TODO Shrink this or at least separate it into its functional parts
+        yourTime = gameScreen.gameTimer;
+        savedTime = loadBestTime();
+        if(savedTime != 0) {
+            //A best time exists.
+            bestTime.changeTime(savedTime); //Put best time into Time class.
+            if (yourTime.getTime() < bestTime.getTime()) {
+                //Your time is a new best time.
+                timeDifferential.changeTime(bestTime.getTime() - yourTime.getTime());
+                saveNewBestTime(yourTime.getTime());
+                endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
+                endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
+                endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay());
+                bestTime.changeTime(yourTime.getTime());
+
+                //Start win music.
+                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD);
+
+            } else {
+                //Your time isn't a new best time.
+                endGameText.setText(R.string.win3);
+                endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
+                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+
+                //Start win music.
+                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_1);
+            }
+        } else {
+            //No best time has been saved (a run has never been completed), so your time is a new best time.
+            saveNewBestTime(yourTime.getTime());
+            bestTime.changeTime(yourTime.getTime());
+            endGameText.setText(R.string.win2);
+            endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
+            endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
+
+            //Start win music.
+            setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD);
+        }
+    }
+
+    public void setGameLostState() {
+        gameScreen.pauseGame();
+        gameEndMenu.setVisibility(View.VISIBLE);
+        root.removeView(gameEndMenu);
+        root.addView(gameEndMenu);
+
+
+        //Start lose music with
+        setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1);
+
+        //Set end game textviews for losing.
+        endGameUserTime.setText("Your Time: \nYou didn't finish!");
+        savedTime = loadBestTime();
+        if(savedTime != 0) {
+            //There was a saved best time.
+            bestTime.changeTime(savedTime);
+            endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+            endGameText.setText(R.string.lose2);
+        }else {
+            //The loaded best time was null (there has never been a best time saved).
+            endGameBestTime.setText("Best Time: \n" + "You've never finished!");
+            endGameText.setText(R.string.lose1);
+        }
+
+    }
+
+    // Game paused. Not app paused.
+    public void setPausedState() {
+        gameScreen.pauseGame();
+
+        pauseMenu.setVisibility(View.VISIBLE);
+
+        root.removeView(pauseMenu);
+        root.addView(pauseMenu);
+    }
+
+    public void setTransitMMState() {
         gameScreen.animate()
                 .translationY(windowSize.y)
                 .setDuration(1000);
@@ -521,10 +441,11 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        setGameState(MAIN_MENU);
+                        setGameState2(MAIN_MENUD);
                     }
                 });
 
+        //Move this into music state machine
         //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
         if(gameMusic1 != null) {
 //            for (int i = 1000; i >= 0; i--) {
@@ -532,13 +453,11 @@ public class MainActivity extends AppCompatActivity {
 //                gameMusic1.setVolume(volume, volume);
 //            }
             //Stop game music.
-            gameMusic1.stop();
-            gameMusic1.release();
-            gameMusic1 = null;
+            stopMusic();
         }
     }
 
-    private void transitionToGame() {
+    public void setTransitGameState() {
         gameScreen.animate()
                 .translationY(0)//-windowSize.y)
                 .setDuration(1000);
@@ -549,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        setGameState(PLAYING_GAME);
+                        setGameState2(GAME_INITIALIZING);
                     }
                 });
 
@@ -558,17 +477,41 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameMenu);
 
         //TODO: Fade out menu music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
+        // Probably needs a handler to run on a different thread
+        // for i sticks the programming here until it is done then moves on
         if(menuMusic != null) {
 //            for (int i = 1000; i >= 0; i--) {
 //                volume = i / 1000f;
 //                menuMusic.setVolume(volume, volume);
 //            }
             //Stop menu music.
-            menuMusic.stop();
-            menuMusic.release();
-            menuMusic = null;
+            stopMusic();
         }
     }
+
+    // id should be from R.raw
+    public void setMusicState(int id, int musicState) {
+        stopMusic();
+
+        activeMusic = MediaPlayer.create(this, id);
+        activeMusic.setLooping(true);
+        if(!musicMuted) {
+            activeMusic.start();
+        }
+
+        nowPlaying = musicState;
+    }
+
+    public void stopMusic() {
+        if(activeMusic != null) {
+            if (activeMusic.isPlaying()) {
+                activeMusic.stop();
+            }
+            activeMusic.release();
+            activeMusic = null;
+        }
+    }
+
 
     private void hideAllMenus() {
         mainMenu.setVisibility(View.GONE);
@@ -614,25 +557,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        //delayedHide(100);
-
-    }
-
-    private void toggle() {
-        if (mVisible) {
-            hide();
-        } else {
-            show();
-        }
-    }
-
     private void hide() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
@@ -645,23 +569,6 @@ public class MainActivity extends AppCompatActivity {
         // Schedule a runnable to remove the status and navigation bar after a delay
         mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
-    }
-
-    private void hideImmediately() {
-        // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        //mControlsView.setVisibility(View.GONE);
-        mVisible = false;
-
-        root.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
 
     @SuppressLint("InlinedApi")
@@ -697,41 +604,11 @@ public class MainActivity extends AppCompatActivity {
         prefEditor.commit();
 //        prefEditor.putInt("nowPlaying", nowPlaying);
 //        prefEditor.commit();
-        if(nowPlaying == MENU_MUSIC) {
-            if(menuMusic != null) {
-                if (menuMusic.isPlaying()) {
-                    menuMusic.pause();
-                    musicPausedByLeavingApp = true;
-                }
-            }
-        }
-        else if(nowPlaying == GAME_MUSIC_1){
-            if(gameMusic1 != null) {
-                if (gameMusic1.isPlaying()) {
-                    gameMusic1.pause();
-                    musicPausedByLeavingApp = true;
-                }
-            }
-        }else if(nowPlaying == LOSE_MUSIC_1){
-            if(loseMusic1 != null) {
-                if (loseMusic1.isPlaying()) {
-                    loseMusic1.pause();
-                    musicPausedByLeavingApp = true;
-                }
-            }
-        }else if(nowPlaying == WIN_MUSIC_1){
-            if(winMusic1 != null) {
-                if (winMusic1.isPlaying()) {
-                    winMusic1.pause();
-                    musicPausedByLeavingApp = true;
-                }
-            }
-        }else if(nowPlaying == WIN_MUSIC_NEW_RECORD){
-            if(winMusicNewRecord != null) {
-                if (winMusicNewRecord.isPlaying()) {
-                    winMusicNewRecord.pause();
-                    musicPausedByLeavingApp = true;
-                }
+
+        if(activeMusic != null) {
+            if(activeMusic.isPlaying()) {
+                activeMusic.pause();
+                musicPausedByLeavingApp = true;
             }
         }
 
@@ -747,12 +624,7 @@ public class MainActivity extends AppCompatActivity {
         hide();
         //If music was paused upon leaving the app, resume playing the music.
         if(musicPausedByLeavingApp){
-            if(nowPlaying == MENU_MUSIC) {
-                menuMusic.start();
-            }
-            else if(nowPlaying == GAME_MUSIC_1){
-                gameMusic1.start();
-            }
+            activeMusic.start();
             musicPausedByLeavingApp = false;
         }
 
@@ -760,6 +632,8 @@ public class MainActivity extends AppCompatActivity {
         if(gameEndMenu.getVisibility() == View.GONE) {
             gameScreen.resume();
         }
+
+        setGameState2(previousGameState);
     }
 
     private void saveNewBestTime(long newBestTime){
