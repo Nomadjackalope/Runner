@@ -475,7 +475,7 @@ public class MainActivity extends AppCompatActivity {
 //        gameScreen.draw();
 
         gameScreen.animate()
-                .translationY(50)//-windowSize.y)
+                .translationY(0)//-windowSize.y)
                 .setDuration(1000);
 
         //Update gameScreen to look reset.
