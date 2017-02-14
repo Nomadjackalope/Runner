@@ -91,6 +91,8 @@ public class GameView extends SurfaceView implements Runnable {
     float tFY;
     float tFXOffset;
     float tFYOffset;
+    float touchDownX;
+    float touchDownY;
     //-----------------------------------------------------------------------------------------
 
     MainActivity mA;
@@ -248,11 +250,11 @@ public class GameView extends SurfaceView implements Runnable {
 
             //Update touch follower position. Could put outside of if(gameRunning) if want to resume movement after game paused while touchFollower is moving
             //...but then you could possibly cheat the timer by pausing right after the start of a big move.
-            if(tFX != activeFinger.x + tFXOffset) {
-                tFX += 0.1 * (activeFinger.x + tFXOffset - tFX);
+            if(tFX != touchDownX + tFXOffset) {
+                tFX += 0.1 * (touchDownX + tFXOffset - tFX);
             }
-            if(tFY != activeFinger.y + tFYOffset){
-                tFY += 0.1 * (activeFinger.y + tFYOffset - tFY);
+            if(tFY != touchDownY + tFYOffset){
+                tFY += 0.1 * (touchDownY + tFYOffset - tFY);
             }
 
             //Move obstacles(any movement independent from the road).
@@ -356,6 +358,9 @@ public class GameView extends SurfaceView implements Runnable {
                 activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
                 fingers.add(event.getPointerId(0));
 
+                touchDownY = activeFinger.y;
+                touchDownX = activeFinger.x;
+
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
                     mA.setGameState(MainActivity.GAME_LOST);
@@ -376,6 +381,8 @@ public class GameView extends SurfaceView implements Runnable {
                         activeFinger.setXY(event.getX(event.findPointerIndex(activeFinger.id)),
                                 event.getY(event.findPointerIndex(activeFinger.id)));
                         fingers.add(event.getPointerId(i));
+                        touchDownY = activeFinger.y;
+                        touchDownX = activeFinger.x;
                     }
 //                    //--------------Check if an obstacle has been touched-----------------------------
 //                    if (checkObstaclesTouched()){
@@ -393,6 +400,7 @@ public class GameView extends SurfaceView implements Runnable {
                     if(gameTimeLeft != 0) {
                         addToFingerMoveDist(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
                         activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+                        activeFinger.x = event.getX(event.findPointerIndex(activeFinger.id));
                     }
                 }
                 //--------------Check if an obstacle has been touched-----------------------------
@@ -439,10 +447,13 @@ public class GameView extends SurfaceView implements Runnable {
 
         distance *= 0.75;
 
-        System.out.println("GV| distance moved: " + distance);
+        //System.out.println("GV| distance moved: " + distance);
         //distance = distance;
         backgroundPositionY += distance;
         backgroundPositionY2 += distance;
+
+        touchDownY += distance;
+        tFY += distance;
 
         velocity = distance;
 
