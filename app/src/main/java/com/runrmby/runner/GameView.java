@@ -336,9 +336,14 @@ public class GameView extends SurfaceView implements Runnable {
     //
     boolean handleTouches = true;
 
+    /*
+    touchEventList [a,b,c]
+    findPointerIndex(b) = 1
+    getPointerId(0) = a
+    */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        System.out.println("GV| handleTouches: " + handleTouches);
+        //System.out.println("GV| handleTouches: " + handleTouches);
 
         if(!handleTouches) {
             return true;
@@ -347,7 +352,6 @@ public class GameView extends SurfaceView implements Runnable {
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
             case MotionEvent.ACTION_DOWN:
-
                 if(!gameRunning) {
                     gameRunning = true;
                     previousTime = System.currentTimeMillis();
@@ -429,7 +433,7 @@ public class GameView extends SurfaceView implements Runnable {
     //  this should keep two sections of road closer together
     void addToFingerMoveDist(float dist) {
         dist *= 0.75;
-        System.out.println("GV| addToFingerMoveDist: " + dist);
+        //System.out.println("GV| addToFingerMoveDist: " + dist);
         fingerMoveDist += dist;
     }
 
@@ -439,7 +443,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         distance *= 0.75;
 
-        System.out.println("GV| distance moved: " + distance);
+        //System.out.println("GV| distance moved: " + distance);
         //distance = distance;
         backgroundPositionY += distance;
         backgroundPositionY2 += distance;
