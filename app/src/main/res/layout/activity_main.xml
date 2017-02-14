@@ -85,7 +85,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_menu"
+            android:text="@string/quit"
             android:id="@+id/mainMenuButton"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
@@ -177,7 +177,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_menu"
+            android:text="@string/quit"
             android:id="@+id/pauseMMButton"
             android:layout_below="@+id/resumeButton"
             android:layout_centerHorizontal="true" />

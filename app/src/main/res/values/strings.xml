@@ -12,6 +12,7 @@
     <string name="main_menu">Main Menu</string>
     <string name="resume">Resume</string>
     <string name="pause">Pause</string>
+    <string name="quit">Quit</string>
     
     <string name="lose1">That was pretty bad</string>
     <string name="lose2">You really can do better</string>
