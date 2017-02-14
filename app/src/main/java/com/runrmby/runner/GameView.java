@@ -348,6 +348,11 @@ public class GameView extends SurfaceView implements Runnable {
 
             case MotionEvent.ACTION_DOWN:
 
+                if(!gameRunning) {
+                    gameRunning = true;
+                    previousTime = System.currentTimeMillis();
+                }
+
                 activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
                 fingers.add(event.getPointerId(0));
 
@@ -360,11 +365,6 @@ public class GameView extends SurfaceView implements Runnable {
                 //Check if finish line has been reached.
                 if(odometer > courseDistance){
                     mA.setGameState2(MainActivity.GAME_WON);
-                }
-
-                if(!gameRunning) {
-                    gameRunning = true;
-                    previousTime = System.currentTimeMillis();
                 }
 
                 break;
@@ -465,11 +465,13 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void pauseGame() {
+        System.out.println("GV| pauseGame called");
         handleTouches = false;
         gameRunning = false;
     }
 
     public void resumeGame() {
+        System.out.println("GV| resumeGame called");
         playing = true;
         handleTouches = true;
         gameRunning = false;
