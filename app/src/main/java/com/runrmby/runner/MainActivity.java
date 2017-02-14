@@ -111,13 +111,8 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
 
-    //public static final int NONE = 0;
-    //public static final int PLAYING_GAME = 1;
-    //public static final int LOSE = 2;
-    //    public static final int WIN = 3;
-
     // NEW STATES
-    public static final int MAIN_MENUD = 4;
+    public static final int MAIN_MENU = 4;
     public static final int PAUSED = 5;
     public static final int GAME_INITIALIZING = 6;
     public static final int GAME_PLAYING = 7;
@@ -128,18 +123,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    MediaPlayer menuMusic;
-    MediaPlayer gameMusic1;
-    MediaPlayer loseMusic1;
-    MediaPlayer winMusic1;
-    MediaPlayer winMusicNewRecord;
+    private MediaPlayer activeMusic;
     private static final int MENU_MUSIC = 0;
     private static final int GAME_MUSIC_1 = 1;
     private static final int LOSE_MUSIC_1 = 2;
     private static final int WIN_MUSIC_1 = 3;
     private static final int WIN_MUSIC_NEW_RECORD = 4;
     private int nowPlaying;
-    private MediaPlayer activeMusic;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
     float volume;
@@ -167,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Point windowSize = new Point(1000, 2000); // arbitrary values
 
-    private int gameState = MAIN_MENUD;
-    private int previousGameState = MAIN_MENUD;
+    private int gameState = MAIN_MENU;
+    private int previousGameState = MAIN_MENU;
 
 
     private File bestTimeFilePath;
@@ -218,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         musicMuted = sharedPref.getBoolean("musicMuted", false);
 
 
-        setGameState2(MAIN_MENUD);
+        setGameState2(MAIN_MENU);
 
         endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
         endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
@@ -303,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         hideAllMenus();
 
         switch (state) {
-            case MAIN_MENUD:
+            case MAIN_MENU:
                 setMenuState();
                 break;
             case GAME_INITIALIZING:
@@ -441,13 +431,13 @@ public class MainActivity extends AppCompatActivity {
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        setGameState2(MAIN_MENUD);
+                        setGameState2(MAIN_MENU);
                     }
                 });
 
         //Move this into music state machine
         //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
-        if(gameMusic1 != null) {
+        if(activeMusic!= null) {
 //            for (int i = 1000; i >= 0; i--) {
 //                volume = i / 1000f;
 //                gameMusic1.setVolume(volume, volume);
@@ -479,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
         //TODO: Fade out menu music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
         // Probably needs a handler to run on a different thread
         // for i sticks the programming here until it is done then moves on
-        if(menuMusic != null) {
+        if(activeMusic != null) {
 //            for (int i = 1000; i >= 0; i--) {
 //                volume = i / 1000f;
 //                menuMusic.setVolume(volume, volume);
