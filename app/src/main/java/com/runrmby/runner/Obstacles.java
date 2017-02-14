@@ -102,15 +102,22 @@ public class Obstacles {
         }
     }
 
-    public void drawObstacles(Canvas canvas, Paint paint){
-        for(int i = 0; i < maxNumberOfObstacles; i++) {
-            if(spawnTracker[i] == obstacleSpawned) {
-                if(coordinatesArray[i][0] < windowWidth){
+    public void moveObstacles() {
+        for (int i = 0; i < maxNumberOfObstacles; i++) {
+            if (spawnTracker[i] == obstacleSpawned) {
+                if (coordinatesArray[i][0] < windowWidth) {
                     coordinatesArray[i][0] += horizontalSpeed;
                 }
-                if(coordinatesArray[i][1] < windowHeight){
+                if (coordinatesArray[i][1] < windowHeight) {
                     coordinatesArray[i][1] += verticalSpeed;
                 }
+            }
+        }
+    }
+
+    public void drawObstacles(Canvas canvas, Paint paint) {
+        for (int i = 0; i < maxNumberOfObstacles; i++) {
+            if (spawnTracker[i] == obstacleSpawned) {
                 canvas.drawBitmap(obstacleImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
             }
         }

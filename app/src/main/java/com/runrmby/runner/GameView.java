@@ -211,7 +211,6 @@ public class GameView extends SurfaceView implements Runnable {
             update();
 
             draw();
-
         }
     }
 
@@ -255,6 +254,12 @@ public class GameView extends SurfaceView implements Runnable {
             if(tFY != activeFinger.y + tFYOffset){
                 tFY += 0.1 * (activeFinger.y + tFYOffset - tFY);
             }
+
+            //Move obstacles(any movement independent from the road).
+            obsA.moveObstacles();
+            obsB.moveObstacles();
+            obsC.moveObstacles();
+            obsD.moveObstacles();
         }
 
         switch (gameVersion) {
@@ -402,7 +407,9 @@ public class GameView extends SurfaceView implements Runnable {
                 fingers.remove(Integer.valueOf(event.getActionIndex()));
                 if(event.getActionIndex() == activeFinger.id) {
                     int f = fingers.get(fingers.size() - 1);
-                    activeFinger.setNew(f, event.getX(event.findPointerIndex(f)), event.getY(event.findPointerIndex(f)));
+                    if(event.findPointerIndex(f) >= 0) {//TODO: Temporary fix to prevent invalid pointer index from causing crash.
+                        activeFinger.setNew(f, event.getX(event.findPointerIndex(f)), event.getY(event.findPointerIndex(f)));
+                    }
                 }
 
                 break;
@@ -442,10 +449,10 @@ public class GameView extends SurfaceView implements Runnable {
         odometer += distance;
 
         //---------------Update Obstacles---------------------------------------------------
-        obsA.updateObstacles(distance);
-        obsB.updateObstacles(distance);
-        obsC.updateObstacles(distance);
-        obsD.updateObstacles(distance);
+            obsA.updateObstacles(distance);
+            obsB.updateObstacles(distance);
+            obsC.updateObstacles(distance);
+            obsD.updateObstacles(distance);
         //-----------------------------------------------------------------------------
 
         // Loop backgrounds
@@ -467,12 +474,15 @@ public class GameView extends SurfaceView implements Runnable {
         handleTouches = true;
         gameRunning = false;
         velocity = 0;
+//        update();
+//        draw();
         //previousTime = System.currentTimeMillis();
     }
 
     // Call this from activity
     public void pause() {
         pauseGame();
+        playing = false;
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -483,7 +493,6 @@ public class GameView extends SurfaceView implements Runnable {
     // Call this from activity
     public void resume() {
         resumeGame();
-        //resetVariables();
 
         gameThread = new Thread(this);
         gameThread.start();

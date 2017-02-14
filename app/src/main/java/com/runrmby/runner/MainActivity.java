@@ -334,8 +334,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setGameInitState() {
-        gameScreen.resumeGame();
         gameScreen.resetVariables();
+        gameScreen.resumeGame();
         setGameState2(GAME_PLAYING);
         //Start music.
         setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
@@ -456,9 +456,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTransitGameState() {
+//        gameScreen.update();
+//        gameScreen.draw();
+
         gameScreen.animate()
                 .translationY(0)//-windowSize.y)
                 .setDuration(1000);
+
+        //Update gameScreen to look reset.
+        gameScreen.resetVariables();
 
         titleScreen.animate()
                 .translationY(-windowSize.y)
@@ -605,6 +611,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        if(gameState == GAME_PLAYING){
+            setGameState2(PAUSED);
+        }
         gameScreen.pause();
     }
 
@@ -622,11 +631,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //If not on game over screen, resume gameScreen.
-        if(gameEndMenu.getVisibility() == View.GONE) {
-            gameScreen.resume();
-        }
+//        if(gameEndMenu.getVisibility() == View.GONE) {
+//            gameScreen.resume();
+//        }
 
-        setGameState2(previousGameState);
+        gameScreen.resume();
+
+        if(gameState == PAUSED){
+            setGameState2(GAME_PLAYING);
+            gameScreen.pauseGame();
+            pauseMenu.setVisibility(View.VISIBLE);
+            root.removeView(pauseMenu);
+            root.addView(pauseMenu);
+            //gameState = PAUSED;
+            //setGameState2(PAUSED); //TODO: Resuming to PAUSED state doesn't seem to work.
+        } else {
+            setGameState2(gameState);//setGameState2(previousGameState);
+        }
     }
 
     private void saveNewBestTime(long newBestTime){
