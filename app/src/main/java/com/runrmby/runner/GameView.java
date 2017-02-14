@@ -208,7 +208,6 @@ public class GameView extends SurfaceView implements Runnable {
     @Override
     public void run() {
         while(playing) {
-
             update();
 
             draw();
@@ -334,6 +333,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        System.out.println("GV| handleTouches: " + handleTouches);
 
         if(!handleTouches) {
             return true;
@@ -348,13 +348,13 @@ public class GameView extends SurfaceView implements Runnable {
 
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
-                    mA.requestGameState(MainActivity.LOSE);
+                    mA.setGameState2(MainActivity.GAME_LOST);
                 }
                 //---------------------------------------------------------------------------
 
                 //Check if finish line has been reached.
                 if(odometer > courseDistance){
-                    mA.requestGameState(MainActivity.WIN);
+                    mA.setGameState2(MainActivity.GAME_WON);
                 }
 
                 if(!gameRunning) {
@@ -392,7 +392,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
-                    mA.requestGameState(MainActivity.LOSE);
+                    mA.setGameState2(MainActivity.GAME_LOST);
                 }
                 //---------------------------------------------------------------------------
                 break;
@@ -448,9 +448,7 @@ public class GameView extends SurfaceView implements Runnable {
         obsD.updateObstacles(distance);
         //-----------------------------------------------------------------------------
 
-        //backgroundPositionY += 15; // This should be set by the person's touches
-        //backgroundPositionY2 += 15;
-        // 15 needs to be the amount that the background not being moved has travelled
+        // Loop backgrounds
         if(backgroundPositionY > background.getHeight()) {
             backgroundPositionY = -background.getHeight() + backgroundPositionY2;
         }
@@ -459,9 +457,22 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    public void pauseGame() {
+        handleTouches = false;
+        gameRunning = false;
+    }
+
+    public void resumeGame() {
+        playing = true;
+        handleTouches = true;
+        gameRunning = false;
+        velocity = 0;
+        //previousTime = System.currentTimeMillis();
+    }
+
     // Call this from activity
     public void pause() {
-        playing = false;
+        pauseGame();
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -471,13 +482,11 @@ public class GameView extends SurfaceView implements Runnable {
 
     // Call this from activity
     public void resume() {
-        playing = true;
+        resumeGame();
         //resetVariables();
-        velocity = 0;
+
         gameThread = new Thread(this);
         gameThread.start();
-        previousTime = System.currentTimeMillis();
-        gameRunning = false;
     }
 
     public class FingerPoint {
@@ -517,17 +526,19 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         //Now check if touch follower is touching an obstacle.
-        if (obsA.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (obsB.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (obsC.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else {
-            return false;
-        }
+//        if (obsA.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+//            return true;
+//        } else if (obsB.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+//            return true;
+//        } else if (obsC.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+//            return true;
+//        } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+
+        return false;
     }
 //---------------------------------------------------------------------------
 
