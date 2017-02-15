@@ -329,8 +329,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void setMenuState() {
         mainMenu.setVisibility(View.VISIBLE);
-        //Start win music.
-        setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
+        //Start menu music.
+        if(activeMusic != null) {
+            if (!activeMusic.isPlaying()) {
+                if(!musicMuted) {
+                    activeMusic.start();
+                }
+            }
+        } else {
+            setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
+        }
 
     }
 
@@ -376,7 +384,9 @@ public class MainActivity extends AppCompatActivity {
                 bestTime.changeTime(yourTime.getTime());
 
                 //Start win music.
-                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+                if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
+                    setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+                }
 
             } else {
                 //Your time isn't a new best time.
@@ -385,7 +395,9 @@ public class MainActivity extends AppCompatActivity {
                 endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
 
                 //Start win music.
-                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_1, false);
+                if(nowPlaying != WIN_MUSIC_1) {
+                    setMusicState(R.raw.finger_runner_win_1, WIN_MUSIC_1, false);
+                }
             }
         } else {
             //No best time has been saved (a run has never been completed), so your time is a new best time.
@@ -396,7 +408,9 @@ public class MainActivity extends AppCompatActivity {
             endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
 
             //Start win music.
-            setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+            if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
+                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+            }
         }
     }
 
@@ -407,8 +421,10 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameEndMenu);
 
 
-        //Start lose music with
-        setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
+        //Start lose music.
+        if(nowPlaying != LOSE_MUSIC_1) {
+            setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
+        }
 
         //Set end game textviews for losing.
         endGameUserTime.setText("Your Time: \nYou didn't finish!");
