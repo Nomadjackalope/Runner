@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-
 import java.util.Random;
 
 /**
@@ -34,15 +33,18 @@ public class Obstacles {
     static Boolean obstacleDestroyed = false;
     static Boolean obstacleSpawned = true;
     Random random = new Random();
+    Boolean respawnWithMax;
+    int lastSpawnIndex;
     Boolean randomizeParameters;
 
     /**
      * @param randomize allows certain parameters to have variation.
      * //TODO: add two more columns to coordinates array to keep track of horizontal and vertical speed for individual obstacles so that randomizing doesn't affect spawned obstacles, even though that's kind of fun.
      */
-    public Obstacles(Context context, int obstacleImageResID, int maxNumberOfObstacles, float distanceBetweenObstacles, float horizontalSpeed, float verticalSpeed, int windowWidth, int windowHeight, Boolean randomize){
-        this.obstacleImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.practice3_small, null);
+    public Obstacles(Context context, int obstacleImageResID, int maxNumberOfObstacles, Boolean respawnWithMax, float distanceBetweenObstacles, float horizontalSpeed, float verticalSpeed, int windowWidth, int windowHeight, Boolean randomize){
+        this.obstacleImage = BitmapFactory.decodeResource(context.getResources(), obstacleImageResID, null);
         this.maxNumberOfObstacles = maxNumberOfObstacles;
+        this.respawnWithMax = respawnWithMax;
         this.distanceBetweenObstacles = distanceBetweenObstacles;
         this.originalHSpeed = horizontalSpeed;
         this.horizontalSpeed = originalHSpeed;
@@ -57,31 +59,46 @@ public class Obstacles {
         this.spawnTracker = new Boolean[maxNumberOfObstacles];
         this.coordinatesArray = new float[maxNumberOfObstacles][2];
         this.randomizeParameters = randomize;
+        this.lastSpawnIndex = maxNumberOfObstacles - 1;
     }
 
-    public void updateObstacles(float distance){
+    public void updateObstacles(float distance, boolean autoSpawn) {
         //Update distance moved.
-        for(int i = 0; i < maxNumberOfObstacles; i++){
-            if(spawnTracker[i] == obstacleSpawned){
-                coordinatesArray[i][1] += distance;
+        if(maxNumberOfObstacles > 0) {
+            for (int i = 0; i < maxNumberOfObstacles; i++) {
+                if (spawnTracker[i] == obstacleSpawned) {
+                    coordinatesArray[i][1] += distance;
+                }
+                //If now off screen, set as destroyed.
+                if (coordinatesArray[i][1] > windowHeight || coordinatesArray[i][1] < -obstacleHeight || coordinatesArray[i][0] > windowWidth || coordinatesArray[i][0] < -obstacleWidth) {
+                    spawnTracker[i] = obstacleDestroyed;
+                    //Could reset coordinates here, but doesn't seem necessary as they are always set when a spawn occurs.
+                }
             }
-            //If now off screen, set as destroyed.
-            if(coordinatesArray[i][1] > windowHeight || coordinatesArray[i][1] < -obstacleHeight || coordinatesArray[i][0] > windowWidth || coordinatesArray[i][0] < -obstacleWidth){
-                spawnTracker[i] = obstacleDestroyed;
-                //Could reset coordinates here, but doesn't seem necessary as they are always set when a spawn occurs.
+
+            distanceToNextObstacle -= distance;
+
+            if (autoSpawn) {
+                spawnObstacle(distanceToNextObstacle, random.nextInt(windowWidth - obstacleWidth), -obstacleHeight);
             }
         }
+    }
 
-        distanceToNextObstacle -= distance;
-
+    public void spawnObstacle(float distance, float x, float y){
         //If enough distance has been covered and not at max spawns, spawn an obstacle.
-        if(distanceToNextObstacle < 0){
-            for(int i = 0; i < maxNumberOfObstacles; i++){
-                if(spawnTracker[i] == obstacleDestroyed){
-                    spawnTracker[i] = obstacleSpawned;
-                    coordinatesArray[i][0] = random.nextInt(windowWidth - obstacleWidth);
-                    coordinatesArray[i][1] = -obstacleHeight;
-                    if(!randomizeParameters) {
+        if(maxNumberOfObstacles > 0) {
+            if (distance <= 0) {
+                if (lastSpawnIndex < maxNumberOfObstacles - 1) {
+                    lastSpawnIndex++;
+                } else {
+                    lastSpawnIndex = 0;
+                }
+                //for(int i = 0; i < maxNumberOfObstacles; i++){
+                if (spawnTracker[lastSpawnIndex] == obstacleDestroyed || respawnWithMax) {
+                    spawnTracker[lastSpawnIndex] = obstacleSpawned;
+                    coordinatesArray[lastSpawnIndex][0] = x;
+                    coordinatesArray[lastSpawnIndex][1] = y;
+                    if (!randomizeParameters) {
                         distanceToNextObstacle = distanceBetweenObstacles;
                     } else {
                         //If randomizeParameters selected, vary several parameters for each spawn. !!!THIS AFFECTS MOTION OF ALL SPAWNED OBSTACLES!!!
@@ -96,8 +113,9 @@ public class Obstacles {
 //                        }
 
                     }
-                    break;
+                    //break;
                 }
+                //}
             }
         }
     }
@@ -142,6 +160,26 @@ public class Obstacles {
         for(int i = 0; i < maxNumberOfObstacles; i++){
             spawnTracker[i] = obstacleDestroyed;
         }
+        this.lastSpawnIndex = maxNumberOfObstacles - 1;
+    }
+
+    public void resetObstacles(int windowWidth, int windowHeight){
+        this.distanceToNextObstacle = distanceBetweenObstacles;
+        //this.nextObstacleAt = distanceBetweenObstacles;
+        for(int i = 0; i < maxNumberOfObstacles; i++){
+            spawnTracker[i] = obstacleDestroyed;
+        }
+        this.lastSpawnIndex = maxNumberOfObstacles - 1;
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
+    }
+
+    public int getObstacleWidth(){
+        return this.obstacleWidth;
+    }
+
+    public int getObstacleHeight(){
+        return this.obstacleHeight;
     }
 }
 

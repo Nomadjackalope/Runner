@@ -88,6 +88,14 @@ public class GameView extends SurfaceView implements Runnable {
     float obsDHorizontalSpeed = 3f;
     float obsDVerticalSpeed = 10f;
 
+    //Using obstacle class to spawn footprints.
+    Obstacles footprints;
+    int footprintsImageResId = R.drawable.test_obstacle;
+    int footprintsDMaxNumObs = 6;
+    float footprintsDDistBetweenObs = 0f;
+    float footprintsDHorizontalSpeed = 0f;
+    float footprintsDVerticalSpeed = 0f;
+
     Bitmap touchFollower;
     float tFX;          //current x coordinate of touchFollower
     float tFY;          //current y coordinate of touchFollower
@@ -137,10 +145,13 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        obsA = new Obstacles(this.getContext(), obsAImageResID, obsAMaxNumObs, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsB = new Obstacles(this.getContext(), obsBImageResID, obsBMaxNumObs, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsC = new Obstacles(this.getContext(), obsCImageResID, obsCMaxNumObs, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        obsD = new Obstacles(this.getContext(), obsDImageResID, obsDMaxNumObs, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        obsA = new Obstacles(this.getContext(), obsAImageResID, obsAMaxNumObs, false, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        obsB = new Obstacles(this.getContext(), obsBImageResID, obsBMaxNumObs, false, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        obsC = new Obstacles(this.getContext(), obsCImageResID, obsCMaxNumObs, false, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        obsD = new Obstacles(this.getContext(), obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+
+        //Initialize footprints
+        footprints = new Obstacles(this.getContext(), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false);
 
         //Initialize touch follower.
         touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
@@ -262,7 +273,13 @@ public class GameView extends SurfaceView implements Runnable {
                 tFY += 0.1 * (touchDownY + tFYOffset - tFY);
             }
 
+
+            //For the touchFollower crossing the finish line to trigger course completion, use the following line:
             distRemaining = courseLeft - backgroundHeight + tFY + touchFollower.getHeight();
+            //For a touch past the finish line to trigger course completion, use the following line instead of the previous line:
+//            distRemaining = courseLeft - backgroundHeight + touchDownY;
+
+
             //Check if finish line has been reached.
             if(distRemaining <= 0){
                 //Dispatch a touch event to check if finish line crossed so that MainActivity isn't called in this thread.
@@ -338,6 +355,8 @@ public class GameView extends SurfaceView implements Runnable {
             }
 
             //---------------------Draw obstacles---------------------------------------------
+            footprints.drawObstacles(canvas, paint);
+
             obsA.drawObstacles(canvas, paint);
             obsB.drawObstacles(canvas, paint);
             obsC.drawObstacles(canvas, paint);
@@ -386,6 +405,7 @@ public class GameView extends SurfaceView implements Runnable {
 
                 touchDownY = activeFinger.y;
                 touchDownX = activeFinger.x;
+                footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
 
                 //Check if finish line has been reached.
                 if(distRemaining <= 0){//odometer > courseDistance){
@@ -410,6 +430,7 @@ public class GameView extends SurfaceView implements Runnable {
 
                         touchDownY = activeFinger.y;
                         touchDownX = activeFinger.x;
+                        footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
                     }
 
                     //--------------Check if an obstacle has been touched-----------------------------
@@ -489,10 +510,12 @@ public class GameView extends SurfaceView implements Runnable {
         courseLeft -= distance;
 
         //---------------Update Obstacles---------------------------------------------------
-            obsA.updateObstacles(distance);
-            obsB.updateObstacles(distance);
-            obsC.updateObstacles(distance);
-            obsD.updateObstacles(distance);
+        obsA.updateObstacles(distance, true);
+        obsB.updateObstacles(distance, true);
+        obsC.updateObstacles(distance, true);
+        obsD.updateObstacles(distance, true);
+
+        footprints.updateObstacles(distance, false);
         //-----------------------------------------------------------------------------
 
         // Loop backgrounds
@@ -598,14 +621,16 @@ public class GameView extends SurfaceView implements Runnable {
         courseLeft = courseDistance;
         distRemaining = courseDistance;
         //--------------------------Reset obstacles------------------------------------------
-        obsA.resetObstacles();
-        obsB.resetObstacles();
-        obsC.resetObstacles();
-        obsD.resetObstacles();
+        obsA.resetObstacles(backgroundWidth, backgroundHeight);
+        obsB.resetObstacles(backgroundWidth, backgroundHeight);
+        obsC.resetObstacles(backgroundWidth, backgroundHeight);
+        obsD.resetObstacles(backgroundWidth, backgroundHeight);
 
         //Reset touch follower to bottom middle of screen.
         tFX = tFXOffset + backgroundWidth/2;
         tFY = tFYOffset + backgroundHeight;
+
+        footprints.resetObstacles(backgroundWidth, backgroundHeight);
         //-----------------------------------------------------------------------------------
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
