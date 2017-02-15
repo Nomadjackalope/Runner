@@ -54,8 +54,10 @@ public class GameView extends SurfaceView implements Runnable {
 
     //------Obstacles and course length------------------------------------------------------
     float odometer = 0f;
-    //Currently an arbitrary course distance to test.
-    float courseDistance = 10000f;
+    float courseDistance = 5000f;  //Currently an arbitrary distance to the finish line.
+    float courseLeft;               //Distance left for the finish line to reach the bottom of the screen.
+    float distRemaining;            //Distance left for touchFollower to reach the finish line.
+    Bitmap finishLine;
     //Integer courseLength = 10; //Units of background art
 
     Obstacles obsA;
@@ -87,12 +89,12 @@ public class GameView extends SurfaceView implements Runnable {
     float obsDVerticalSpeed = 10f;
 
     Bitmap touchFollower;
-    float tFX;
-    float tFY;
+    float tFX;          //current x coordinate of touchFollower
+    float tFY;          //current y coordinate of touchFollower
     float tFXOffset;
     float tFYOffset;
-    float touchDownX;
-    float touchDownY;
+    float touchDownX;   //desired x coordinate of touchFollower.
+    float touchDownY;   //desired y coordinate of touchFollower.
     //-----------------------------------------------------------------------------------------
 
     MainActivity mA;
@@ -144,6 +146,9 @@ public class GameView extends SurfaceView implements Runnable {
         touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
         tFXOffset = -touchFollower.getWidth() / 2;
         tFYOffset = -touchFollower.getHeight();
+
+        //Initialize finish line.
+        finishLine = BitmapFactory.decodeResource(this.getResources(), R.drawable.test_obstacle, null);
         //-----------------------------------------------------------------------------------------
 
         mA = mainActivity;
@@ -225,7 +230,7 @@ public class GameView extends SurfaceView implements Runnable {
                 advanceRoad(velocity); ///0.016f);
                 velocity *= 0.75;//0.8f;//0.9f;
             }
-            //--------------TODO: Check if an obstacle has run into touch follower when no fingers are down-----------------------------
+            //--------------Check if an obstacle has run into touchFollower when no fingers are down (only necessary if friendly sprite triggers obstacles)-----------------------------
             if (checkObstaclesTouched()){
                 mA.runOnUiThread(new Runnable() {
                     @Override
@@ -255,6 +260,18 @@ public class GameView extends SurfaceView implements Runnable {
             }
             if(tFY != touchDownY + tFYOffset){
                 tFY += 0.1 * (touchDownY + tFYOffset - tFY);
+            }
+
+            distRemaining = courseLeft - backgroundHeight + tFY + touchFollower.getHeight();
+            //Check if finish line has been reached.
+            if(distRemaining <= 0){
+                //Dispatch a touch event to check if finish line crossed so that MainActivity isn't called in this thread.
+                mA.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis()+100, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
+                    }
+                });
             }
 
             //Move obstacles(any movement independent from the road).
@@ -315,6 +332,11 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(background, 0, backgroundPositionY, paint);
             canvas.drawBitmap(background, 0, backgroundPositionY2, paint);
 
+            //Draw finish line.
+            if(courseLeft < backgroundHeight){   //Don't check using distRemaining because that can vary without the road advancing.
+                canvas.drawBitmap(finishLine, 0f, backgroundHeight - courseLeft - finishLine.getHeight(), paint);
+            }
+
             //---------------------Draw obstacles---------------------------------------------
             obsA.drawObstacles(canvas, paint);
             obsB.drawObstacles(canvas, paint);
@@ -365,16 +387,16 @@ public class GameView extends SurfaceView implements Runnable {
                 touchDownY = activeFinger.y;
                 touchDownX = activeFinger.x;
 
+                //Check if finish line has been reached.
+                if(distRemaining <= 0){//odometer > courseDistance){
+                    mA.setGameState(MainActivity.GAME_WON);
+                }
+
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
                     mA.setGameState(MainActivity.GAME_LOST);
                 }
                 //---------------------------------------------------------------------------
-
-                //Check if finish line has been reached.
-                if(odometer > courseDistance){
-                    mA.setGameState(MainActivity.GAME_WON);
-                }
 
                 break;
 
@@ -385,14 +407,16 @@ public class GameView extends SurfaceView implements Runnable {
                         activeFinger.setXY(event.getX(event.findPointerIndex(activeFinger.id)),
                                 event.getY(event.findPointerIndex(activeFinger.id)));
                         fingers.add(event.getPointerId(i));
+
                         touchDownY = activeFinger.y;
                         touchDownX = activeFinger.x;
                     }
-//                    //--------------Check if an obstacle has been touched-----------------------------
-//                    if (checkObstaclesTouched()){
-//                        mA.requestGameState(MainActivity.LOSE);
-//                    }
-//                    //---------------------------------------------------------------------------
+
+                    //--------------Check if an obstacle has been touched-----------------------------
+                    if (checkObstaclesTouched()){
+                        mA.setGameState(MainActivity.GAME_LOST);
+                    }
+                    //---------------------------------------------------------------------------
                 }
 
 
@@ -462,6 +486,7 @@ public class GameView extends SurfaceView implements Runnable {
         velocity = distance;
 
         odometer += distance;
+        courseLeft -= distance;
 
         //---------------Update Obstacles---------------------------------------------------
             obsA.updateObstacles(distance);
@@ -570,13 +595,15 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void resetVariables(){
         odometer = 0f;
+        courseLeft = courseDistance;
+        distRemaining = courseDistance;
         //--------------------------Reset obstacles------------------------------------------
         obsA.resetObstacles();
         obsB.resetObstacles();
         obsC.resetObstacles();
         obsD.resetObstacles();
 
-        //TODO: Reset touch follower to bottom middle of screen. This isn't working the very first time through.
+        //Reset touch follower to bottom middle of screen.
         tFX = tFXOffset + backgroundWidth/2;
         tFY = tFYOffset + backgroundHeight;
         //-----------------------------------------------------------------------------------
