@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
     private int nowPlaying;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
+    int activeMusicPosition;
     //float volume;
 
     private Button playButton;
@@ -347,19 +348,23 @@ public class MainActivity extends AppCompatActivity {
         gameScreen.resumeGame();
         setGameState(GAME_PLAYING);
         //Start music.
-        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
+//        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
     }
 
     public void setGamePlayingState() {
-        gameMenu.setVisibility(View.VISIBLE);
-        gameScreen.handleTouches = true;
-        if(activeMusic != null) {
+        //Start music.
+        if(nowPlaying == GAME_MUSIC_1 && activeMusic != null) {
             if (!activeMusic.isPlaying()) {
-                if(!musicMuted) {
+                if (!musicMuted) {
                     activeMusic.start();
                 }
             }
+        } else {
+            setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
         }
+
+        gameMenu.setVisibility(View.VISIBLE);
+        gameScreen.handleTouches = true;
     }
 
     public void setGameWonState() {
@@ -530,6 +535,11 @@ public class MainActivity extends AppCompatActivity {
 
         activeMusic = MediaPlayer.create(this, id);
         activeMusic.setLooping(loop);
+        //If music was killed by leaving the app, resume at previous position.
+        if(musicState == nowPlaying && activeMusicPosition > 0) {
+            activeMusic.seekTo(activeMusicPosition);
+        }
+        activeMusicPosition = 0;
         if(!musicMuted) {
             activeMusic.start();
         }
@@ -638,8 +648,10 @@ public class MainActivity extends AppCompatActivity {
         if(activeMusic != null) {
             if(activeMusic.isPlaying()) {
                 activeMusic.pause();
-                musicPausedByLeavingApp = true;
+                //musicPausedByLeavingApp = true;
             }
+            activeMusicPosition = activeMusic.getCurrentPosition();
+            stopMusic();
         }
 
         if(gameState == GAME_PLAYING){
@@ -656,10 +668,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         hide();
         //If music was paused upon leaving the app, resume playing the music.
-        if(musicPausedByLeavingApp){
-            activeMusic.start();
-            musicPausedByLeavingApp = false;
-        }
+//        if(musicPausedByLeavingApp){
+//            activeMusic.start();
+//            musicPausedByLeavingApp = false;
+//        }
 
         //If not on game over screen, resume gameScreen.
 //        if(gameEndMenu.getVisibility() == View.GONE) {
@@ -670,10 +682,25 @@ public class MainActivity extends AppCompatActivity {
 
         if(gameState == PAUSED){
             setGameState(GAME_PLAYING);
+//            gameScreen.pauseGame();
+//            pauseMenu.setVisibility(View.VISIBLE);
+//            root.removeView(pauseMenu);
+//            root.addView(pauseMenu);
+            gameMenu.setVisibility(View.INVISIBLE);
+
             gameScreen.pauseGame();
+
+            if(activeMusic != null) {
+                if (activeMusic.isPlaying()) {
+                    activeMusic.pause();
+                }
+            }
+
             pauseMenu.setVisibility(View.VISIBLE);
+
             root.removeView(pauseMenu);
             root.addView(pauseMenu);
+
             //gameState = PAUSED;
             //setGameState(PAUSED); //TODO: Resuming to PAUSED state doesn't seem to work.
         } else {
