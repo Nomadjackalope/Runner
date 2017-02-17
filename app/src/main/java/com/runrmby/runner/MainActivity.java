@@ -135,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
     int activeMusicPosition;
-    //float volume;
+    Handler handler = new Handler();
+    Thread musicThread;
 
     private Button playButton;
     private Button tempButton;
@@ -331,15 +332,7 @@ public class MainActivity extends AppCompatActivity {
     public void setMenuState() {
         mainMenu.setVisibility(View.VISIBLE);
         //Start menu music.
-        if(activeMusic != null) {
-            if (!activeMusic.isPlaying()) {
-                if(!musicMuted) {
-                    activeMusic.start();
-                }
-            }
-        } else {
-            setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
-        }
+        setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
 
     }
 
@@ -353,15 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setGamePlayingState() {
         //Start music.
-        if(nowPlaying == GAME_MUSIC_1 && activeMusic != null) {
-            if (!activeMusic.isPlaying()) {
-                if (!musicMuted) {
-                    activeMusic.start();
-                }
-            }
-        } else {
-            setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
-        }
+        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
 
         gameMenu.setVisibility(View.VISIBLE);
         gameScreen.handleTouches = true;
@@ -389,9 +374,9 @@ public class MainActivity extends AppCompatActivity {
                 bestTime.changeTime(yourTime.getTime());
 
                 //Start win music.
-                if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
+//                if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
                     setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
-                }
+//                }
 
             } else {
                 //Your time isn't a new best time.
@@ -400,9 +385,9 @@ public class MainActivity extends AppCompatActivity {
                 endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
 
                 //Start win music.
-                if(nowPlaying != WIN_MUSIC_1) {
+//                if(nowPlaying != WIN_MUSIC_1) {
                     setMusicState(R.raw.finger_runner_win_1, WIN_MUSIC_1, false);
-                }
+//                }
             }
         } else {
             //No best time has been saved (a run has never been completed), so your time is a new best time.
@@ -413,9 +398,9 @@ public class MainActivity extends AppCompatActivity {
             endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
 
             //Start win music.
-            if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
+//            if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
                 setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
-            }
+//            }
         }
     }
 
@@ -427,9 +412,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Start lose music.
-        if(nowPlaying != LOSE_MUSIC_1) {
+//        if(nowPlaying != LOSE_MUSIC_1) {
             setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
-        }
+//        }
 
         //Set end game textviews for losing.
         endGameUserTime.setText("Your Time: \nYou didn't finish!");
@@ -464,6 +449,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTransitMMState() {
+        //Have music fade out?
+        fadeoutMusic();
 
         gameScreen.animate()
                 .translationY(windowSize.y)
@@ -478,22 +465,11 @@ public class MainActivity extends AppCompatActivity {
                         setGameState(MAIN_MENU);
                     }
                 });
-
-        //Move this into music state machine
-        //TODO: Fade out game music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
-        if(activeMusic!= null) {
-//            for (int i = 1000; i >= 0; i--) {
-//                volume = i / 1000f;
-//                gameMusic1.setVolume(volume, volume);
-//            }
-            //Stop game music.
-            stopMusic();
-        }
     }
 
     public void setTransitGameState() {
-//        gameScreen.update();
-//        gameScreen.draw();
+        //Have music fade out.
+        fadeoutMusic();
 
         gameScreen.animate()
                 .translationY(0)//-windowSize.y)
@@ -515,36 +491,53 @@ public class MainActivity extends AppCompatActivity {
         //Make button and timer visible.
         root.removeView(gameMenu);
         root.addView(gameMenu);
-
-        //TODO: Fade out menu music during transition? The commented-out section works, but it appears to delay the transition, and the fade-out time varies based on device speed.
-        // Probably needs a handler to run on a different thread
-        // for i sticks the programming here until it is done then moves on
-        if(activeMusic != null) {
-//            for (int i = 1000; i >= 0; i--) {
-//                volume = i / 1000f;
-//                menuMusic.setVolume(volume, volume);
-//            }
-            //Stop menu music.
-            stopMusic();
-        }
     }
 
     // id should be from R.raw
-    public void setMusicState(int id, int musicState, boolean loop) {
-        stopMusic();
-
-        activeMusic = MediaPlayer.create(this, id);
-        activeMusic.setLooping(loop);
-        //If music was killed by leaving the app, resume at previous position.
-        if(musicState == nowPlaying && activeMusicPosition > 0) {
-            activeMusic.seekTo(activeMusicPosition);
+    public void setMusicState(final int id, final int musicState, final boolean loop) {
+        if(musicState == nowPlaying) {
+            if (activeMusic != null) {
+                if (!activeMusic.isPlaying()) {
+                    if (!musicMuted) {
+                        activeMusic.start();
+                        return;
+                    }
+                }
+            }
         }
-        activeMusicPosition = 0;
-        if(!musicMuted) {
-            activeMusic.start();
+        if(musicThread != null){
+            if(musicThread.isAlive()){
+                try {
+                    musicThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        if(!musicPausedByLeavingApp) {
+            musicThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    stopMusic();
 
-        nowPlaying = musicState;
+                    activeMusic = MediaPlayer.create(root.getContext(), id);
+                    activeMusic.setLooping(loop);
+                    //If music was killed by leaving the app, resume at previous position.
+                    if (musicState == nowPlaying && activeMusicPosition > 0) {
+                        activeMusic.seekTo(activeMusicPosition);
+                    }
+                    activeMusicPosition = 0;
+                    if (!musicMuted) {
+                        activeMusic.start();
+                    }
+
+                    nowPlaying = musicState;
+                }
+            });
+            musicThread.start();
+        } else {
+            musicPausedByLeavingApp = false;
+        }
     }
 
     public void stopMusic() {
@@ -552,8 +545,36 @@ public class MainActivity extends AppCompatActivity {
             if (activeMusic.isPlaying()) {
                 activeMusic.stop();
             }
+            activeMusic.reset();
             activeMusic.release();
             activeMusic = null;
+        }
+    }
+
+    public void fadeoutMusic(){
+        if(activeMusic != null) {
+            musicThread = new Thread((new Runnable() {
+                @Override
+                public void run() {
+                    float volume;
+                    for(int i = 100; i >= 0; i--){
+                        volume = i / 100f;
+                        final float v = volume;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                activeMusic.setVolume(v, v);
+                            }
+                        });
+                        try {
+                            musicThread.sleep(5);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }));
+            musicThread.start();
         }
     }
 
@@ -565,42 +586,6 @@ public class MainActivity extends AppCompatActivity {
         pauseMenu.setVisibility(View.GONE);
     }
 
-    //TODO: Start music function.
-//    public void startMusic(int musicToPlay){
-//        switch(musicToPlay) {
-//            case MENU_MUSIC:
-//                stopMusic(nowPlaying);
-//                nowPlaying = MENU_MUSIC;
-//                menuMusic = MediaPlayer.create(this, R.raw.finger_runner_main_menu);
-//                menuMusic.setLooping(true);
-//                if(!musicMuted){
-//                    menuMusic.start();
-//                }
-//                break;
-//
-//            case GAME_MUSIC_1:
-//        }
-//    }
-
-    //TODO: Pause music function.
-//    public void pauseMusic(int musicToPause){
-//        switch(musicToPause) {
-//            case MENU_MUSIC:
-//                //
-//                break;
-//            case GAME_MUSIC_1:
-//        }
-//    }
-
-    //TODO: Stop music function.
-//    public void stopMusic(int musicToStop){
-//        switch(musicToStop) {
-//            case MENU_MUSIC:
-//                //
-//                break;
-//            case GAME_MUSIC_1:
-//        }
-//    }
 
     private void hide() {
         // Hide UI first
@@ -644,20 +629,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-        //If music is playing, pause upon leaving the app.
-        if(activeMusic != null) {
-            if(activeMusic.isPlaying()) {
-                activeMusic.pause();
-                //musicPausedByLeavingApp = true;
-            }
-            activeMusicPosition = activeMusic.getCurrentPosition();
-            stopMusic();
-        }
-
         if(gameState == GAME_PLAYING){
             setGameState(PAUSED);
         }
+
         gameScreen.pause();
+
+        //Set so music won't start playing when resuming to paused state, or playing after paused during a transition.
+        if(gameState == PAUSED || gameState == TRANSIT_TO_GAME || gameState == TRANSIT_TO_MM){
+            musicPausedByLeavingApp = true;
+        }
+
+        //If music is playing, stop upon leaving the app.
+        if(activeMusic != null) {
+            if (activeMusic.isPlaying()) {
+                activeMusic.pause();
+            }
+            activeMusicPosition = activeMusic.getCurrentPosition();
+        }
+        if(musicThread != null) {
+            musicThread.interrupt();
+            musicThread = null;
+        }
+        stopMusic();
+
     }
 
     /**
@@ -667,42 +662,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         hide();
-        //If music was paused upon leaving the app, resume playing the music.
-//        if(musicPausedByLeavingApp){
-//            activeMusic.start();
-//            musicPausedByLeavingApp = false;
-//        }
-
-        //If not on game over screen, resume gameScreen.
-//        if(gameEndMenu.getVisibility() == View.GONE) {
-//            gameScreen.resume();
-//        }
 
         gameScreen.resume();
 
         if(gameState == PAUSED){
+            //Game_Playing must be set first or else a blue screen appears.
             setGameState(GAME_PLAYING);
-//            gameScreen.pauseGame();
-//            pauseMenu.setVisibility(View.VISIBLE);
-//            root.removeView(pauseMenu);
-//            root.addView(pauseMenu);
+//
+            // TODO: Resuming to PAUSED state doesn't seem to work unless it's slightly delayed, so currently it's set manually so it happens quicker.
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    setGameState(PAUSED);
+//                }
+//            }, 300);
+            //Manually set paused state.
             gameMenu.setVisibility(View.INVISIBLE);
-
             gameScreen.pauseGame();
-
-            if(activeMusic != null) {
-                if (activeMusic.isPlaying()) {
-                    activeMusic.pause();
-                }
-            }
-
             pauseMenu.setVisibility(View.VISIBLE);
-
             root.removeView(pauseMenu);
             root.addView(pauseMenu);
 
-            //gameState = PAUSED;
-            //setGameState(PAUSED); //TODO: Resuming to PAUSED state doesn't seem to work.
         } else {
             setGameState(gameState);//setGameState(previousGameState);
         }
