@@ -405,12 +405,13 @@ public class GameView extends SurfaceView implements Runnable {
 
                 touchDownY = activeFinger.y;
                 touchDownX = activeFinger.x;
-                footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
 
                 //Check if finish line has been reached.
                 if(distRemaining <= 0){//odometer > courseDistance){
                     mA.setGameState(MainActivity.GAME_WON);
                 }
+
+                footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
 
                 //--------------Check if an obstacle has been touched-----------------------------
                 if (checkObstaclesTouched()){
