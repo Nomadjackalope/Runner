@@ -138,9 +138,17 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/play"
+            android:text="Timed"
             android:id="@+id/playButton"
             android:layout_gravity="center_horizontal|bottom" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Marathon"
+            android:id="@+id/playDistanceMode"
+            android:layout_gravity="bottom"
+            android:layout_alignLeft="@+id/playButton"/>
 
         <ToggleButton
             android:layout_width="wrap_content"
@@ -149,6 +157,13 @@
             android:textOff="@string/play_music"
             android:textOn="@string/mute_music"
             android:checked="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Records"
+            android:id="@+id/resetButton"
+            android:layout_gravity="right|top"/>
 
         <TextView
             android:layout_width="wrap_content"

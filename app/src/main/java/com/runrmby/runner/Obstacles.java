@@ -103,8 +103,8 @@ public class Obstacles {
                     } else {
                         //If randomizeParameters selected, vary several parameters for each spawn. !!!THIS AFFECTS MOTION OF ALL SPAWNED OBSTACLES!!!
                         distanceToNextObstacle = distanceBetweenObstacles * (random.nextInt(7) + 1) / 4;
-                        horizontalSpeed = originalHSpeed * ((random.nextInt(7) + 1) / 4);
-                        verticalSpeed = originalVSpeed * ((random.nextInt(7) + 1) / 4);
+                        horizontalSpeed = originalHSpeed * ((random.nextInt(15) - 8) / 4);
+                        verticalSpeed = originalVSpeed * ((random.nextInt(15) - 8) / 4);
                         if (random.nextBoolean()) {
                             horizontalSpeed = -originalHSpeed;
                         }
@@ -118,6 +118,10 @@ public class Obstacles {
                 //}
             }
         }
+    }
+
+    public void destroyObstacle(int obsIndex){
+        spawnTracker[obsIndex] = obstacleDestroyed;
     }
 
     public void moveObstacles() {
@@ -142,11 +146,14 @@ public class Obstacles {
     }
 
     //x and y are view coordinates. Width and height should be 0f if checking a point instead of an area.
-    public Boolean wasObstacleTouched(float x, float y, float width, float height) {
+    public Boolean wasObstacleTouched(float x, float y, float width, float height, boolean destroy) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] == obstacleSpawned) {
                 if (x + width > coordinatesArray[i][0] && x < coordinatesArray[i][0] + obstacleWidth
                         && y + height > coordinatesArray[i][1] && y < coordinatesArray[i][1] + obstacleHeight) {
+                    if(destroy) {
+                        destroyObstacle(i);
+                    }
                     return true;
                 }
             }
@@ -163,13 +170,9 @@ public class Obstacles {
         this.lastSpawnIndex = maxNumberOfObstacles - 1;
     }
 
-    public void resetObstacles(int windowWidth, int windowHeight){
-        this.distanceToNextObstacle = distanceBetweenObstacles;
-        //this.nextObstacleAt = distanceBetweenObstacles;
-        for(int i = 0; i < maxNumberOfObstacles; i++){
-            spawnTracker[i] = obstacleDestroyed;
-        }
-        this.lastSpawnIndex = maxNumberOfObstacles - 1;
+    public void resetObstacles(float distanceBetweenObstacles, int windowWidth, int windowHeight){
+        resetObstacles();
+        this.distanceBetweenObstacles = distanceBetweenObstacles;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
     }
@@ -180,6 +183,10 @@ public class Obstacles {
 
     public int getObstacleHeight(){
         return this.obstacleHeight;
+    }
+
+    public void setDistanceBetweenObstacles(float d){
+        this.distanceBetweenObstacles = d;
     }
 }
 

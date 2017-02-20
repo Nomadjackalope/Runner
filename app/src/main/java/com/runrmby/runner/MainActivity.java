@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.File;
@@ -139,11 +140,13 @@ public class MainActivity extends AppCompatActivity {
     Thread musicThread;
 
     private Button playButton;
+    private Button playMarathonButton;
     private Button tempButton;
     private Button playAgainButton;
     private Button mainMenuButton;
     private Button resumeButton;
     private Button pauseMMButton;
+    private Button resetButton;
 
     private TextView endGameUserTime;
     private TextView endGameBestTime;
@@ -170,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
     private Time bestTime = new Time();
     private Time timeDifferential = new Time();
     private Time yourTime;
+    private float savedDistance;
+    private float distanceDifferential;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,10 +220,12 @@ public class MainActivity extends AppCompatActivity {
 
         setGameState(MAIN_MENU);
 
+        //Text Views
         endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
         endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
         endGameText = (TextView) findViewById(R.id.endGameText);
 
+        //Buttons
         playAgainButton = (Button) findViewById(R.id.playAgainButton);
         playAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -240,6 +247,16 @@ public class MainActivity extends AppCompatActivity {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                gameScreen.distanceMode = false;
+                setGameState(TRANSIT_TO_GAME);
+            }
+        });
+
+        playMarathonButton = (Button) findViewById(R.id.playDistanceMode);
+        playMarathonButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gameScreen.distanceMode = true;
                 setGameState(TRANSIT_TO_GAME);
             }
         });
@@ -249,6 +266,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setGameState(PAUSED);
+            }
+        });
+
+        resetButton = (Button) findViewById(R.id.resetButton);
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Reset best time.
+                prefEditor.putLong("bestTime", 0l);
+                prefEditor.putFloat("bestDistance", 0f);
+                prefEditor.commit();
+                Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();//TODO: make sure this doesn't cause a crash
             }
         });
 
@@ -411,23 +440,43 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameEndMenu);
 
 
-        //Start lose music.
+        //Set end game textviews for losing.
+        if(gameScreen.distanceMode == false) {
+            //Start lose music.
 //        if(nowPlaying != LOSE_MUSIC_1) {
             setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
 //        }
-
-        //Set end game textviews for losing.
-        endGameUserTime.setText("Your Time: \nYou didn't finish!");
-        savedTime = loadBestTime();
-        if(savedTime != 0) {
-            //There was a saved best time.
-            bestTime.changeTime(savedTime);
-            endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
-            endGameText.setText(R.string.lose2);
-        }else {
-            //The loaded best time was null (there has never been a best time saved).
-            endGameBestTime.setText("Best Time: \n" + "You've never finished!");
-            endGameText.setText(R.string.lose1);
+            endGameUserTime.setText("Your Time: \nYou didn't finish!");
+            savedTime = loadBestTime();
+            if (savedTime != 0) {
+                //There was a saved best time.
+                bestTime.changeTime(savedTime);
+                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                endGameText.setText(R.string.lose2);
+            } else {
+                //The loaded best time was null (there has never been a best time saved).
+                endGameBestTime.setText("Best Time: \n" + "You've never finished!");
+                endGameText.setText(R.string.lose1);
+            }
+        } else{
+            //TODO: Not sure if a new state would be necessary for distance mode.
+            savedDistance = loadBestDistance();
+            float yourDistance = gameScreen.odometer + gameScreen.tFY;
+            distanceDifferential = yourDistance - savedDistance;
+            if(distanceDifferential > 0){
+                //New record!
+                endGameUserTime.setText("New Record: \n" + String.valueOf(yourDistance));
+                endGameBestTime.setText("Previous Record: \n" + String.valueOf(savedDistance));
+                endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!");
+                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+                saveBestDistance(yourDistance);
+            } else {
+                endGameUserTime.setText("Your Distance: \n" + String.valueOf(yourDistance));
+                endGameBestTime.setText("Record: \n" + String.valueOf(savedDistance));
+                endGameText.setText(R.string.lose2);
+                //Keep game music going.
+                setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
+            }
         }
 
     }
@@ -497,12 +546,12 @@ public class MainActivity extends AppCompatActivity {
     public void setMusicState(final int id, final int musicState, final boolean loop) {
         if(musicState == nowPlaying) {
             if (activeMusic != null) {
-                if (!activeMusic.isPlaying()) {
-                    if (!musicMuted) {
+                if (!musicMuted) {
+                    if (!activeMusic.isPlaying()) {
                         activeMusic.start();
-                        return;
                     }
                 }
+                return;
             }
         }
         if(musicThread != null){
@@ -715,5 +764,15 @@ public class MainActivity extends AppCompatActivity {
 //            i.printStackTrace();
 //        }
         return time;
+    }
+
+    private void saveBestDistance(float distance){
+        prefEditor.putFloat("bestDistance", distance);
+        prefEditor.commit();
+    }
+
+    private float loadBestDistance(){
+        float distance = sharedPref.getFloat("bestDistance", 0f);
+        return distance;
     }
 }
