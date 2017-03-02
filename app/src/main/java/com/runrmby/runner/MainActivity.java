@@ -612,7 +612,9 @@ public class MainActivity extends AppCompatActivity {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                activeMusic.setVolume(v, v);
+                                if(activeMusic != null) {
+                                    activeMusic.setVolume(v, v);
+                                };
                             }
                         });
                         try {

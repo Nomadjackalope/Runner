@@ -64,25 +64,31 @@ public class GameView extends SurfaceView implements Runnable {
     //Integer courseLength = 10; //Units of background art
 
     Obstacles cone;
-    int obsAImageResID = R.drawable.cone;
-    int obsAMaxNumObs = 8;
-    float obsADistBetweenObs;   //Initialized in resetVariables()
-    float obsAHorizontalSpeed = 0f;
-    float obsAVerticalSpeed = 0f;
+    int coneResId = R.drawable.cone;
+    int coneXScale = 60;
+    int coneYScale = 75;
+    int maxNumCones = 8;
+    float distBetweenCones;   //Initialized in resetVariables()
+    float coneXSpeed = 0f;
+    float coneYSpeed = 0f;
 
     Obstacles downTree;
-    int obsBImageResID = R.drawable.down_tree;
-    int obsBMaxNumObs = 3;
-    float obsBDistBetweenObs;
-    float obsBHorizontalSpeed = 0f;
-    float obsBVerticalSpeed = 0f;
+    int downTreeResId = R.drawable.down_tree;
+    int downTreeXScale = 189;
+    int downTreeYScale = 60;
+    int maxNumDownTrees = 3;
+    float distBetweenDownTrees;
+    float downTreeXSpeed = 0f;
+    float downTreeYSpeed = 0f;
 
-    Obstacles obsC;
-    int obsCImageResID = R.drawable.shitty_truck;
-    int obsCMaxNumObs = 1;
-    float obsCDistBetweenObs;
-    float obsCHorizontalSpeed = 0f;
-    float obsCVerticalSpeed = 2f;
+    Obstacles truck;
+    int truckResId = R.drawable.shitty_truck;
+    int truckXScale = 160;
+    int truckYScale = 452;
+    int maxNumTrucks = 1;
+    float distBetweenTrucks;
+    float truckXSpeed = 0f;
+    float truckYSpeed = 2f;
 
     Obstacles obsD;
     int obsDImageResID = R.drawable.dumbppl;
@@ -132,6 +138,7 @@ public class GameView extends SurfaceView implements Runnable {
     SoundPool soundEffects;
     int badSoundId;
     int goodSoundId;
+    int wilhelmScreamId;
     //-----------------------------------------------------------------------------------------
 
     MainActivity mA;
@@ -174,9 +181,9 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        cone = new Obstacles(this.getContext(), 60, 75, obsAImageResID, obsAMaxNumObs, false, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        downTree = new Obstacles(this.getContext(), 189, 60, obsBImageResID, obsBMaxNumObs, false, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsC = new Obstacles(this.getContext(), 160, 452, obsCImageResID, obsCMaxNumObs, false, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        cone = new Obstacles(this.getContext(), coneXScale, coneYScale, coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, backgroundWidth, backgroundHeight, false);
+        downTree = new Obstacles(this.getContext(), downTreeXScale, downTreeYScale, downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, backgroundWidth, backgroundHeight, false);
+        truck = new Obstacles(this.getContext(), truckXScale, truckYScale, truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, backgroundWidth, backgroundHeight, true);
         obsD = new Obstacles(this.getContext(), 102, 154, obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
         homingOb = new Obstacles(this.getContext(), 114, 136, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false);
         extraLives = new Obstacles(this.getContext(), 62, 110, extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true);
@@ -190,7 +197,8 @@ public class GameView extends SurfaceView implements Runnable {
         tFYOffset = -touchFollower.getHeight();
 
         //Initialize finish line.
-        finishLine = BitmapFactory.decodeResource(this.getResources(), R.drawable.test_obstacle, null);
+        finishLine = BitmapFactory.decodeResource(this.getResources(), R.drawable.finish, null);
+        finishLine = Bitmap.createScaledBitmap(finishLine, 940, 200, true);
         //-----------------------------------------------------------------------------------------
 
         //Sound effects.
@@ -198,6 +206,7 @@ public class GameView extends SurfaceView implements Runnable {
         soundEffects = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         badSoundId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_sound, 1);
         goodSoundId = soundEffects.load(this.getContext(), R.raw.finger_runner_good_sound, 1);
+        wilhelmScreamId = soundEffects.load(this.getContext(), R.raw.wilhelm_scream, 1);
 
         mA = mainActivity;
 
@@ -351,13 +360,13 @@ public class GameView extends SurfaceView implements Runnable {
                 if(toNextDiffIncrease <= 0){
                     difficultly++;
                     float factor = (difficultly + 4f) / (difficultly + 5f);
-                    obsADistBetweenObs *= factor;
-                    cone.setDistanceBetweenObstacles(obsADistBetweenObs);
-                    obsBDistBetweenObs *= factor;
-                    downTree.setDistanceBetweenObstacles(obsBDistBetweenObs);
-                    obsCDistBetweenObs *= factor;
-                    obsC.setDistanceBetweenObstacles(obsCDistBetweenObs);
-                    obsADistBetweenObs *= factor;
+                    distBetweenCones *= factor;
+                    cone.setDistanceBetweenObstacles(distBetweenCones);
+                    distBetweenDownTrees *= factor;
+                    downTree.setDistanceBetweenObstacles(distBetweenDownTrees);
+                    distBetweenTrucks *= factor;
+                    truck.setDistanceBetweenObstacles(distBetweenTrucks);
+                    distBetweenCones *= factor;
                     obsD.setDistanceBetweenObstacles(obsDDistBetweenObs);
                     homingObDistBetween *= factor;
                     homingOb.setDistanceBetweenObstacles(homingObDistBetween);
@@ -387,7 +396,7 @@ public class GameView extends SurfaceView implements Runnable {
             //Move obstacles(any movement independent from the road).
             cone.moveObstacles();
             downTree.moveObstacles();
-            obsC.moveObstacles();
+            truck.moveObstacles();
             obsD.moveObstacles();
             homingOb.moveObstacles();
             extraLives.moveObstacles();
@@ -452,7 +461,7 @@ public class GameView extends SurfaceView implements Runnable {
             //Draw finish line.
             if(distanceMode == false) {
                 if (courseLeft < backgroundHeight) {   //Don't check using distRemaining because that can vary without the road advancing.
-                    canvas.drawBitmap(finishLine, 0f, backgroundHeight - courseLeft - finishLine.getHeight(), paint);
+                    canvas.drawBitmap(finishLine, -5f, backgroundHeight - courseLeft - finishLine.getHeight(), paint);
                 }
             }
 
@@ -461,7 +470,7 @@ public class GameView extends SurfaceView implements Runnable {
 
             cone.drawObstacles(canvas, paint);
             downTree.drawObstacles(canvas, paint);
-            obsC.drawObstacles(canvas, paint);
+            truck.drawObstacles(canvas, paint);
             obsD.drawObstacles(canvas, paint);
             homingOb.drawObstacles(canvas, paint);
             extraLives.drawObstacles(canvas, paint);
@@ -523,7 +532,7 @@ public class GameView extends SurfaceView implements Runnable {
                 if (checkObstaclesTouched(true)) {
                     if (livesLeft == 0) {
                         if(!mA.musicMuted) {
-                            soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
+                            soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                         }
                         mA.setGameState(MainActivity.GAME_LOST);
                     } else {
@@ -563,7 +572,7 @@ public class GameView extends SurfaceView implements Runnable {
                     if (checkObstaclesTouched(true)) {
                         if (livesLeft == 0) {
                             if(!mA.musicMuted) {
-                                soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
+                                soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                             }
                             mA.setGameState(MainActivity.GAME_LOST);
                         } else {
@@ -601,7 +610,7 @@ public class GameView extends SurfaceView implements Runnable {
                 if (checkObstaclesTouched(true)) {
                     if (livesLeft == 0) {
                         if(!mA.musicMuted) {
-                            soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
+                            soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                         }
                         mA.setGameState(MainActivity.GAME_LOST);
                     } else {
@@ -677,7 +686,7 @@ public class GameView extends SurfaceView implements Runnable {
         //---------------Update Obstacles---------------------------------------------------
         cone.updateObstacles(distance, true);
         downTree.updateObstacles(distance, true);
-        obsC.updateObstacles(distance, true);
+        truck.updateObstacles(distance, true);
         obsD.updateObstacles(distance, true);
         homingOb.updateObstacles(distance, true);
         extraLives.updateObstacles(distance, true);
@@ -759,7 +768,7 @@ public class GameView extends SurfaceView implements Runnable {
 //                return true;
 //            } else if (downTree.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
 //                return true;
-//            } else if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
+//            } else if (truck.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
 //                return true;
 //            } else if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
 //                return true;
@@ -773,17 +782,40 @@ public class GameView extends SurfaceView implements Runnable {
             return true;
         } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
             return true;
-        } else if (obsC.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
             return true;
         } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
             return true;
         } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){
             return true;
         } else {
+//            return false;
+//        }
+
+            //Check if obstacles have touched other obstacles.
+            for (int i = 0; i < maxNumTrucks; i++) {
+                if (truck.spawnTracker[i] == true) { //Truck should only destroy obstacles if it's moving.
+                    if (truck.speedArray[i][1] != 0) {
+                        cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true);
+                        if (obsD.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true)) {
+                            if (!mA.musicMuted) {
+                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                            }
+                        }
+                        ;
+                        if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true)) {
+                            if (!mA.musicMuted) {
+                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                            }
+                        }
+                        ;
+//                    downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true);
+                        extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true);
+                    }
+                }
+            }
             return false;
         }
-
-//        return false;
     }
 //---------------------------------------------------------------------------
 
@@ -792,19 +824,19 @@ public class GameView extends SurfaceView implements Runnable {
         courseLeft = courseDistance;
         distRemaining = courseDistance;
         //--------------------------Reset obstacles------------------------------------------
-        obsADistBetweenObs = 1000f;
-        obsBDistBetweenObs = 800f;
-        obsCDistBetweenObs = 1200f;
+        distBetweenCones = 1000f;
+        distBetweenDownTrees = 800f;
+        distBetweenTrucks = 1200f;
         obsDDistBetweenObs = 2500f;
         homingObDistBetween = 7500f;
-        cone.resetObstacles(obsADistBetweenObs, backgroundWidth, backgroundHeight);
-        downTree.resetObstacles(obsBDistBetweenObs, backgroundWidth, backgroundHeight);
-        obsC.resetObstacles(obsCDistBetweenObs, backgroundWidth, backgroundHeight);
+        cone.resetObstacles(distBetweenCones, backgroundWidth, backgroundHeight);
+        downTree.resetObstacles(distBetweenDownTrees, backgroundWidth, backgroundHeight);
+        truck.resetObstacles(distBetweenTrucks, backgroundWidth, backgroundHeight);
         obsD.resetObstacles(obsDDistBetweenObs, backgroundWidth, backgroundHeight);
         homingOb.resetObstacles(homingObDistBetween, backgroundWidth, backgroundHeight);
         toNextDiffIncrease = increaseDifficultyDistance;
         difficultly = 0;
-        homingSpeed = 0.0025f; //TODO: experiment with value
+        homingSpeed = 0.005f; //TODO: experiment with value
         extraLives.resetObstacles(extraLivesDistBetween, backgroundWidth, backgroundHeight);
         if(!distanceMode){
             livesLeft = 0;

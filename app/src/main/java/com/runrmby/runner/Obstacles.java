@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.RotateDrawable;
+
 import java.util.Random;
 
 /**
@@ -17,6 +19,7 @@ public class Obstacles {
 
     //int obstacleImageResID;
     Bitmap obstacleImage;
+    Bitmap rotatedObsImage;
     int maxNumberOfObstacles;
     int scaleX;
     int scaleY;
@@ -68,6 +71,11 @@ public class Obstacles {
         this.lastSpawnIndex = maxNumberOfObstacles - 1;
         this.scaleX = scaleX;
         this.scaleY = scaleY;
+
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(180);
+        rotatedObsImage = Bitmap.createBitmap(obstacleImage, 0, 0, obstacleImage.getWidth(), obstacleImage.getHeight(), matrix, true);
     }
 
     public void updateObstacles(float distance, boolean autoSpawn) {
@@ -150,12 +158,11 @@ public class Obstacles {
     public void drawObstacles(Canvas canvas, Paint paint) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] == obstacleSpawned) {
-//                if(speedArray[i][1] < 0){
-//                    Matrix matrix = new Matrix();
-//                    matrix.postRotate(180);
-//                    Bitmap rotatedObsImage = Bitmap.createBitmap(obstacleImage,);
-//                }
-                canvas.drawBitmap(obstacleImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                if(speedArray[i][1] < 0){
+                    canvas.drawBitmap(rotatedObsImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                }else {
+                    canvas.drawBitmap(obstacleImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                }
             }
         }
     }
@@ -180,6 +187,10 @@ public class Obstacles {
         this.distanceToNextObstacle = distanceBetweenObstacles;
         //this.nextObstacleAt = distanceBetweenObstacles;
         for(int i = 0; i < maxNumberOfObstacles; i++){
+            coordinatesArray[i][0] = 0;
+            coordinatesArray[i][1] = 0;
+            speedArray[i][0] = horizontalSpeed;
+            speedArray[i][1] = verticalSpeed;
             spawnTracker[i] = obstacleDestroyed;
         }
         this.lastSpawnIndex = maxNumberOfObstacles - 1;
