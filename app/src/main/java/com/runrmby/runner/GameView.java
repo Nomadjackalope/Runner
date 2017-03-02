@@ -163,10 +163,12 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void init(Point p, MainActivity mainActivity) {
-
         this.windowSize = p;
         holder = getHolder();
         paint = new Paint();
+
+        float sX = p.x / 1080.0f;
+        float sY = p.y / 1920.0f;
 
         BitmapFactory.Options ops = new BitmapFactory.Options();
 
