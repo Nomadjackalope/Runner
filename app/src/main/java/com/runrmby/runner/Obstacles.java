@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import java.util.Random;
 
@@ -17,6 +18,8 @@ public class Obstacles {
     //int obstacleImageResID;
     Bitmap obstacleImage;
     int maxNumberOfObstacles;
+    int scaleX;
+    int scaleY;
     float distanceBetweenObstacles;
     float originalHSpeed;
     float originalVSpeed;
@@ -63,6 +66,8 @@ public class Obstacles {
         this.speedArray = new float[maxNumberOfObstacles][2];
         this.randomizeParameters = randomize;
         this.lastSpawnIndex = maxNumberOfObstacles - 1;
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
     }
 
     public void updateObstacles(float distance, boolean autoSpawn) {
@@ -145,6 +150,11 @@ public class Obstacles {
     public void drawObstacles(Canvas canvas, Paint paint) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] == obstacleSpawned) {
+//                if(speedArray[i][1] < 0){
+//                    Matrix matrix = new Matrix();
+//                    matrix.postRotate(180);
+//                    Bitmap rotatedObsImage = Bitmap.createBitmap(obstacleImage,);
+//                }
                 canvas.drawBitmap(obstacleImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
             }
         }
