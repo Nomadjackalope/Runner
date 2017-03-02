@@ -156,10 +156,12 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void init(Point p, MainActivity mainActivity) {
-
         this.windowSize = p;
         holder = getHolder();
         paint = new Paint();
+
+        float sX = p.x / 1080.0f;
+        float sY = p.y / 1920.0f;
 
         BitmapFactory.Options ops = new BitmapFactory.Options();
 
@@ -174,12 +176,12 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        cone = new Obstacles(this.getContext(), 60, 75, obsAImageResID, obsAMaxNumObs, false, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        downTree = new Obstacles(this.getContext(), 189, 60, obsBImageResID, obsBMaxNumObs, false, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsC = new Obstacles(this.getContext(), 160, 452, obsCImageResID, obsCMaxNumObs, false, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        obsD = new Obstacles(this.getContext(), 102, 154, obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        homingOb = new Obstacles(this.getContext(), 114, 136, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false);
-        extraLives = new Obstacles(this.getContext(), 62, 110, extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true);
+        cone = new Obstacles(this.getContext(), (int) (60 * sX), (int) (75 * sY), obsAImageResID, obsAMaxNumObs, false, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        downTree = new Obstacles(this.getContext(), (int) (189 * sX), (int) (60 * sY), obsBImageResID, obsBMaxNumObs, false, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        obsC = new Obstacles(this.getContext(), (int) (160 * sX), (int) (452 * sY), obsCImageResID, obsCMaxNumObs, false, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        obsD = new Obstacles(this.getContext(), (int) (102 * sX), (int) (154 * sY), obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        homingOb = new Obstacles(this.getContext(), (int) (114 * sX), (int) (136 * sY), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false);
+        extraLives = new Obstacles(this.getContext(), (int) (62 * sX), (int) (110 * sY), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true);
 
         //Initialize footprints
         footprints = new Obstacles(this.getContext(), 50, 50, footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false);
