@@ -165,7 +165,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         ops.inPreferredConfig = Bitmap.Config.RGB_565;
 
-        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.mt_road, ops);
+        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.mtroadcont, ops);
 
         //System.out.println("GV| bitmap type: " + background.getConfig().name());
 
