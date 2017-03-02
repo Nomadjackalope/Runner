@@ -444,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
         if(gameScreen.distanceMode == false) {
             //Start lose music.
 //        if(nowPlaying != LOSE_MUSIC_1) {
-            setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
+//            setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
 //        }
             endGameUserTime.setText("Your Time: \nYou didn't finish!");
             savedTime = loadBestTime();
