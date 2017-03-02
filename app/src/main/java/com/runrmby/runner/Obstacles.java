@@ -30,6 +30,7 @@ public class Obstacles {
     int obstacleHeight;
     Boolean[] spawnTracker;
     float[][] coordinatesArray;
+    float[][] speedArray;
     static Boolean obstacleDestroyed = false;
     static Boolean obstacleSpawned = true;
     Random random = new Random();
@@ -41,8 +42,9 @@ public class Obstacles {
      * @param randomize allows certain parameters to have variation.
      * //TODO: add two more columns to coordinates array to keep track of horizontal and vertical speed for individual obstacles so that randomizing doesn't affect spawned obstacles, even though that's kind of fun.
      */
-    public Obstacles(Context context, int obstacleImageResID, int maxNumberOfObstacles, Boolean respawnWithMax, float distanceBetweenObstacles, float horizontalSpeed, float verticalSpeed, int windowWidth, int windowHeight, Boolean randomize){
+    public Obstacles(Context context, int scaleX, int scaleY, int obstacleImageResID, int maxNumberOfObstacles, Boolean respawnWithMax, float distanceBetweenObstacles, float horizontalSpeed, float verticalSpeed, int windowWidth, int windowHeight, Boolean randomize){
         this.obstacleImage = BitmapFactory.decodeResource(context.getResources(), obstacleImageResID, null);
+        this.obstacleImage = Bitmap.createScaledBitmap(this.obstacleImage, scaleX, scaleY, true);
         this.maxNumberOfObstacles = maxNumberOfObstacles;
         this.respawnWithMax = respawnWithMax;
         this.distanceBetweenObstacles = distanceBetweenObstacles;
@@ -58,6 +60,7 @@ public class Obstacles {
         this.obstacleHeight = obstacleImage.getHeight();
         this.spawnTracker = new Boolean[maxNumberOfObstacles];
         this.coordinatesArray = new float[maxNumberOfObstacles][2];
+        this.speedArray = new float[maxNumberOfObstacles][2];
         this.randomizeParameters = randomize;
         this.lastSpawnIndex = maxNumberOfObstacles - 1;
     }
@@ -105,9 +108,11 @@ public class Obstacles {
                         distanceToNextObstacle = distanceBetweenObstacles * (random.nextInt(7) + 1) / 4;
                         horizontalSpeed = originalHSpeed * ((random.nextInt(15) - 8) / 4);
                         verticalSpeed = originalVSpeed * ((random.nextInt(15) - 8) / 4);
-                        if (random.nextBoolean()) {
-                            horizontalSpeed = -originalHSpeed;
-                        }
+                        speedArray[lastSpawnIndex][0] = horizontalSpeed;
+                        speedArray[lastSpawnIndex][1] = verticalSpeed;
+//                        if (random.nextBoolean()) {
+//                            horizontalSpeed = -originalHSpeed;
+//                        }
 //                        if (random.nextBoolean()){
 //                            verticalSpeed = -originalVSpeed;
 //                        }
@@ -128,10 +133,10 @@ public class Obstacles {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] == obstacleSpawned) {
                 if (coordinatesArray[i][0] < windowWidth) {
-                    coordinatesArray[i][0] += horizontalSpeed;
+                    coordinatesArray[i][0] += speedArray[i][0];
                 }
                 if (coordinatesArray[i][1] < windowHeight) {
-                    coordinatesArray[i][1] += verticalSpeed;
+                    coordinatesArray[i][1] += speedArray[i][1];
                 }
             }
         }

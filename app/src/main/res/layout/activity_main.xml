@@ -13,7 +13,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/fingerrunner"
+        android:background="@drawable/pan_1"
         android:id="@+id/titleScreen"
         android:visibility="visible" />
 

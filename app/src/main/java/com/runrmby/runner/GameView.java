@@ -63,36 +63,36 @@ public class GameView extends SurfaceView implements Runnable {
     Bitmap finishLine;
     //Integer courseLength = 10; //Units of background art
 
-    Obstacles obsA;
-    int obsAImageResID = R.drawable.practice3_small;
+    Obstacles cone;
+    int obsAImageResID = R.drawable.cone;
     int obsAMaxNumObs = 8;
     float obsADistBetweenObs;   //Initialized in resetVariables()
     float obsAHorizontalSpeed = 0f;
-    float obsAVerticalSpeed = -1f;
+    float obsAVerticalSpeed = 0f;
 
-    Obstacles obsB;
-    int obsBImageResID = R.drawable.practice3_small;
+    Obstacles downTree;
+    int obsBImageResID = R.drawable.down_tree;
     int obsBMaxNumObs = 3;
     float obsBDistBetweenObs;
-    float obsBHorizontalSpeed = 2f;
+    float obsBHorizontalSpeed = 0f;
     float obsBVerticalSpeed = 0f;
 
     Obstacles obsC;
-    int obsCImageResID = R.drawable.practice3_small;
-    int obsCMaxNumObs = 3;
+    int obsCImageResID = R.drawable.shitty_truck;
+    int obsCMaxNumObs = 1;
     float obsCDistBetweenObs;
-    float obsCHorizontalSpeed = -2f;
+    float obsCHorizontalSpeed = 0f;
     float obsCVerticalSpeed = 2f;
 
     Obstacles obsD;
-    int obsDImageResID = R.drawable.practice3_small;
+    int obsDImageResID = R.drawable.dumbppl;
     int obsDMaxNumObs = 1;
     float obsDDistBetweenObs;
     float obsDHorizontalSpeed = 3f;
     float obsDVerticalSpeed = 10f;
 
     Obstacles homingOb;
-    int homingObResID = R.drawable.practice3_small;
+    int homingObResID = R.drawable.dude;
     int homingObMaxNum = 2;
     float homingObDistBetween;
     float homingObXSpeed = 0f;
@@ -104,7 +104,7 @@ public class GameView extends SurfaceView implements Runnable {
     float homingSpeed;
 
     Obstacles extraLives;
-    int extraLivesResId = R.drawable.test_obstacle;
+    int extraLivesResId = R.drawable.lvlup;
     int extraLivesMaxNum = 1;
     float extraLivesDistBetween = 15000f;
     float extraLivesHorizontalSpeed = 3f;
@@ -165,7 +165,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         ops.inPreferredConfig = Bitmap.Config.RGB_565;
 
-        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.road, ops);
+        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.mt_road, ops);
 
         //System.out.println("GV| bitmap type: " + background.getConfig().name());
 
@@ -174,15 +174,15 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        obsA = new Obstacles(this.getContext(), obsAImageResID, obsAMaxNumObs, false, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsB = new Obstacles(this.getContext(), obsBImageResID, obsBMaxNumObs, false, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsC = new Obstacles(this.getContext(), obsCImageResID, obsCMaxNumObs, false, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        obsD = new Obstacles(this.getContext(), obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        homingOb = new Obstacles(this.getContext(), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false);
-        extraLives = new Obstacles(this.getContext(), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true);
+        cone = new Obstacles(this.getContext(), 60, 75, obsAImageResID, obsAMaxNumObs, false, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        downTree = new Obstacles(this.getContext(), 189, 60, obsBImageResID, obsBMaxNumObs, false, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        obsC = new Obstacles(this.getContext(), 160, 452, obsCImageResID, obsCMaxNumObs, false, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        obsD = new Obstacles(this.getContext(), 102, 154, obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        homingOb = new Obstacles(this.getContext(), 114, 136, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false);
+        extraLives = new Obstacles(this.getContext(), 62, 110, extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true);
 
         //Initialize footprints
-        footprints = new Obstacles(this.getContext(), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false);
+        footprints = new Obstacles(this.getContext(), 50, 50, footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false);
 
         //Initialize touch follower.
         touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
@@ -352,9 +352,9 @@ public class GameView extends SurfaceView implements Runnable {
                     difficultly++;
                     float factor = (difficultly + 4f) / (difficultly + 5f);
                     obsADistBetweenObs *= factor;
-                    obsA.setDistanceBetweenObstacles(obsADistBetweenObs);
+                    cone.setDistanceBetweenObstacles(obsADistBetweenObs);
                     obsBDistBetweenObs *= factor;
-                    obsB.setDistanceBetweenObstacles(obsBDistBetweenObs);
+                    downTree.setDistanceBetweenObstacles(obsBDistBetweenObs);
                     obsCDistBetweenObs *= factor;
                     obsC.setDistanceBetweenObstacles(obsCDistBetweenObs);
                     obsADistBetweenObs *= factor;
@@ -385,8 +385,8 @@ public class GameView extends SurfaceView implements Runnable {
             }
 
             //Move obstacles(any movement independent from the road).
-            obsA.moveObstacles();
-            obsB.moveObstacles();
+            cone.moveObstacles();
+            downTree.moveObstacles();
             obsC.moveObstacles();
             obsD.moveObstacles();
             homingOb.moveObstacles();
@@ -459,8 +459,8 @@ public class GameView extends SurfaceView implements Runnable {
             //---------------------Draw obstacles---------------------------------------------
 //            footprints.drawObstacles(canvas, paint);
 
-            obsA.drawObstacles(canvas, paint);
-            obsB.drawObstacles(canvas, paint);
+            cone.drawObstacles(canvas, paint);
+            downTree.drawObstacles(canvas, paint);
             obsC.drawObstacles(canvas, paint);
             obsD.drawObstacles(canvas, paint);
             homingOb.drawObstacles(canvas, paint);
@@ -675,8 +675,8 @@ public class GameView extends SurfaceView implements Runnable {
         toNextDiffIncrease -= distance;
 
         //---------------Update Obstacles---------------------------------------------------
-        obsA.updateObstacles(distance, true);
-        obsB.updateObstacles(distance, true);
+        cone.updateObstacles(distance, true);
+        downTree.updateObstacles(distance, true);
         obsC.updateObstacles(distance, true);
         obsD.updateObstacles(distance, true);
         homingOb.updateObstacles(distance, true);
@@ -755,9 +755,9 @@ public class GameView extends SurfaceView implements Runnable {
     public Boolean checkObstaclesTouched(boolean destroy) {
         //First check if active finger is touching obstacle.
 //        if(!fingers.isEmpty()) {
-//            if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
+//            if (cone.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
 //                return true;
-//            } else if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
+//            } else if (downTree.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
 //                return true;
 //            } else if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
 //                return true;
@@ -769,9 +769,9 @@ public class GameView extends SurfaceView implements Runnable {
 //        }
 
         //Now check if touch follower is touching an obstacle.
-        if (obsA.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
             return true;
-        } else if (obsB.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
             return true;
         } else if (obsC.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
             return true;
@@ -797,8 +797,8 @@ public class GameView extends SurfaceView implements Runnable {
         obsCDistBetweenObs = 1200f;
         obsDDistBetweenObs = 2500f;
         homingObDistBetween = 7500f;
-        obsA.resetObstacles(obsADistBetweenObs, backgroundWidth, backgroundHeight);
-        obsB.resetObstacles(obsBDistBetweenObs, backgroundWidth, backgroundHeight);
+        cone.resetObstacles(obsADistBetweenObs, backgroundWidth, backgroundHeight);
+        downTree.resetObstacles(obsBDistBetweenObs, backgroundWidth, backgroundHeight);
         obsC.resetObstacles(obsCDistBetweenObs, backgroundWidth, backgroundHeight);
         obsD.resetObstacles(obsDDistBetweenObs, backgroundWidth, backgroundHeight);
         homingOb.resetObstacles(homingObDistBetween, backgroundWidth, backgroundHeight);
