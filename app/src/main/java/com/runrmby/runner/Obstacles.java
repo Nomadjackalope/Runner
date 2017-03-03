@@ -122,6 +122,9 @@ public class Obstacles {
                 }
                 //for(int i = 0; i < maxNumberOfObstacles; i++){
                 if (spawnTracker[lastSpawnIndex] == obstacleDestroyed || respawnWithMax) {
+                    if(wasObstacleTouched(x, y, obstacleWidth, obstacleHeight, 0, false)){
+                        x += obstacleWidth;
+                    }
                     spawnTracker[lastSpawnIndex] = obstacleSpawned;
                     coordinatesArray[lastSpawnIndex][0] = x;
                     coordinatesArray[lastSpawnIndex][1] = y;

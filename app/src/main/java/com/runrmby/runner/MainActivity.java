@@ -515,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setTransitMMState() {
         //Have music fade out?
-        fadeoutMusic();
+//        fadeoutMusic();
 
         gameScreen.animate()
                 .translationY(windowSize.y)
@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setTransitGameState() {
         //Have music fade out.
-        fadeoutMusic();
+//        fadeoutMusic();
 
         gameScreen.animate()
                 .translationY(0)//-windowSize.y)
