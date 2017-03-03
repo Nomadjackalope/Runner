@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.AudioManager;
@@ -134,6 +135,10 @@ public class GameView extends SurfaceView implements Runnable {
     float touchDownX;   //desired x coordinate of touchFollower.
     float touchDownY;   //desired y coordinate of touchFollower.
 
+    Matrix matrixRotateClockwise = new Matrix();
+    Matrix matrixRotateCounterClockwise = new Matrix();
+    Boolean tFRotated = false;
+
     //Sound effects
     SoundPool soundEffects;
     int badSoundId;
@@ -183,24 +188,29 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        cone = new Obstacles(this.getContext(), coneXScale, coneYScale, coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, backgroundWidth, backgroundHeight, false);
-        downTree = new Obstacles(this.getContext(), downTreeXScale, downTreeYScale, downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, backgroundWidth, backgroundHeight, false);
-        truck = new Obstacles(this.getContext(), truckXScale, truckYScale, truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, backgroundWidth, backgroundHeight, true);
-        obsD = new Obstacles(this.getContext(), 102, 154, obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        homingOb = new Obstacles(this.getContext(), 114, 136, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false);
-        extraLives = new Obstacles(this.getContext(), 62, 110, extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true);
+        cone = new Obstacles(this.getContext(), (int)(sX *coneXScale), (int)(sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, backgroundWidth, backgroundHeight, false, false);
+        downTree = new Obstacles(this.getContext(), (int)(sX * downTreeXScale), (int)(sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, backgroundWidth, backgroundHeight, false, false);
+        truck = new Obstacles(this.getContext(), (int)(sX * truckXScale), (int)(sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, backgroundWidth, backgroundHeight, true, true);
+        obsD = new Obstacles(this.getContext(), (int)(sX * 122), (int)(sY * 154), obsDImageResID, obsDMaxNumObs, false, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true, false);
+        homingOb = new Obstacles(this.getContext(), (int)(sX * 114), (int)(sY * 136), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, false, false);
+        extraLives = new Obstacles(this.getContext(), (int)(sX * 62), (int)(sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true, false);
 
         //Initialize footprints
-        footprints = new Obstacles(this.getContext(), 50, 50, footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false);
+//        footprints = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
 
         //Initialize touch follower.
         touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
+        touchFollower = Bitmap.createScaledBitmap(touchFollower, (int)(sX * touchFollower.getWidth()), (int)(sY * touchFollower.getHeight()), true);
+
+        matrixRotateClockwise.postRotate(90);
+        matrixRotateCounterClockwise.postRotate(270);
+
         tFXOffset = -touchFollower.getWidth() / 2;
         tFYOffset = -touchFollower.getHeight();
 
         //Initialize finish line.
         finishLine = BitmapFactory.decodeResource(this.getResources(), R.drawable.finish, null);
-        finishLine = Bitmap.createScaledBitmap(finishLine, 940, 200, true);
+        finishLine = Bitmap.createScaledBitmap(finishLine, (int)(sX * 940), (int)(sY * 200), true);
         //-----------------------------------------------------------------------------------------
 
         //Sound effects.
@@ -290,17 +300,17 @@ public class GameView extends SurfaceView implements Runnable {
                 velocity *= 0.75;//0.8f;//0.9f;
             }
             //--------------Check if an obstacle has run into touchFollower when no fingers are down (only necessary if friendly sprite triggers obstacles)-----------------------------
-            if (checkObstaclesTouched(false)) {//Looks like if(false), but false is a passed boolean.
+            if (checkObstaclesTouched(0)) {//Looks like if(false), but false is a passed boolean.
                 if (livesLeft == 0) {
                     mA.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 100, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
+                            getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 1, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
 //                    mA.requestGameState(MainActivity.LOSE);
                         }
                     });
                 } else {
-                    checkObstaclesTouched(true);
+                    checkObstaclesTouched(2);
                     velocity = 0;
                     touchDownX = tFX - tFXOffset;
                     touchDownY = tFY - tFYOffset;
@@ -310,7 +320,7 @@ public class GameView extends SurfaceView implements Runnable {
                         soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
                     }
                 }
-            } else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true)){
+            } else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
                 livesLeft++;
                 if(!mA.musicMuted) {
                     soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
@@ -340,7 +350,7 @@ public class GameView extends SurfaceView implements Runnable {
 
             //TODO: Try making an obstacle track down the touch follower.
             for (int i = 0; i < homingObMaxNum; i++) {
-                if (homingOb.spawnTracker[i] == true) {
+                if (homingOb.spawnTracker[i] == 1) {
                     if (homingOb.coordinatesArray[i][0] != tFX) {
                         homingOb.coordinatesArray[i][0] += homingSpeed * 0.75 * (tFX - homingOb.coordinatesArray[i][0]);
                     }
@@ -472,10 +482,10 @@ public class GameView extends SurfaceView implements Runnable {
 
             cone.drawObstacles(canvas, paint);
             downTree.drawObstacles(canvas, paint);
-            truck.drawObstacles(canvas, paint);
             obsD.drawObstacles(canvas, paint);
             homingOb.drawObstacles(canvas, paint);
             extraLives.drawObstacles(canvas, paint);
+            truck.drawObstacles(canvas, paint);
 
             //Draw touch follower.
             canvas.drawBitmap(touchFollower, tFX, tFY, paint);
@@ -531,8 +541,10 @@ public class GameView extends SurfaceView implements Runnable {
 //                footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
 
                 //--------------Check if an obstacle has been touched-----------------------------
-                if (checkObstaclesTouched(true)) {
+                if (checkObstaclesTouched(2)) {
                     if (livesLeft == 0) {
+                        touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
+                        tFRotated = true;
                         if(!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                         }
@@ -547,7 +559,7 @@ public class GameView extends SurfaceView implements Runnable {
                             soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
                         }
                     }
-                }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true)){
+                }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
                     livesLeft++;
                     if(!mA.musicMuted) {
                         soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
@@ -571,8 +583,10 @@ public class GameView extends SurfaceView implements Runnable {
                     }
 
                     //--------------Check if an obstacle has been touched-----------------------------
-                    if (checkObstaclesTouched(true)) {
+                    if (checkObstaclesTouched(2)) {
                         if (livesLeft == 0) {
+                            touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
+                            tFRotated = true;
                             if(!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                             }
@@ -587,7 +601,7 @@ public class GameView extends SurfaceView implements Runnable {
                                 soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
                             }
                         }
-                    }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true)){
+                    }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
                         livesLeft++;
                         if(!mA.musicMuted) {
                             soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
@@ -609,8 +623,10 @@ public class GameView extends SurfaceView implements Runnable {
                     }
                 }
                 //--------------Check if an obstacle has been touched-----------------------------
-                if (checkObstaclesTouched(true)) {
+                if (checkObstaclesTouched(2)) {
                     if (livesLeft == 0) {
+                        touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
+                        tFRotated = true;
                         if(!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                         }
@@ -625,7 +641,7 @@ public class GameView extends SurfaceView implements Runnable {
                             soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
                         }
                     }
-                }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true)){
+                }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
                     livesLeft++;
                     if(!mA.musicMuted) {
                         soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
@@ -693,7 +709,7 @@ public class GameView extends SurfaceView implements Runnable {
         homingOb.updateObstacles(distance, true);
         extraLives.updateObstacles(distance, true);
 
-        footprints.updateObstacles(distance, false);
+//        footprints.updateObstacles(distance, false);
         //-----------------------------------------------------------------------------
 
         // Loop backgrounds
@@ -763,7 +779,7 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     //--------------Check if an obstacle was touched-----------------------------
-    public Boolean checkObstaclesTouched(boolean destroy) {
+    public Boolean checkObstaclesTouched(int action) {
         //First check if active finger is touching obstacle.
 //        if(!fingers.isEmpty()) {
 //            if (cone.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
@@ -780,15 +796,15 @@ public class GameView extends SurfaceView implements Runnable {
 //        }
 
         //Now check if touch follower is touching an obstacle.
-        if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
             return true;
-        } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
             return true;
-        } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
             return true;
-        } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){//(activeFinger.x, activeFinger.y)) {
+        } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
             return true;
-        } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), destroy)){
+        } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){
             return true;
         } else {
 //            return false;
@@ -796,23 +812,21 @@ public class GameView extends SurfaceView implements Runnable {
 
             //Check if obstacles have touched other obstacles.
             for (int i = 0; i < maxNumTrucks; i++) {
-                if (truck.spawnTracker[i] == true) { //Truck should only destroy obstacles if it's moving.
+                if (truck.spawnTracker[i] == truck.obstacleSpawned) { //Truck should only destroy obstacles if it's moving.
                     if (truck.speedArray[i][1] != 0) {
-                        cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true);
-                        if (obsD.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true)) {
+                        cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
+                        if (obsD.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
                             if (!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                             }
                         }
-                        ;
-                        if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true)) {
+                        if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
                             if (!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                             }
                         }
-                        ;
-//                    downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true);
-                        extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, true);
+                        downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
+                        extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false);
                     }
                 }
             }
@@ -847,10 +861,14 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         //Reset touch follower to bottom middle of screen.
+        if(tFRotated) {
+            touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateCounterClockwise, true);
+            tFRotated = false;
+        }
         tFX = tFXOffset + backgroundWidth/2;
         tFY = tFYOffset + backgroundHeight;
 
-        footprints.resetObstacles(footprintsDDistBetweenObs, backgroundWidth, backgroundHeight);
+//        footprints.resetObstacles(footprintsDDistBetweenObs, backgroundWidth, backgroundHeight);
         //-----------------------------------------------------------------------------------
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();

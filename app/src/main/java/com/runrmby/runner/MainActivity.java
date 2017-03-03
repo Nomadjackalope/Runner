@@ -2,6 +2,7 @@ package com.runrmby.runner;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
@@ -378,6 +379,7 @@ public class MainActivity extends AppCompatActivity {
         setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
 
         gameMenu.setVisibility(View.VISIBLE);
+        timer.setBackgroundColor(Color.LTGRAY);
         gameScreen.handleTouches = true;
     }
 
@@ -401,6 +403,9 @@ public class MainActivity extends AppCompatActivity {
                 endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
                 endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay());
                 bestTime.changeTime(yourTime.getTime());
+                endGameBestTime.setBackgroundColor(Color.GREEN);
+                endGameUserTime.setBackgroundColor(Color.GREEN);
+                endGameText.setBackgroundColor(Color.GREEN);
 
                 //Start win music.
 //                if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
@@ -412,6 +417,9 @@ public class MainActivity extends AppCompatActivity {
                 endGameText.setText(R.string.win3);
                 endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
                 endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                endGameBestTime.setBackgroundColor(Color.LTGRAY);
+                endGameUserTime.setBackgroundColor(Color.LTGRAY);
+                endGameText.setBackgroundColor(Color.LTGRAY);
 
                 //Start win music.
 //                if(nowPlaying != WIN_MUSIC_1) {
@@ -425,6 +433,9 @@ public class MainActivity extends AppCompatActivity {
             endGameText.setText(R.string.win2);
             endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
             endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
+            endGameBestTime.setBackgroundColor(Color.LTGRAY);
+            endGameUserTime.setBackgroundColor(Color.GREEN);
+            endGameText.setBackgroundColor(Color.GREEN);
 
             //Start win music.
 //            if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
@@ -438,7 +449,8 @@ public class MainActivity extends AppCompatActivity {
         gameEndMenu.setVisibility(View.VISIBLE);
         root.removeView(gameEndMenu);
         root.addView(gameEndMenu);
-
+        endGameUserTime.setBackgroundColor(Color.RED);
+        endGameText.setBackgroundColor(Color.RED);
 
         //Set end game textviews for losing.
         if(gameScreen.distanceMode == false) {
@@ -453,10 +465,12 @@ public class MainActivity extends AppCompatActivity {
                 bestTime.changeTime(savedTime);
                 endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
                 endGameText.setText(R.string.lose2);
+                endGameBestTime.setBackgroundColor(Color.LTGRAY);
             } else {
                 //The loaded best time was null (there has never been a best time saved).
                 endGameBestTime.setText("Best Time: \n" + "You've never finished!");
                 endGameText.setText(R.string.lose1);
+                endGameBestTime.setBackgroundColor(Color.RED);
             }
         } else{
             //TODO: Not sure if a new state would be necessary for distance mode.
@@ -470,10 +484,12 @@ public class MainActivity extends AppCompatActivity {
                 endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!");
                 setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
                 saveBestDistance(yourDistance);
+                endGameBestTime.setBackgroundColor(Color.RED);
             } else {
                 endGameUserTime.setText("Your Distance: \n" + String.valueOf(yourDistance));
                 endGameBestTime.setText("Record: \n" + String.valueOf(savedDistance));
                 endGameText.setText(R.string.lose2);
+                endGameBestTime.setBackgroundColor(Color.LTGRAY);
                 //Keep game music going.
                 setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
             }
@@ -614,7 +630,7 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
                                 if(activeMusic != null) {
                                     activeMusic.setVolume(v, v);
-                                };
+                                }
                             }
                         });
                         try {
