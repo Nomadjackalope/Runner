@@ -388,6 +388,8 @@ public class MainActivity extends AppCompatActivity {
         gameEndMenu.setVisibility(View.VISIBLE);
         root.removeView(gameEndMenu);
         root.addView(gameEndMenu);
+        endGameText.setBackgroundColor(Color.RED);
+        int colWit = gameScreen.collisionsWitnessed + loadCollisionsWitnessed();
 
         // TODO Shrink this or at least separate it into its functional parts
         yourTime = gameScreen.gameTimer;
@@ -400,8 +402,8 @@ public class MainActivity extends AppCompatActivity {
                 timeDifferential.changeTime(bestTime.getTime() - yourTime.getTime());
                 saveNewBestTime(yourTime.getTime());
                 endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
-                endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
-                endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay());
+                endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay() + "\nCollisions:\n" + String.valueOf(gameScreen.collisionsWitnessed));
+                endGameBestTime.setText("Previous Best: \n" + bestTime.getTimeForDisplay() + "\nCollisions Witnessed:\n" + String.valueOf(colWit));
                 bestTime.changeTime(yourTime.getTime());
                 endGameBestTime.setBackgroundColor(Color.GREEN);
                 endGameUserTime.setBackgroundColor(Color.GREEN);
@@ -415,8 +417,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 //Your time isn't a new best time.
                 endGameText.setText(R.string.win3);
-                endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
-                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay() + "\nCollisions:\n" + String.valueOf(gameScreen.collisionsWitnessed));
+                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay() + "\nCollisions Witnessed:\n" + String.valueOf(colWit));
                 endGameBestTime.setBackgroundColor(Color.LTGRAY);
                 endGameUserTime.setBackgroundColor(Color.LTGRAY);
                 endGameText.setBackgroundColor(Color.LTGRAY);
@@ -431,8 +433,8 @@ public class MainActivity extends AppCompatActivity {
             saveNewBestTime(yourTime.getTime());
             bestTime.changeTime(yourTime.getTime());
             endGameText.setText(R.string.win2);
-            endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay());
-            endGameBestTime.setText("Previous Best: \n" + "You'd never finished!");
+            endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay() + "\nCollisions:\n" + String.valueOf(gameScreen.collisionsWitnessed));
+            endGameBestTime.setText("Previous Best: \n" + "You'd never finished!" + "\nCollisions Witnessed:\n" + String.valueOf(colWit));
             endGameBestTime.setBackgroundColor(Color.LTGRAY);
             endGameUserTime.setBackgroundColor(Color.GREEN);
             endGameText.setBackgroundColor(Color.GREEN);
@@ -451,6 +453,8 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameEndMenu);
         endGameUserTime.setBackgroundColor(Color.RED);
         endGameText.setBackgroundColor(Color.RED);
+        int colWit = gameScreen.collisionsWitnessed + loadCollisionsWitnessed();
+        saveCollisionsWitnessed(colWit);
 
         //Set end game textviews for losing.
         if(gameScreen.distanceMode == false) {
@@ -463,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
             if (savedTime != 0) {
                 //There was a saved best time.
                 bestTime.changeTime(savedTime);
-                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay());
+                endGameBestTime.setText("Best Time: \n" + bestTime.getTimeForDisplay() + "\nCollisions Witnessed:\n" + String.valueOf(colWit));
                 endGameText.setText(R.string.lose2);
                 endGameBestTime.setBackgroundColor(Color.LTGRAY);
             } else {
@@ -479,17 +483,21 @@ public class MainActivity extends AppCompatActivity {
             distanceDifferential = yourDistance - savedDistance;
             if(distanceDifferential > 0){
                 //New record!
-                endGameUserTime.setText("New Record: \n" + String.valueOf(yourDistance));
-                endGameBestTime.setText("Previous Record: \n" + String.valueOf(savedDistance));
+                endGameUserTime.setText("New Record: \n" + String.valueOf(yourDistance) + "\nCollisions:\n" + String.valueOf(gameScreen.collisionsWitnessed));
+                endGameBestTime.setText("Previous Record: \n" + String.valueOf(savedDistance) + "\nCollisions Witnessed:\n" + String.valueOf(colWit));
                 endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!");
                 setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
                 saveBestDistance(yourDistance);
-                endGameBestTime.setBackgroundColor(Color.RED);
+                endGameBestTime.setBackgroundColor(Color.LTGRAY);
+                endGameUserTime.setBackgroundColor(Color.GREEN);
+                endGameText.setBackgroundColor(Color.GREEN);
             } else {
-                endGameUserTime.setText("Your Distance: \n" + String.valueOf(yourDistance));
-                endGameBestTime.setText("Record: \n" + String.valueOf(savedDistance));
+                endGameUserTime.setText("Your Distance: \n" + String.valueOf(yourDistance) + "\nCollisions:\n" + String.valueOf(gameScreen.collisionsWitnessed));
+                endGameBestTime.setText("Record: \n" + String.valueOf(savedDistance) + "\nCollisions Witnessed:\n" + String.valueOf(colWit));
                 endGameText.setText(R.string.lose2);
                 endGameBestTime.setBackgroundColor(Color.LTGRAY);
+                endGameUserTime.setBackgroundColor(Color.LTGRAY);
+                endGameText.setBackgroundColor(Color.LTGRAY);
                 //Keep game music going.
                 setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
             }
@@ -792,5 +800,15 @@ public class MainActivity extends AppCompatActivity {
     private float loadBestDistance(){
         float distance = sharedPref.getFloat("bestDistance", 0f);
         return distance;
+    }
+
+    private void saveCollisionsWitnessed(int c){
+        prefEditor.putInt("collisionsWitnessed", c);
+        prefEditor.commit();
+    }
+
+    private int loadCollisionsWitnessed(){
+        int c = sharedPref.getInt("collisionsWitnessed", 0);
+        return c;
     }
 }

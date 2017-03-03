@@ -129,6 +129,7 @@ public class GameView extends SurfaceView implements Runnable {
     float extraLivesVerticalSpeed = 0f;
 
     int livesLeft;
+    int collisionsWitnessed;
 
     //Using obstacle class to spawn footprints.
 //    Obstacles footprints;
@@ -212,7 +213,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         //Initialize touch follower.
         touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
-        touchFollower = Bitmap.createScaledBitmap(touchFollower, (int)(sX * touchFollower.getWidth()), (int)(sY * touchFollower.getHeight()), true);
+        touchFollower = Bitmap.createScaledBitmap(touchFollower, (int)(sX * 56), (int)(sY * 200), true);
 
         matrixRotateClockwise.postRotate(90);
         matrixRotateCounterClockwise.postRotate(270);
@@ -331,6 +332,7 @@ public class GameView extends SurfaceView implements Runnable {
                     if(!mA.musicMuted) {
                         soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
                     }
+                    collisionsWitnessed++;
                 }
             } else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
                 livesLeft++;
@@ -463,7 +465,7 @@ public class GameView extends SurfaceView implements Runnable {
                     mA.timer.setText(gameTimer.getTimeForDisplay());
                 } else {
                     //Display distance instead of time for distance mode.
-                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY) + "\nLives: " + String.valueOf(livesLeft));
+                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY) + "\nLives: " + String.valueOf(livesLeft) + "\nCollisions Witnessed: " + String.valueOf(collisionsWitnessed));
                 }
             }
         });
@@ -564,6 +566,7 @@ public class GameView extends SurfaceView implements Runnable {
                         if(!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                         }
+                        collisionsWitnessed++;
                         mA.setGameState(MainActivity.GAME_LOST);
                     } else {
                         velocity = 0;
@@ -574,6 +577,7 @@ public class GameView extends SurfaceView implements Runnable {
                         if(!mA.musicMuted) {
                             soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
                         }
+                        collisionsWitnessed++;
                     }
                 }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
                     livesLeft++;
@@ -606,6 +610,7 @@ public class GameView extends SurfaceView implements Runnable {
                             if(!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                             }
+                            collisionsWitnessed++;
                             mA.setGameState(MainActivity.GAME_LOST);
                         } else {
                             velocity = 0;
@@ -615,6 +620,7 @@ public class GameView extends SurfaceView implements Runnable {
                             //TODO: play sound and implement lives display
                             if(!mA.musicMuted) {
                                 soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
+                                collisionsWitnessed++;
                             }
                         }
                     }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
@@ -646,6 +652,7 @@ public class GameView extends SurfaceView implements Runnable {
                         if(!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                         }
+                        collisionsWitnessed++;
                         mA.setGameState(MainActivity.GAME_LOST);
                     } else {
                         velocity = 0;
@@ -655,6 +662,7 @@ public class GameView extends SurfaceView implements Runnable {
                         //TODO: play sound and implement lives display
                         if(!mA.musicMuted) {
                             soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
+                            collisionsWitnessed++;
                         }
                     }
                 }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
@@ -833,21 +841,28 @@ public class GameView extends SurfaceView implements Runnable {
             for (int i = 0; i < maxNumTrucks; i++) {
                 if (truck.spawnTracker[i] == 1 || truck.spawnTracker[i] == 2) { //Truck should only destroy obstacles if it's moving.
                     if (truck.speedArray[i][1] != 0) {
-                        cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
+                        if(cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
+                            collisionsWitnessed++;
+                        }
                         if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
                             if (!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                             }
+                            collisionsWitnessed++;
                         }
                         if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
                             if (!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                             }
+                            collisionsWitnessed++;
                         }
                         if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
                             truck.hitObstacle(i, false);
+                            collisionsWitnessed++;
                         }
-                        downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
+                        if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
+                            collisionsWitnessed++;
+                        }
                         extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
                     }
                 }
@@ -856,19 +871,27 @@ public class GameView extends SurfaceView implements Runnable {
             for (int i = 0; i < maxNumCars; i++){
                 if (car.spawnTracker[i] == 1){
                     if(car.speedArray[i][1] != 0){
-                        cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false);
+                        if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
+                            collisionsWitnessed++;
+                        }
                         if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 2, false)) {
                             if (!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                             }
+                            collisionsWitnessed++;
                         }
                         if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 2, false)) {
                             if (!mA.musicMuted) {
                                 soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                             }
+                            collisionsWitnessed++;
                         }
-                        truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false);
-                        downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false);
+                        if(truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
+                            collisionsWitnessed++;
+                        }
+                        if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
+                            collisionsWitnessed++;
+                        }
                         extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false);
                     }
                 }
@@ -918,6 +941,7 @@ public class GameView extends SurfaceView implements Runnable {
         } else {
             livesLeft = 2;
         }
+        collisionsWitnessed = 0;
 
         //Reset touch follower to bottom middle of screen.
         if(tFRotated) {
