@@ -3,8 +3,8 @@
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="play_music">Play Music</string>
-    <string name="mute_music">Mute Music</string>
+    <string name="play_music">Unmute Sound</string>
+    <string name="mute_music">Mute Sound</string>
 
     <string name="play">Play</string>
     <string name="finger_runner">Finger Runner</string>
@@ -17,7 +17,7 @@
     <string name="lose1">That was pretty bad.</string>
     <string name="lose2">You really can do better.</string>
     <string name="lose3">You suck. Here\'s an ad.</string>
-    <string name="win1">Wow, you beat yourself,\nBut are you really any competition?</string>
+    <string name="win1">Wow, you beat yourself,\nbut are you really any competition?</string>
     <string name="win2">Woot woot! A new high score!</string>
     <string name="win3">That was an alright run.</string>
     

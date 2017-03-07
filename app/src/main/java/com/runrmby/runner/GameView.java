@@ -140,6 +140,8 @@ public class GameView extends SurfaceView implements Runnable {
 //    float footprintsDVerticalSpeed = 0f;
 
     Bitmap touchFollower;
+    int touchFollowerHeight;
+    int touchFollowerWidth;
     float tFX;          //current x coordinate of touchFollower
     float tFY;          //current y coordinate of touchFollower
     float tFXOffset;
@@ -212,8 +214,10 @@ public class GameView extends SurfaceView implements Runnable {
 //        footprints = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
 
         //Initialize touch follower.
+        touchFollowerHeight = (int)(sY * 200);
+        touchFollowerWidth = (int)(sX * 56);
         touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
-        touchFollower = Bitmap.createScaledBitmap(touchFollower, (int)(sX * 56), (int)(sY * 200), true);
+        touchFollower = Bitmap.createScaledBitmap(touchFollower, touchFollowerWidth, touchFollowerHeight, true);
 
         matrixRotateClockwise.postRotate(90);
         matrixRotateCounterClockwise.postRotate(270);
@@ -376,7 +380,7 @@ public class GameView extends SurfaceView implements Runnable {
 
 
             //For the touchFollower crossing the finish line to trigger course completion, use the following line:
-            distRemaining = courseLeft - backgroundHeight + tFY + touchFollower.getHeight();
+            distRemaining = courseLeft - backgroundHeight + tFY + touchFollowerHeight;
             //For a touch past the finish line to trigger course completion, use the following line instead of the previous line:
 //            distRemaining = courseLeft - backgroundHeight + touchDownY;
 

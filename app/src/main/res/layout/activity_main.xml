@@ -129,7 +129,7 @@
 
     </RelativeLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/mainMenu"
@@ -138,32 +138,29 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Timed"
-            android:id="@+id/playButton"
-            android:layout_gravity="center_horizontal|bottom" />
+            android:text="Options"
+            android:id="@+id/settingsButton"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Marathon"
+            android:text="Marathon Mode"
             android:id="@+id/playDistanceMode"
-            android:layout_gravity="bottom"
-            android:layout_alignLeft="@+id/playButton"/>
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/mute_music_button"
-            android:textOff="@string/play_music"
-            android:textOn="@string/mute_music"
-            android:checked="true" />
+            android:layout_above="@id/settingsButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reset Records"
-            android:id="@+id/resetButton"
-            android:layout_gravity="right|top"/>
+            android:text="Timed Mode"
+            android:id="@+id/playButton"
+            android:layout_above="@id/playDistanceMode"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -171,9 +168,10 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/finger_runner"
             android:id="@+id/textView"
-            android:layout_gravity="center_horizontal|top"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
             android:layout_marginTop="75dp" />
-    </FrameLayout>
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -226,5 +224,42 @@
         </LinearLayout>
 
     </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/settingsMenu"
+        android:visibility="gone">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Return to Main Menu"
+            android:id="@+id/exitSettingsButton"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="25dp"/>
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mute_music_button"
+            android:textOff="@string/play_music"
+            android:textOn="@string/mute_music"
+            android:checked="true"
+            android:layout_above="@id/exitSettingsButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Records"
+            android:id="@+id/resetButton"
+            android:layout_above="@id/mute_music_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
+
+    </RelativeLayout>
 
 </FrameLayout>

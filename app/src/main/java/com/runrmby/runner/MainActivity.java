@@ -1,11 +1,13 @@
 package com.runrmby.runner;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int GAME_LOST = 9;
     public static final int TRANSIT_TO_GAME = 10;
     public static final int TRANSIT_TO_MM = 11;
+    public static final int SETTINGS =  12;
 
 
 
@@ -148,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
     private Button resumeButton;
     private Button pauseMMButton;
     private Button resetButton;
+    private Button settingsButton;
+    private Button exitSettingsButton;
 
     private TextView endGameUserTime;
     private TextView endGameBestTime;
@@ -156,7 +161,8 @@ public class MainActivity extends AppCompatActivity {
 
     private RelativeLayout gameEndMenu;
     private RelativeLayout pauseMenu;
-    private FrameLayout mainMenu;
+    private RelativeLayout settingsMenu;
+    private RelativeLayout mainMenu;
     private FrameLayout gameMenu;
     private FrameLayout root;
 
@@ -167,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int gameState = MAIN_MENU;
     private int previousGameState = MAIN_MENU;
+
+    private int menuState = 1;  //0=settings, 1=mainMenu, 2 would be next location
 
 
     //private File bestTimeFilePath;
@@ -198,16 +206,38 @@ public class MainActivity extends AppCompatActivity {
         root = (FrameLayout) findViewById(R.id.root);
 
         // Menus
-        mainMenu = (FrameLayout) findViewById(R.id.mainMenu);
+        mainMenu = (RelativeLayout) findViewById(R.id.mainMenu);
         gameMenu = (FrameLayout) findViewById(R.id.gameMenu);
         gameEndMenu = (RelativeLayout) findViewById(R.id.gameEndMenu);
         pauseMenu = (RelativeLayout) findViewById(R.id.pauseMenu);
+        settingsMenu = (RelativeLayout) findViewById(R.id.settingsMenu);
 
         timer = (TextView) findViewById(R.id.timer);
 
         //Screens
         titleScreen = findViewById(R.id.titleScreen);
         gameScreen = new GameView(this, windowSize);
+
+        titleScreen.setOnTouchListener(new OnSwipeTouchListener(this){  //Swipe options.
+            public void onSwipeTop() {
+                Toast.makeText(root.getContext(), "top", Toast.LENGTH_SHORT).show();
+            }
+            public void onSwipeRight() {
+                Toast.makeText(root.getContext(), "right", Toast.LENGTH_SHORT).show();
+            }
+            public void onSwipeLeft() {
+                Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
+//                if(settingsMenu.getVisibility() == View.VISIBLE){
+//                }
+//                else{
+//                    Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
+//                }
+            }
+            public void onSwipeBottom() {
+                Toast.makeText(root.getContext(), "bottom", Toast.LENGTH_SHORT).show();
+            }
+
+        });
 
         root.addView(gameScreen);
 
@@ -262,6 +292,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        settingsButton = (Button) findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                setGameState(SETTINGS);
+//                hideAllMenus();
+//                settingsMenu.setVisibility(View.VISIBLE);
+            }
+        });
+
+        exitSettingsButton = (Button) findViewById(R.id.exitSettingsButton);
+        exitSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setGameState(MAIN_MENU);
+//                hideAllMenus();
+//                mainMenu.setVisibility(View.VISIBLE);
+            }
+        });
+
         tempButton = (Button) findViewById(R.id.tempButton);
         tempButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -275,10 +325,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //Reset best time.
-                prefEditor.putLong("bestTime", 0l);
-                prefEditor.putFloat("bestDistance", 0f);
-                prefEditor.commit();
-                Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();//TODO: make sure this doesn't cause a crash
+                AlertDialog.Builder resetWarning = new AlertDialog.Builder(root.getContext());//, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                resetWarning.setMessage("Are you sure you want to reset?");
+                resetWarning.setCancelable(true);
+                resetWarning.setPositiveButton(
+                        "Yes, please.",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                prefEditor.putLong("bestTime", 0l);
+                                prefEditor.putFloat("bestDistance", 0f);
+                                prefEditor.commit();
+                                Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();//TODO: make sure this can't cause a crash
+                                dialog.dismiss();
+                            }
+                        });
+
+                resetWarning.setNegativeButton(
+                        "Oops, nooo!",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                AlertDialog alert11 = resetWarning.create();
+                alert11.show();
+                hide();
             }
         });
 
@@ -355,6 +427,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case TRANSIT_TO_GAME:
                 setTransitGameState();
+                break;
+            case SETTINGS:
+                setSettingsState();
                 break;
         }
     }
@@ -566,6 +641,11 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameMenu);
     }
 
+    public void setSettingsState() {
+        hideAllMenus();
+        settingsMenu.setVisibility(View.VISIBLE);
+    }
+
     // id should be from R.raw
     public void setMusicState(final int id, final int musicState, final boolean loop) {
         if(musicState == nowPlaying) {
@@ -657,6 +737,7 @@ public class MainActivity extends AppCompatActivity {
     private void hideAllMenus() {
         mainMenu.setVisibility(View.GONE);
         gameMenu.setVisibility(View.GONE);
+        settingsMenu.setVisibility(View.GONE);
         gameEndMenu.setVisibility(View.GONE);
         pauseMenu.setVisibility(View.GONE);
     }
