@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOSE_MUSIC_1 = 2;
     private static final int WIN_MUSIC_1 = 3;
     private static final int WIN_MUSIC_NEW_RECORD = 4;
+    private int selectedGameMusicId = R.raw.finger_runner_game_music_1;
     private int nowPlaying;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
@@ -152,11 +153,14 @@ public class MainActivity extends AppCompatActivity {
     private Button resetButton;
     private Button settingsButton;
     private Button exitSettingsButton;
+    private ToggleButton musicMuteButton;
+    private ToggleButton whistleMusicButton;
 
     private TextView endGameUserTime;
     private TextView endGameBestTime;
     private TextView endGameText;
     public TextView timer;
+    public TextView experiencePointsText;
 
     private RelativeLayout gameEndMenu;
     private RelativeLayout pauseMenu;
@@ -256,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
         endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
         endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
         endGameText = (TextView) findViewById(R.id.endGameText);
+        experiencePointsText = (TextView) findViewById(R.id.experiencePoints);
 
         //Buttons
         playAgainButton = (Button) findViewById(R.id.playAgainButton);
@@ -355,8 +360,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        whistleMusicButton = (ToggleButton) findViewById(R.id.whistleMusicButton);
+        whistleMusicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(whistleMusicButton.isChecked()){
+                    selectedGameMusicId = R.raw.finger_runner_main_theme_whistling;
+                }
+                else{
+                    selectedGameMusicId =  R.raw.finger_runner_game_music_1;
+                }
+            }
+        });
+
         //Mute music toggle button.
-        final ToggleButton musicMuteButton = (ToggleButton)this.findViewById(R.id.mute_music_button);
+        musicMuteButton = (ToggleButton)this.findViewById(R.id.mute_music_button);
         if(musicMuted){
             musicMuteButton.setChecked(false);
         }
@@ -395,6 +413,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        colWit = loadXP();
     }
 
     public void setGameState(int state) {
@@ -452,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setGamePlayingState() {
         //Start music.
-        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
+        setMusicState(selectedGameMusicId, GAME_MUSIC_1, true);
 
         gameMenu.setVisibility(View.VISIBLE);
         timer.setBackgroundColor(Color.LTGRAY);
@@ -476,7 +495,7 @@ public class MainActivity extends AppCompatActivity {
                 //Your time is a new best time.
                 timeDifferential.changeTime(bestTime.getTime() - yourTime.getTime());
                 saveNewBestTime(yourTime.getTime());
-                colWit = 4*gameScreen.collisionsWitnessed + loadXP();
+                colWit += 4*gameScreen.collisionsWitnessed;
                 saveXP(colWit);
                 endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
                 endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay() + "\n+" + String.valueOf(4*gameScreen.collisionsWitnessed) + " XP");
@@ -493,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 //Your time isn't a new best time.
-                colWit = 2*gameScreen.collisionsWitnessed + loadXP();
+                colWit += 2*gameScreen.collisionsWitnessed;
                 saveXP(colWit);
                 endGameText.setText(R.string.win3);
                 endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay() + "\n+" + String.valueOf(2*gameScreen.collisionsWitnessed) + " XP");
@@ -511,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
             //No best time has been saved (a run has never been completed), so your time is a new best time.
             saveNewBestTime(yourTime.getTime());
             bestTime.changeTime(yourTime.getTime());
-            colWit = 4*gameScreen.collisionsWitnessed + loadXP();
+            colWit += 4*gameScreen.collisionsWitnessed;
             saveXP(colWit);
             endGameText.setText(R.string.win2);
             endGameUserTime.setText("Your Time: \n" + yourTime.getTimeForDisplay() + "\n+" + String.valueOf(4*gameScreen.collisionsWitnessed) + " XP");
@@ -541,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
 //        if(nowPlaying != LOSE_MUSIC_1) {
 //            setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
 //        }
-            colWit = gameScreen.collisionsWitnessed + loadXP();
+            colWit += gameScreen.collisionsWitnessed;
             saveXP(colWit);
             endGameUserTime.setText("Your Time: \nYou didn't finish!" + "\n+" + String.valueOf(gameScreen.collisionsWitnessed) + " XP");
             savedTime = loadBestTime();
@@ -564,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
             distanceDifferential = yourDistance - savedDistance;
             if(distanceDifferential > 0){
                 //New record!
-                colWit = gameScreen.collisionsWitnessed + loadXP();
+                colWit += gameScreen.collisionsWitnessed;
                 saveXP(colWit);
                 endGameUserTime.setText("New Record: \n" + String.valueOf(yourDistance) + "\n+" + String.valueOf(gameScreen.collisionsWitnessed) + " XP");
                 endGameBestTime.setText("Previous Record: \n" + String.valueOf(savedDistance) + "\n" + String.valueOf(colWit) + " XP");
@@ -576,7 +595,7 @@ public class MainActivity extends AppCompatActivity {
                 endGameText.setBackgroundColor(Color.GREEN);
             } else {
                 //Not a record.
-                colWit = gameScreen.collisionsWitnessed + loadXP();
+                colWit += gameScreen.collisionsWitnessed;
                 saveXP(colWit);
                 endGameUserTime.setText("Your Distance: \n" + String.valueOf(yourDistance) + "\n+" + String.valueOf(gameScreen.collisionsWitnessed) + " XP");
                 endGameBestTime.setText("Record: \n" + String.valueOf(savedDistance) + "\n" + String.valueOf(colWit) + " XP");
@@ -588,7 +607,6 @@ public class MainActivity extends AppCompatActivity {
                 setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
             }
         }
-
     }
 
     // Game paused. Not app paused.
@@ -655,6 +673,10 @@ public class MainActivity extends AppCompatActivity {
     public void setSettingsState() {
         hideAllMenus();
         settingsMenu.setVisibility(View.VISIBLE);
+        experiencePointsText.setText(String.valueOf(colWit) + " XP");
+        if(colWit > 10000){
+            whistleMusicButton.setEnabled(true);
+        }
     }
 
     // id should be from R.raw
