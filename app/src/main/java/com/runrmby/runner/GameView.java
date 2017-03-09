@@ -119,7 +119,7 @@ public class GameView extends SurfaceView implements Runnable {
     float increaseDifficultyDistance = 5000f;
     float toNextDiffIncrease;
     int difficultly;
-    float homingSpeed;
+    //float homingSpeed;
 
     Obstacles extraLives;
     int extraLivesResId = R.drawable.lvlup;
@@ -157,6 +157,13 @@ public class GameView extends SurfaceView implements Runnable {
     SoundPool soundEffects;
     int badSoundId;
     int goodSoundId;
+    int crashSoundId;
+    int crashSound2Id;
+    int crashSound3Id;
+    int crashSound4Id;
+    int crashSound5Id;
+    int truckHornId;
+    int carHornId;
     int wilhelmScreamId;
     //-----------------------------------------------------------------------------------------
 
@@ -202,13 +209,13 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //-----------------Initialize obstacles----------------------------------------------------
-        cone = new Obstacles(this.getContext(), (int)(sX *coneXScale), (int)(sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, backgroundWidth, backgroundHeight, true, false);
-        downTree = new Obstacles(this.getContext(), (int)(sX * downTreeXScale), (int)(sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, backgroundWidth, backgroundHeight, false, false);
-        truck = new Obstacles(this.getContext(), (int)(sX * truckXScale), (int)(sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, backgroundWidth, backgroundHeight, true, true);
-        crowd = new Obstacles(this.getContext(), (int)(sX * crowdXScale), (int)(sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, backgroundWidth, backgroundHeight, true, false);
-        car = new Obstacles(this.getContext(), (int)(sX * carXScale), (int)(sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, backgroundWidth, backgroundHeight, true, true);
-        homingOb = new Obstacles(this.getContext(), (int)(sX * 114), (int)(sY * 136), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, backgroundWidth, backgroundHeight, true, false);
-        extraLives = new Obstacles(this.getContext(), (int)(sX * 62), (int)(sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true, false);
+        cone = new Obstacles(this.getContext(), (int)(sX *coneXScale), (int)(sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
+        downTree = new Obstacles(this.getContext(), (int)(sX * downTreeXScale), (int)(sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, 0, backgroundWidth, backgroundHeight, false, false);
+        truck = new Obstacles(this.getContext(), (int)(sX * truckXScale), (int)(sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
+        crowd = new Obstacles(this.getContext(), (int)(sX * crowdXScale), (int)(sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
+        car = new Obstacles(this.getContext(), (int)(sX * carXScale), (int)(sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, backgroundWidth, 0, backgroundHeight, true, true);
+        homingOb = new Obstacles(this.getContext(), (int)(sX * 114), (int)(sY * 136), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, 0.005f, backgroundWidth, backgroundHeight, true, false);
+        extraLives = new Obstacles(this.getContext(), (int)(sX * 62), (int)(sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, 0, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true, false);
 
         //Initialize footprints
 //        footprints = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
@@ -235,6 +242,12 @@ public class GameView extends SurfaceView implements Runnable {
         soundEffects = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         badSoundId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_sound, 1);
         goodSoundId = soundEffects.load(this.getContext(), R.raw.finger_runner_good_sound, 1);
+        crashSound2Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_2, 1);
+        crashSound3Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_3, 1);
+        crashSound4Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_4, 1);
+        crashSound5Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_5, 1);
+        truckHornId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_truck_horn, 1);
+        carHornId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_car_horn, 1);
         wilhelmScreamId = soundEffects.load(this.getContext(), R.raw.wilhelm_scream, 1);
 
         mA = mainActivity;
@@ -370,10 +383,10 @@ public class GameView extends SurfaceView implements Runnable {
             for (int i = 0; i < homingObMaxNum; i++) {
                 if (homingOb.spawnTracker[i] == 1) {
                     if (homingOb.coordinatesArray[i][0] != tFX) {
-                        homingOb.coordinatesArray[i][0] += homingSpeed * 0.75 * (tFX - homingOb.coordinatesArray[i][0]);
+                        homingOb.coordinatesArray[i][0] += homingOb.speedArray[i][2] * (tFX - homingOb.coordinatesArray[i][0]);
                     }
                     if (homingOb.coordinatesArray[i][1] != tFY) {
-                        homingOb.coordinatesArray[i][1] += homingSpeed * (tFY - homingOb.coordinatesArray[i][1]);
+                        homingOb.coordinatesArray[i][1] += homingOb.speedArray[i][3] * (tFY - homingOb.coordinatesArray[i][1]);
                     }
                 }
             }
@@ -403,7 +416,8 @@ public class GameView extends SurfaceView implements Runnable {
                     homingObDistBetween *= factor;
                     homingOb.setDistanceBetweenObstacles(homingObDistBetween);
 
-                    homingSpeed *= (difficultly + 5f) / (difficultly + 4f);
+                    //homingSpeed *= (difficultly + 5f) / (difficultly + 4f);
+                    homingOb.homingSpeed *= (difficultly + 5f) / (difficultly + 4f);
 
 //                    extraLives.setDistanceBetweenObstacles(extraLivesDistBetween / factor); //TODO: currently would happen before first extra life reached.
 
@@ -469,7 +483,7 @@ public class GameView extends SurfaceView implements Runnable {
                     mA.timer.setText(gameTimer.getTimeForDisplay());
                 } else {
                     //Display distance instead of time for distance mode.
-                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY) + "\nLives: " + String.valueOf(livesLeft) + "\nCollisions Witnessed: " + String.valueOf(collisionsWitnessed));
+                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY - touchFollowerHeight) + "\nLives: " + String.valueOf(livesLeft));
                 }
             }
         });
@@ -732,9 +746,17 @@ public class GameView extends SurfaceView implements Runnable {
         //---------------Update Obstacles---------------------------------------------------
         cone.updateObstacles(distance, true);
         downTree.updateObstacles(distance, true);
-        truck.updateObstacles(distance, true);
+        if(truck.updateObstacles(distance, true)){
+            if (!mA.musicMuted) {
+                soundEffects.play(truckHornId, 0.5f, 0.5f, 0, 0, 1);
+            }
+        }
         crowd.updateObstacles(distance, true);
-        car.updateObstacles(distance, true);
+        if(car.updateObstacles(distance, true)) {
+            if (!mA.musicMuted) {
+                soundEffects.play(carHornId, 0.5f, 0.5f, 0, 0, 1);
+            }
+        }
         homingOb.updateObstacles(distance, true);
         extraLives.updateObstacles(distance, true);
 
@@ -846,6 +868,9 @@ public class GameView extends SurfaceView implements Runnable {
                 if (truck.spawnTracker[i] == 1 || truck.spawnTracker[i] == 2) { //Truck should only destroy obstacles if it's moving.
                     if (truck.speedArray[i][1] != 0) {
                         if(cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
                             collisionsWitnessed++;
                         }
                         if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
@@ -861,10 +886,16 @@ public class GameView extends SurfaceView implements Runnable {
                             collisionsWitnessed++;
                         }
                         if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
                             truck.hitObstacle(i, false);
                             collisionsWitnessed++;
                         }
                         if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
                             collisionsWitnessed++;
                         }
                         extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
@@ -876,6 +907,9 @@ public class GameView extends SurfaceView implements Runnable {
                 if (car.spawnTracker[i] == 1){
                     if(car.speedArray[i][1] != 0){
                         if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
                             collisionsWitnessed++;
                         }
                         if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 2, false)) {
@@ -891,9 +925,21 @@ public class GameView extends SurfaceView implements Runnable {
                             collisionsWitnessed++;
                         }
                         if(truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
                             collisionsWitnessed++;
                         }
                         if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
+                            collisionsWitnessed++;
+                        }
+                        if(car.checkOverlap(i)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
                             collisionsWitnessed++;
                         }
                         extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false);
@@ -904,13 +950,50 @@ public class GameView extends SurfaceView implements Runnable {
                 if (crowd.spawnTracker[i] == 1){
                     if(crowd.speedArray[i][0] != 0 || crowd.speedArray[i][1] != 0){
                         if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 0, false)){
-                            crowd.speedArray[i][0] = 0;
-                            crowd.speedArray[i][1] = 0;
+                            crowd.speedArray[i][0] *= -1;
+                            crowd.speedArray[i][1] *= -1;
+                            collisionsWitnessed++;
                         }
                         if(car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 0, false)){
-                            crowd.speedArray[i][0] = 0;
-                            crowd.speedArray[i][1] = 0;
+                            crowd.speedArray[i][0] *= -1;
+                            crowd.speedArray[i][1] *= -1;
+                            collisionsWitnessed++;
                         }
+                        if(cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
+                            crowd.speedArray[i][0] *= -1;
+                            crowd.speedArray[i][1] *= -1;
+                            collisionsWitnessed++;
+                        }
+                        if(downTree.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 3, false)){
+                            if (!mA.musicMuted) {
+                                soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
+                            }
+                            crowd.speedArray[i][0] *= -1;
+                            crowd.speedArray[i][1] *= -1;
+                            collisionsWitnessed++;
+                        }
+                    }
+                }
+            }for (int i = 0; i < homingObMaxNum; i++){
+                if (homingOb.spawnTracker[i] == 1){
+                    if(cone.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, 3, false)){
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        homingOb.speedArray[i][2] *= 0.95f;
+                        homingOb.speedArray[i][3] *= 0.95f;
+                        collisionsWitnessed++;
+                    }
+                    if(downTree.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, 3, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        homingOb.speedArray[i][2] *= 0.95f;
+                        homingOb.speedArray[i][3] *= 0.95f;
+                        collisionsWitnessed++;
                     }
                 }
             }
@@ -930,6 +1013,8 @@ public class GameView extends SurfaceView implements Runnable {
         distBetweenCrowds = 2500f;
         distBetweenCars = 2000f;
         homingObDistBetween = 7500f;
+        homingOb.setHomingSpeed(0.005f);
+        //homingSpeed = 0.005f; //TODO: experiment with value
         cone.resetObstacles(distBetweenCones, backgroundWidth, backgroundHeight);
         downTree.resetObstacles(distBetweenDownTrees, backgroundWidth, backgroundHeight);
         truck.resetObstacles(distBetweenTrucks, backgroundWidth, backgroundHeight);
@@ -938,7 +1023,6 @@ public class GameView extends SurfaceView implements Runnable {
         homingOb.resetObstacles(homingObDistBetween, backgroundWidth, backgroundHeight);
         toNextDiffIncrease = increaseDifficultyDistance;
         difficultly = 0;
-        homingSpeed = 0.005f; //TODO: experiment with value
         extraLives.resetObstacles(extraLivesDistBetween, backgroundWidth, backgroundHeight);
         if(!distanceMode){
             livesLeft = 0;
