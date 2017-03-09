@@ -20,5 +20,7 @@
     <string name="win1">Wow, you beat yourself,\nbut are you really any competition?</string>
     <string name="win2">Woot woot! A new high score!</string>
     <string name="win3">That was an alright run.</string>
+
+    <string name="locationUnlocked">You unlocked a new location!</string>
     
 </resources>

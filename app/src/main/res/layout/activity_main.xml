@@ -173,6 +173,17 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="75dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/lockedMessage"
+            android:text="LOCKED"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/playButton"
+            android:layout_marginBottom="25dp"
+            android:visibility="gone"/>
     </RelativeLayout>
 
     <RelativeLayout
