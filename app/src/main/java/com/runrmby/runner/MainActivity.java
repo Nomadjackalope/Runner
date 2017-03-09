@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -128,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
     private int colWit;
 
-
     private MediaPlayer activeMusic;
     private static final int MENU_MUSIC = 0;
     private static final int GAME_MUSIC_1 = 1;
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout root;
 
     private View titleScreen;
+    private View alternateTitleScreen;
     private GameView gameScreen;
 
     private Point windowSize = new Point(1000, 2000); // arbitrary values
@@ -179,8 +181,10 @@ public class MainActivity extends AppCompatActivity {
     private int gameState = MAIN_MENU;
     private int previousGameState = MAIN_MENU;
 
-    private int menuState = 1;  //0=settings, 1=mainMenu, 2 would be next location
-
+    private int locationState = 0;  //0=original road artwork, 1 would be next location, etc. todo save variable
+    private static int numLocations = 3;
+    private int locationRes;
+    private Animation fadeOut;
 
     //private File bestTimeFilePath;
     private Long savedTime;
@@ -222,30 +226,51 @@ public class MainActivity extends AppCompatActivity {
 
         //Screens
         titleScreen = findViewById(R.id.titleScreen);
+        alternateTitleScreen = findViewById(R.id.titleScreenAlternate);
         gameScreen = new GameView(this, windowSize);
 
-        titleScreen.setOnTouchListener(new OnSwipeTouchListener(this){  //Swipe options.
+        //Handle menu swipes.
+        mainMenu.setOnTouchListener(new OnSwipeTouchListener(this){  //Swipe options.
             public void onSwipeTop() {
-                Toast.makeText(root.getContext(), "top", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(root.getContext(), "top", Toast.LENGTH_SHORT).show();
             }
             public void onSwipeRight() {
-                Toast.makeText(root.getContext(), "right", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(root.getContext(), "right", Toast.LENGTH_SHORT).show();
+                if(mainMenu.getVisibility() == View.VISIBLE){
+                    setLocationState(locationState - 1);
+                }
             }
             public void onSwipeLeft() {
-                Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
                 if(mainMenu.getVisibility() == View.VISIBLE){
-                    //todo create location variable
-
+                    setLocationState(locationState + 1);
                 }
 //                else{
 //                    Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
 //                }
             }
             public void onSwipeBottom() {
-                Toast.makeText(root.getContext(), "bottom", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(root.getContext(), "bottom", Toast.LENGTH_SHORT).show();
             }
-
         });
+
+//        //Background animation.
+//        fadeOut = AnimationUtils.loadAnimation(titleScreen.getContext(), R.anim.fade_out);
+//        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+//            @Override
+//            public void onAnimationStart(Animation animation) {
+//            }
+//            @Override
+//            public void onAnimationEnd(Animation animation) {
+//                titleScreen.setBackgroundResource(locationRes);
+//                Animation fadeOut = AnimationUtils.loadAnimation(titleScreen.getContext(), R.anim.fade_in);
+//                root.startAnimation(fadeOut);
+//            }
+//            @Override
+//            public void onAnimationRepeat(Animation animation) {
+//            }
+//        });
+
 
         root.addView(gameScreen);
 
@@ -686,6 +711,7 @@ public class MainActivity extends AppCompatActivity {
         if(colWit > 10000){
             whistleMusicButton.setEnabled(true);
         }
+        setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
     }
 
     // id should be from R.raw
@@ -891,6 +917,55 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             setGameState(gameState);//setGameState(previousGameState);
+        }
+    }
+
+    private void setLocationState(int l){
+        if(l < numLocations && l > -1  && l != locationState) {
+            switch (l) {
+                case 0:
+                    locationRes = R.drawable.pan_1;
+                    //titleScreen.startAnimation(fadeOut);
+                    break;
+                case 1:
+                    locationRes = R.drawable.fatty;
+                    //titleScreen.startAnimation(fadeOut);
+                    break;
+                case 2:
+                    locationRes = R.drawable.lvlup;
+                    break;
+            }
+            if(l < locationState){
+                locationState = l;
+                alternateTitleScreen = findViewById(R.id.titleScreen);
+                alternateTitleScreen.setBackground(titleScreen.getBackground());
+                alternateTitleScreen.setTranslationX(0);
+                titleScreen = findViewById(R.id.titleScreenAlternate);
+                titleScreen.setTranslationX(-windowSize.x);
+                titleScreen.setBackgroundResource(locationRes);
+                titleScreen.setVisibility(View.VISIBLE);
+                alternateTitleScreen.animate()
+                        .translationX(windowSize.x)
+                        .setDuration(1000);
+                titleScreen.animate()
+                        .translationX(0)
+                        .setDuration(1000);
+            }else{
+                locationState = l;
+                alternateTitleScreen = findViewById(R.id.titleScreen);
+                alternateTitleScreen.setBackground(titleScreen.getBackground());
+                alternateTitleScreen.setTranslationX(0);
+                titleScreen = findViewById(R.id.titleScreenAlternate);
+                titleScreen.setBackgroundResource(locationRes);
+                titleScreen.setTranslationX(windowSize.x);
+                titleScreen.setVisibility(View.VISIBLE);
+                alternateTitleScreen.animate()
+                        .translationX(-windowSize.x)
+                        .setDuration(1000);
+                titleScreen.animate()
+                        .translationX(0)
+                        .setDuration(1000);
+            }
         }
     }
 
