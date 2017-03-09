@@ -253,15 +253,6 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reset Records"
-            android:id="@+id/resetButton"
-            android:layout_above="@id/mute_music_button"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="25dp"/>
-
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -270,7 +261,16 @@
             android:checked="false"
             android:enabled="false"
             android:id="@+id/whistleMusicButton"
-            android:layout_above="@id/resetButton"
+            android:layout_above="@id/mute_music_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Records"
+            android:id="@+id/resetButton"
+            android:layout_above="@id/whistleMusicButton"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
 

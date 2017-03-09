@@ -134,14 +134,16 @@ public class MainActivity extends AppCompatActivity {
     private static final int GAME_MUSIC_1 = 1;
     private static final int LOSE_MUSIC_1 = 2;
     private static final int WIN_MUSIC_1 = 3;
-    private static final int WIN_MUSIC_NEW_RECORD = 4;
-    private int selectedGameMusicId = R.raw.finger_runner_game_music_1;
+    private static final int WIN_MUSIC_2 = 4;
+    private static final int WIN_MUSIC_NEW_RECORD = 5;
+    private static final int WHISTLE_MUSIC = 6;
     private int nowPlaying;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
     int activeMusicPosition;
     Handler handler = new Handler();
     Thread musicThread;
+    private boolean whistleMusicSelected = false;
 
     private Button playButton;
     private Button playMarathonButton;
@@ -195,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-
         sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
         prefEditor = sharedPref.edit();
 //        bestTimeFilePath = new File(this.getFilesDir(), "best_time");
@@ -204,6 +205,8 @@ public class MainActivity extends AppCompatActivity {
 //        }
         //bestTimeFilePath.delete(); //Deletes best time on start for testing.
 
+        //Get whistle music preference.
+        whistleMusicSelected = loadWhistleMusicSelection();;
 
 
         root = (FrameLayout) findViewById(R.id.root);
@@ -361,15 +364,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         whistleMusicButton = (ToggleButton) findViewById(R.id.whistleMusicButton);
+        if(whistleMusicSelected){
+            whistleMusicButton.setChecked(true);
+        }
         whistleMusicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(whistleMusicButton.isChecked()){
-                    selectedGameMusicId = R.raw.finger_runner_main_theme_whistling;
+                    whistleMusicSelected = true;
+                    setMusicState(R.raw.finger_runner_main_theme_whistling, WHISTLE_MUSIC, true);
                 }
                 else{
-                    selectedGameMusicId =  R.raw.finger_runner_game_music_1;
+                    whistleMusicSelected = false;
+                    setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
                 }
+                saveWhistleMusicSelection(whistleMusicSelected);
             }
         });
 
@@ -471,7 +480,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setGamePlayingState() {
         //Start music.
-        setMusicState(selectedGameMusicId, GAME_MUSIC_1, true);
+        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
 
         gameMenu.setVisibility(View.VISIBLE);
         timer.setBackgroundColor(Color.LTGRAY);
@@ -523,7 +532,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //Start win music.
 //                if(nowPlaying != WIN_MUSIC_1) {
-                    setMusicState(R.raw.finger_runner_win_1, WIN_MUSIC_1, false);
+                    setMusicState(R.raw.finger_runner_win_2, WIN_MUSIC_2, false);
 //                }
             }
         } else {
@@ -680,7 +689,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // id should be from R.raw
-    public void setMusicState(final int id, final int musicState, final boolean loop) {
+    public void setMusicState(int id, int musicState, final boolean loop) {
+        if(musicState == MENU_MUSIC || musicState == GAME_MUSIC_1) {
+            if (whistleMusicSelected) {
+                musicState = WHISTLE_MUSIC;
+                id = R.raw.finger_runner_main_theme_whistling;
+            }
+        }
         if(musicState == nowPlaying) {
             if (activeMusic != null) {
                 if (!musicMuted) {
@@ -701,15 +716,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if(!musicPausedByLeavingApp) {
+            final int finalId = id;
+            final int finalMusicState = musicState;
             musicThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     stopMusic();
 
-                    activeMusic = MediaPlayer.create(root.getContext(), id);
+                    activeMusic = MediaPlayer.create(root.getContext(), finalId);
                     activeMusic.setLooping(loop);
                     //If music was killed by leaving the app, resume at previous position.
-                    if (musicState == nowPlaying && activeMusicPosition > 0) {
+                    if (finalMusicState == nowPlaying && activeMusicPosition > 0) {
                         activeMusic.seekTo(activeMusicPosition);
                     }
                     activeMusicPosition = 0;
@@ -717,7 +734,7 @@ public class MainActivity extends AppCompatActivity {
                         activeMusic.start();
                     }
 
-                    nowPlaying = musicState;
+                    nowPlaying = finalMusicState;
                 }
             });
             musicThread.start();
@@ -924,5 +941,15 @@ public class MainActivity extends AppCompatActivity {
     private int loadXP(){
         int c = sharedPref.getInt("xP", 0);
         return c;
+    }
+
+    private void saveWhistleMusicSelection(boolean b){
+        prefEditor.putBoolean("whistleMusic", b);
+        prefEditor.commit();
+    }
+
+    private boolean loadWhistleMusicSelection(){
+        boolean b = sharedPref.getBoolean("whistleMusic", false);
+        return b;
     }
 }

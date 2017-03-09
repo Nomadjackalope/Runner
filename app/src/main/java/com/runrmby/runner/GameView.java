@@ -952,7 +952,7 @@ public class GameView extends SurfaceView implements Runnable {
                         if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 0, false)){
                             crowd.speedArray[i][0] *= -1;
                             crowd.speedArray[i][1] *= -1;
-                            collisionsWitnessed++;
+                            //collisionsWitnessed++; //Crowd can get stuck if a vehicle crashes and gets thrown on top of them.
                         }
                         if(car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 0, false)){
                             crowd.speedArray[i][0] *= -1;
