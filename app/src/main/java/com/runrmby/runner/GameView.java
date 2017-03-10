@@ -412,6 +412,8 @@ public class GameView extends SurfaceView implements Runnable {
         if(fingerMoveDist > 0) {
             advanceRoad(fingerMoveDist);
             fingerMoveDist = 0;
+        } else {
+            fingerMoveDist = 0;
         }
 
         if(gameRunning) {
@@ -901,7 +903,9 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void advanceRoad(float distance) {
         // Don't go backward
-        if(distance < 0) { return; }
+        if(distance < 0) {
+            return;
+        }
 
 
         switch (locationState){
