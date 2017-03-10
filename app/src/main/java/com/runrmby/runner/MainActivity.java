@@ -182,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
     private int gameState = MAIN_MENU;
     private int previousGameState = MAIN_MENU;
 
-    private int locationState = 0;  //0=original road artwork, 1 would be next location, etc. todo save variable
-    private static int numLocations = 3;
+    public int locationState = 0;  //0=original road artwork, 1 would be next location, etc. todo save variable
+    private static int numLocations = 2;
     private int locationRes;
     private int locationsUnlocked;
     private static int xpToUnlockEachLvl = 100;    //todo arbitrary value
@@ -673,7 +673,15 @@ public class MainActivity extends AppCompatActivity {
         } else{
             //TODO: Not sure if a new state would be necessary for distance mode.
             savedDistance = loadBestDistance();
-            float yourDistance = gameScreen.odometer + gameScreen.tFY;
+            float yourDistance = 0f;
+            switch (locationState){
+                case 0:
+                    yourDistance = gameScreen.odometer + gameScreen.locationOne.getTFY();
+                    break;
+                case 1:
+                    yourDistance = gameScreen.odometer + gameScreen.locationTwo.getTFY();
+                    break;
+            }
             distanceDifferential = yourDistance - savedDistance;
             colWit += gameScreen.collisionsWitnessed;
             saveXP(colWit);
@@ -1003,9 +1011,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setLocationState(int l){
-        if(l < numLocations && l > -1  && l != locationState) {
-            switch (l) {
+    private void setLocationState(int loc){
+        if(loc < numLocations && loc > -1  && loc != locationState) {
+            switch (loc) {
                 case 0:
                     locationRes = R.drawable.pan_1;
                     playMarathonButton.setEnabled(true);
@@ -1041,8 +1049,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                     break;
             }
-            if(l < locationState){
-                locationState = l;
+            if(loc < locationState){
+                locationState = loc;
                 alternateTitleScreen = findViewById(R.id.titleScreen);
                 alternateTitleScreen.setBackground(titleScreen.getBackground());
                 alternateTitleScreen.setTranslationX(0);
@@ -1056,8 +1064,9 @@ public class MainActivity extends AppCompatActivity {
                 titleScreen.animate()
                         .translationX(0)
                         .setDuration(500);
+                gameScreen.resetVariables();
             }else{
-                locationState = l;
+                locationState = loc;
                 alternateTitleScreen = findViewById(R.id.titleScreen);
                 alternateTitleScreen.setBackground(titleScreen.getBackground());
                 alternateTitleScreen.setTranslationX(0);
@@ -1071,6 +1080,7 @@ public class MainActivity extends AppCompatActivity {
                 titleScreen.animate()
                         .translationX(0)
                         .setDuration(500);
+                gameScreen.resetVariables();
             }
         }
     }
