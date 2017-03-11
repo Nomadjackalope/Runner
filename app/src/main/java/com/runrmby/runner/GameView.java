@@ -8,6 +8,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.SystemClock;
@@ -17,6 +20,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+
+import static android.content.Context.SENSOR_SERVICE;
 
 /**
  * Created by benjamin on 1/31/17.
@@ -59,7 +64,7 @@ public class GameView extends SurfaceView implements Runnable {
 //    //------Obstacles and course length------------------------------------------------------
     boolean distanceMode = false; //TODO: create selection interface
     float odometer = 0f;
-//    float courseDistance = 10000f;  //Currently an arbitrary distance to the finish line.
+    float courseDistance;
     float courseLeft;               //Distance left for the finish line to reach the bottom of the screen.
     float distRemaining;            //Distance left for touchFollower to reach the finish line.
     Bitmap finishLine;
@@ -173,6 +178,13 @@ public class GameView extends SurfaceView implements Runnable {
 //    int wilhelmScreamId;
     //-----------------------------------------------------------------------------------------
 
+    private SensorManager sensorMan;
+    private Sensor accelerometer;
+    private float[] mGravity;
+    private float mAccel;
+    private float mAccelCurrent;
+    private float mAccelLast;
+
     MainActivity mA;
     int locationState;
 
@@ -271,6 +283,12 @@ public class GameView extends SurfaceView implements Runnable {
 //        carHornId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_car_horn, 1);
 //        wilhelmScreamId = soundEffects.load(this.getContext(), R.raw.wilhelm_scream, 1);
 
+        sensorMan = (SensorManager) mA.getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccel = 0.00f;
+        mAccelCurrent = SensorManager.GRAVITY_EARTH;
+        mAccelLast = SensorManager.GRAVITY_EARTH;
+
 
         resetVariables();
 
@@ -363,10 +381,10 @@ public class GameView extends SurfaceView implements Runnable {
 
                 switch (locationState){
                     case 0:
-                        velocity *= locationOne.getInertiaFactor();
+                        velocity *= locationOne.getVelocityFactor();
                         break;
                     case 1:
-                        velocity *= locationTwo.getInertiaFactor();
+                        velocity *= locationTwo.getVelocityFactor();
                 }
 //                velocity *= 0.75;//0.8f;//0.9f;
             }
@@ -582,16 +600,24 @@ public class GameView extends SurfaceView implements Runnable {
 //                mA.timer.setText(string);
                 if(distanceMode == false) {
                     gameTimer.changeTime(time);
-                    mA.timer.setText(gameTimer.getTimeForDisplay());
+//                    mA.timer.setText(gameTimer.getTimeForDisplay());
+                    switch (locationState){
+                        case 0:
+                            mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
+                            break;
+                        case 1:
+                            mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
+                            break;
+                    }
                 } else {
                     //Display distance instead of time for distance mode.
 //                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY - touchFollowerHeight) + "\nLives: " + String.valueOf(livesLeft));
                     switch (locationState){
                         case 0:
-                            mA.timer.setText(String.valueOf(odometer + backgroundHeight - locationOne.getTFY() - locationOne.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
+                            mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationOne.getTFY() - locationOne.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 1:
-                            mA.timer.setText(String.valueOf(odometer + backgroundHeight - locationTwo.getTFY() - locationTwo.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
+                            mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationTwo.getTFY() - locationTwo.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                     }
                 }
@@ -910,10 +936,19 @@ public class GameView extends SurfaceView implements Runnable {
 
         switch (locationState){
             case 0:
+                velocity = distance * locationOne.getInertiaFactor();
                 distance *= locationOne.getDistanceFactor();
+                locationOne.updateTouchDownY(distance);
+                locationOne.updateTFY(distance);
+                locationOne.updateObs(distance);
                 break;
             case 1:
+                velocity = distance * locationTwo.getInertiaFactor();
                 distance *= locationTwo.getDistanceFactor();
+                locationTwo.updateTouchDownY(distance);
+                locationTwo.updateTFY(distance);
+                locationTwo.updateObs(distance);
+                break;
         }
 //        distance *= 0.75;
 
@@ -924,18 +959,9 @@ public class GameView extends SurfaceView implements Runnable {
 
 //        touchDownY += distance;
 //        tFY += distance;
-        switch (locationState){
-            case 0:
-                locationOne.updateTouchDownY(distance);
-                locationOne.updateTFY(distance);
-                break;
-            case 1:
-                locationTwo.updateTouchDownY(distance);
-                locationTwo.updateTFY(distance);
-                break;
-        }
 
-        velocity = distance;
+//        velocity = distance;
+
 
         odometer += distance;
         courseLeft -= distance;
@@ -959,14 +985,6 @@ public class GameView extends SurfaceView implements Runnable {
 //        extraLives.updateObstacles(distance, true);
 //
 ////        footprints.updateObstacles(distance, false);
-        switch (locationState){
-            case 0:
-                locationOne.updateObs(distance);
-                break;
-            case 1:
-                locationTwo.updateObs(distance);
-                break;
-        }
         //-----------------------------------------------------------------------------
 
         // Loop backgrounds
@@ -978,10 +996,37 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+//    @Override
+//    public void onSensorChanged(SensorEvent event) {
+//        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+//            mGravity = event.values.clone();
+//            // Shake detection
+//            float x = mGravity[0];
+//            float y = mGravity[1];
+//            float z = mGravity[2];
+//            mAccelLast = mAccelCurrent;
+//            mAccelCurrent = (float) Math.sqrt(x*x + y*y + z*z);
+//            float delta = mAccelCurrent - mAccelLast;
+//            mAccel = mAccel * 0.9f + delta;
+//            // Make this higher or lower according to how much
+//            // motion you want to detect
+//            if(mAccel > 3){
+//                // do something
+//            }
+//        }
+//
+//    }
+//
+//    @Override
+//    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+//        // required method
+//    }
+
     public void pauseGame() {
         System.out.println("GV| pauseGame called");
         handleTouches = false;
         gameRunning = false;
+        velocity = 0;
     }
 
     public void resumeGame() {
@@ -999,6 +1044,9 @@ public class GameView extends SurfaceView implements Runnable {
     public void pause() {
         pauseGame();
         playing = false;
+
+//        sensorMan.unregisterListener(this);
+
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -1012,6 +1060,8 @@ public class GameView extends SurfaceView implements Runnable {
 
         gameThread = new Thread(this);
         gameThread.start();
+
+//        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
 
     public class FingerPoint {
@@ -1219,12 +1269,13 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
-                    locationTwo = null;
+//                    locationTwo = null;
                     background = BitmapFactory.decodeResource(this.getResources(), locationOne.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }
-                courseLeft = locationOne.getCourseDistance();
-                distRemaining = locationOne.getCourseDistance();
+                courseDistance = locationOne.getCourseDistance();
+                courseLeft = courseDistance;
+                distRemaining = courseDistance;
                 locationOne.setBackgroundWidth(backgroundWidth);
                 locationOne.setBackgroundHeight(backgroundHeight);
                 locationOne.resetObstacles();
@@ -1235,12 +1286,13 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
-                    locationOne = null;
+//                    locationOne = null;
                     background = BitmapFactory.decodeResource(this.getResources(), locationTwo.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }
-                courseLeft = locationTwo.getCourseDistance();
-                distRemaining = locationTwo.getCourseDistance();
+                courseDistance = locationTwo.getCourseDistance();
+                courseLeft = courseDistance;
+                distRemaining = courseDistance;
                 locationTwo.setBackgroundWidth(backgroundWidth);
                 locationTwo.setBackgroundHeight(backgroundHeight);
                 locationTwo.resetObstacles();

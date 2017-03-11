@@ -150,7 +150,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Marathon Mode"
-            android:id="@+id/playDistanceMode"
+            android:id="@+id/playDistanceModeButton"
             android:layout_above="@id/settingsButton"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
@@ -160,7 +160,7 @@
             android:layout_height="wrap_content"
             android:text="Timed Mode"
             android:id="@+id/playButton"
-            android:layout_above="@id/playDistanceMode"
+            android:layout_above="@id/playDistanceModeButton"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
 
@@ -173,6 +173,29 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="75dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next Location"
+            android:id="@+id/nextLocationButton"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous Location"
+            android:id="@+id/previousLocationButton"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:visibility="gone"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -267,7 +290,7 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="Whistle Music\n(10000 XP)"
+            android:textOff="Whistle Music\n(300 XP)"
             android:textOn="Original Music"
             android:checked="false"
             android:enabled="false"
