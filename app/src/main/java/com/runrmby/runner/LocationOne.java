@@ -375,7 +375,10 @@ public class LocationOne {
             }
         }
         homingOb.updateObstacles(distance, true);
-        extraLives.updateObstacles(distance, true);
+
+        if(gS.distanceMode) {
+            extraLives.updateObstacles(distance, true);
+        }
 
 //        footprints.updateObstacles(distance, false);
     }

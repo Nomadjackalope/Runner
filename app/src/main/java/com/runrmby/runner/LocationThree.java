@@ -80,8 +80,8 @@ public class LocationThree {
 
     private Obstacles extraLives;
     private int extraLivesResId = R.drawable.lvlup;
-    private int extraLivesMaxNum = 0;
-    private float extraLivesDistBetween = 20000f;
+    private int extraLivesMaxNum = 1;
+    private float extraLivesDistBetween = 18000f;
     private float extraLivesHorizontalSpeed = 2f;
     private float extraLivesVerticalSpeed = 0f;
 
@@ -110,9 +110,9 @@ public class LocationThree {
     private Matrix matrixRotateCounterClockwise = new Matrix();
     private Boolean tFRotated = false;
 
-    private float velocityFactor = .99f; //Must be less than 1 or else road will advance exponentially.
-    private float distanceFactor = 0.75f;  //Must be less than 1 or else road will advance exponentially.
-    private float inertiaFactor = 0.95f; //Must be less than 1 or else road will advance exponentially.
+    private float velocityFactor = .75f; //Must be less than 1 or else road will advance exponentially.
+    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
+    private float inertiaFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
 
     //Sound effects
     private SoundPool soundEffects;
@@ -247,14 +247,14 @@ public class LocationThree {
     public void updateHomingObstacle(){
         for (int i = 0; i < homingObMaxNum; i++) {
             if (homingOb.spawnTracker[i] == 1) {
-                if(!gS.fingers.isEmpty()) {
+//                if(!gS.fingers.isEmpty()) {
                     if (homingOb.coordinatesArray[i][0] != touchDownX) {
                         homingOb.coordinatesArray[i][0] += homingOb.speedArray[i][2] * (touchDownX - homingOb.coordinatesArray[i][0]);
                     }
                     if (homingOb.coordinatesArray[i][1] != touchDownY) {
                         homingOb.coordinatesArray[i][1] += homingOb.speedArray[i][3] * (touchDownY - homingOb.coordinatesArray[i][1]);
                     }
-                }
+//                }
             }
         }
     }
@@ -394,7 +394,10 @@ public class LocationThree {
             }
         }
         homingOb.updateObstacles(distance, true);
-        extraLives.updateObstacles(distance, true);
+
+        if(gS.distanceMode) {
+            extraLives.updateObstacles(distance, true);
+        }
 
         footprints.updateObstacles(distance, false);
     }
@@ -598,7 +601,7 @@ public class LocationThree {
         distBetweenTrucks = 2500f;
         distBetweenCrowds = 2500f;
         distBetweenCars = 1500f;
-        homingObDistBetween = 10000f;
+        homingObDistBetween = 19000f;
         homingOb.setHomingSpeed(homingObHomingSpeed);
         //homingObHomingSpeed = 0.005f; //TODO: experiment with value
         cone.resetObstacles(distBetweenCones, backgroundWidth, backgroundHeight);

@@ -580,6 +580,8 @@ public class GameView extends SurfaceView implements Runnable {
                         break;
                     case 2:
 //                        locationThree.checkCollisions();
+                        locationThree.setTouchDownX(activeFinger.x);
+                        locationThree.setTouchDownY(activeFinger.y);
                         locationThree.checkIfObstacleWasTouched(livesLeft);
                         break;
                 }
