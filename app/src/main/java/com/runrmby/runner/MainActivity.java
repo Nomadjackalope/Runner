@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -159,6 +160,8 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton whistleMusicButton;
     private Button nextLocationButton;
     private Button previousLocationButton;
+//    private Button statsButton;
+    private Button creditsButton;
 
     private TextView endGameUserTime;
     private TextView endGameBestTime;
@@ -166,6 +169,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView lockedMessage;
     public TextView timer;
     public TextView experiencePointsText;
+    private TextView titleText;
+    private TextView creditsText;
+
+    public Typeface font1;
+    public Typeface font2;
+    public Typeface font3;
+    public Typeface font4;
 
     private RelativeLayout gameEndMenu;
     private RelativeLayout pauseMenu;
@@ -184,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
     private int previousGameState = MAIN_MENU;
 
     public int locationState = 0;  //0=original road artwork, 1 would be next location, etc. todo save variable
-    private static int numLocations = 2;
+    private static int numLocations = 3;
     private int locationRes;
     private int locationsUnlocked;
     private static int xpToUnlockEachLvl = 100;    //todo arbitrary value
@@ -200,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.FullscreenTheme);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -225,8 +236,6 @@ public class MainActivity extends AppCompatActivity {
         gameEndMenu = (RelativeLayout) findViewById(R.id.gameEndMenu);
         pauseMenu = (RelativeLayout) findViewById(R.id.pauseMenu);
         settingsMenu = (RelativeLayout) findViewById(R.id.settingsMenu);
-
-        timer = (TextView) findViewById(R.id.timer);
 
         //Screens
         titleScreen = findViewById(R.id.titleScreen);
@@ -284,15 +293,40 @@ public class MainActivity extends AppCompatActivity {
 
         setGameState(MAIN_MENU);
 
+        //Fonts.
+//        font1 = Typeface.createFromAsset(getAssets(), "fonts/minecraft.ttf");
+        font2 = Typeface.createFromAsset(getAssets(), "fonts/Pixellari.ttf");
+//        font3 = Typeface.createFromAsset(getAssets(), "fonts/3Dventure.ttf");
+
         //Text Views
+        timer = (TextView) findViewById(R.id.timer);
+        timer.setTypeface(font2);
+//        timer.setTextSize(20f); //TODO: make cooler-looking timer
         endGameUserTime = (TextView) findViewById(R.id.endGameUserTime);
+        endGameUserTime.setTypeface(font2);
         endGameBestTime = (TextView) findViewById(R.id.endGameBestTime);
+        endGameBestTime.setTypeface(font2);
         endGameText = (TextView) findViewById(R.id.endGameText);
+        endGameText.setTypeface(font2);
         experiencePointsText = (TextView) findViewById(R.id.experiencePoints);
+        experiencePointsText.setTypeface(font2);
         lockedMessage = (TextView) findViewById(R.id.lockedMessage);
+        lockedMessage.setTypeface(font2);
+        titleText = (TextView) findViewById(R.id.textView);
+        titleText.setTypeface(font2);
+        creditsText = (TextView) findViewById(R.id.creditsText);
+        creditsText.setTypeface(font2);
+        creditsText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                settingsMenu.setVisibility(View.VISIBLE);
+                creditsText.setVisibility(View.GONE);
+            }
+        });
 
         //Buttons
         playAgainButton = (Button) findViewById(R.id.playAgainButton);
+        playAgainButton.setTypeface(font2);
         playAgainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -301,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
+        mainMenuButton.setTypeface(font2);
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -310,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         playButton = (Button) findViewById(R.id.playButton);
+        playButton.setTypeface(font2);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -319,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         playMarathonButton = (Button) findViewById(R.id.playDistanceModeButton);
+        playMarathonButton.setTypeface(font2);
         playMarathonButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -328,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         nextLocationButton = (Button) findViewById(R.id.nextLocationButton);
+        nextLocationButton.setTypeface(font2);
         nextLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -336,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         previousLocationButton = (Button) findViewById(R.id.previousLocationButton);
+        previousLocationButton.setTypeface(font2);
         previousLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -344,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         settingsButton = (Button) findViewById(R.id.settingsButton);
+        settingsButton.setTypeface(font2);
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
@@ -354,6 +394,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         exitSettingsButton = (Button) findViewById(R.id.exitSettingsButton);
+        exitSettingsButton.setTypeface(font2);
         exitSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -364,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         tempButton = (Button) findViewById(R.id.tempButton);
+        tempButton.setTypeface(font2);
         tempButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -372,6 +414,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         resetButton = (Button) findViewById(R.id.resetButton);
+        resetButton.setTypeface(font2);
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -408,7 +451,7 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                 resetWarning.setNegativeButton(
-                        "Oops, nooo!",
+                        "Oops, no!",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.dismiss();
@@ -422,6 +465,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         whistleMusicButton = (ToggleButton) findViewById(R.id.whistleMusicButton);
+        whistleMusicButton.setTypeface(font2);
         if(whistleMusicSelected){
             whistleMusicButton.setChecked(true);
         }
@@ -440,8 +484,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        statsButton = (Button) findViewById(R.id.statsButton);
+//        statsButton.setTypeface(font2);
+//        statsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                //TODO
+//            }
+//        });
+
+        creditsButton = (Button) findViewById(R.id.creditsButton);
+        creditsButton.setTypeface(font2);
+        creditsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                creditsText.setVisibility(View.VISIBLE);
+                settingsMenu.setVisibility(View.GONE);
+            }
+        });
+
         //Mute music toggle button.
         musicMuteButton = (ToggleButton)this.findViewById(R.id.mute_music_button);
+        musicMuteButton.setTypeface(font2);
         if(musicMuted){
             musicMuteButton.setChecked(false);
         }
@@ -465,6 +529,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         pauseMMButton = (Button) findViewById(R.id.pauseMMButton);
+        pauseMMButton.setTypeface(font2);
         pauseMMButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -473,6 +538,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         resumeButton = (Button) findViewById(R.id.resumeButton);
+        resumeButton.setTypeface(font2);
         resumeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -583,9 +649,7 @@ public class MainActivity extends AppCompatActivity {
                 endGameText.setBackgroundColor(Color.GREEN);
 
                 //Start win music.
-//                if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
-                    setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
-//                }
+//                    setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
 
             } else {
                 //Your time isn't a new best time.
@@ -609,9 +673,7 @@ public class MainActivity extends AppCompatActivity {
                 endGameText.setBackgroundColor(Color.LTGRAY);
 
                 //Start win music.
-//                if(nowPlaying != WIN_MUSIC_1) {
-                    setMusicState(R.raw.finger_runner_win_2, WIN_MUSIC_2, false);
-//                }
+//                    setMusicState(R.raw.finger_runner_win_2, WIN_MUSIC_2, false);
             }
         } else {
             //No best time has been saved (a run has never been completed), so your time is a new best time.
@@ -637,9 +699,7 @@ public class MainActivity extends AppCompatActivity {
             endGameText.setBackgroundColor(Color.GREEN);
 
             //Start win music.
-//            if(nowPlaying != WIN_MUSIC_NEW_RECORD) {
-                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
-//            }
+//                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
         }
     }
 
@@ -723,7 +783,10 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!");
                 }
-                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+//                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
+                //Keep game music going.
+                setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
+
                 saveBestDistance(yourDistance);
                 endGameBestTime.setBackgroundColor(Color.LTGRAY);
                 endGameUserTime.setBackgroundColor(Color.GREEN);
@@ -815,6 +878,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setSettingsState() {
         hideAllMenus();
+        creditsText.setVisibility(View.GONE);
         settingsMenu.setVisibility(View.VISIBLE);
         experiencePointsText.setText(String.valueOf(colWit) + " XP");
         if(colWit > 299){//TODO: arbitrary
@@ -1063,7 +1127,7 @@ public class MainActivity extends AppCompatActivity {
                     //titleScreen.startAnimation(fadeOut);
                     break;
                 case 2: //TODO: remove if only using 2 locations
-                    locationRes = R.drawable.lvlup;
+                    locationRes = R.drawable.right_foot;
                     if(locationsUnlocked > 1) {
                         playMarathonButton.setEnabled(true);
                         playButton.setEnabled(true);
@@ -1087,13 +1151,20 @@ public class MainActivity extends AppCompatActivity {
                 titleScreen.setTranslationX(-windowSize.x);
                 titleScreen.setBackgroundResource(locationRes);
                 titleScreen.setVisibility(View.VISIBLE);
+                mainMenu.setVisibility(View.INVISIBLE);
                 alternateTitleScreen.animate()
                         .translationX(windowSize.x)
-                        .setDuration(500);
+                        .setDuration(1000);
                 titleScreen.animate()
                         .translationX(0)
-                        .setDuration(500);
-                gameScreen.resetVariables();
+                        .setDuration(1000)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                gameScreen.resetVariables();
+                                mainMenu.setVisibility(View.VISIBLE);
+                            }
+                        });
             }else{
                 locationState = loc;
                 alternateTitleScreen = findViewById(R.id.titleScreen);
@@ -1103,29 +1174,28 @@ public class MainActivity extends AppCompatActivity {
                 titleScreen.setBackgroundResource(locationRes);
                 titleScreen.setTranslationX(windowSize.x);
                 titleScreen.setVisibility(View.VISIBLE);
+                mainMenu.setVisibility(View.INVISIBLE);
                 alternateTitleScreen.animate()
                         .translationX(-windowSize.x)
-                        .setDuration(500);
+                        .setDuration(1000);
                 titleScreen.animate()
                         .translationX(0)
-                        .setDuration(500);
-                gameScreen.resetVariables();
+                        .setDuration(1000)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                gameScreen.resetVariables();
+                                mainMenu.setVisibility(View.VISIBLE);
+                            }
+                        });
             }
         }
     }
 
     private void saveNewBestTime(long newBestTime){
         String s = "bestTime" + String.valueOf(locationState);
-        switch (locationState){
-            case 0:
-                prefEditor.putLong(s, newBestTime);
-                prefEditor.commit();
-                break;
-            case 1:
-                prefEditor.putLong(s, newBestTime);
-                prefEditor.commit();
-                break;
-        }
+        prefEditor.putLong(s, newBestTime);
+        prefEditor.commit();
 //        try {
 //            FileOutputStream fileOut = new FileOutputStream(bestTimeFilePath);
 //            ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -1155,16 +1225,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveBestDistance(float distance){
         String s = "bestDistance" + String.valueOf(locationState);
-        switch (locationState){
-            case 0:
-                prefEditor.putFloat(s, distance);
-                prefEditor.commit();
-                break;
-            case 1:
-                prefEditor.putFloat(s, distance);
-                prefEditor.commit();
-                break;
-        }
+        prefEditor.putFloat(s, distance);
+        prefEditor.commit();
     }
 
     private float loadBestDistance(){

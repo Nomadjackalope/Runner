@@ -5,14 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorManager;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,8 +14,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
-
-import static android.content.Context.SENSOR_SERVICE;
 
 /**
  * Created by benjamin on 1/31/17.
@@ -68,71 +60,10 @@ public class GameView extends SurfaceView implements Runnable {
     float courseLeft;               //Distance left for the finish line to reach the bottom of the screen.
     float distRemaining;            //Distance left for touchFollower to reach the finish line.
     Bitmap finishLine;
-//    //Integer courseLength = 10; //Units of background art
-//
-//    Obstacles cone;
-//    int coneResId = R.drawable.cone;
-//    int coneXScale = 60;
-//    int coneYScale = 75;
-//    int maxNumCones = 8;
-//    float distBetweenCones;   //Initialized in resetVariables()
-//    float coneXSpeed = 0f;
-//    float coneYSpeed = 0f;
-//
-//    Obstacles downTree;
-//    int downTreeResId = R.drawable.down_tree;
-//    int downTreeXScale = 189;
-//    int downTreeYScale = 60;
-//    int maxNumDownTrees = 3;
-//    float distBetweenDownTrees;
-//    float downTreeXSpeed = 0f;
-//    float downTreeYSpeed = 0f;
-//
-//    Obstacles truck;
-//    int truckResId = R.drawable.shitty_truck;
-//    int truckXScale = 160;
-//    int truckYScale = 452;
-//    int maxNumTrucks = 1;
-//    float distBetweenTrucks;
-//    float truckXSpeed = 0f;
-//    float truckYSpeed = 2f;
-//
-//    Obstacles crowd;
-//    int crowdResId = R.drawable.dumbppl;
-//    int crowdXScale = 122;
-//    int crowdYScale = 154;
-//    int maxNumCrowds = 1;
-//    float distBetweenCrowds;
-//    float crowdXSpeed = 3f;
-//    float crowdYSpeed = 10f;
-//
-//    Obstacles car;
-//    int carResId = R.drawable.pan_2;
-//    int carXScale = 150;
-//    int carYScale = 250;
-//    int maxNumCars = 2;
-//    float distBetweenCars;
-//    float carXSpeed = 0f;
-//    float carYSpeed = 10f;
-//
-//    Obstacles homingOb;
-//    int homingObResID = R.drawable.dude;
-//    int homingObMaxNum = 2;
-//    float homingObDistBetween;
-//    float homingObXSpeed = 0f;
-//    float homingObYSpeed = 0f;
-//
-//    float increaseDifficultyDistance = 5000f;
+
     float toNextDiffIncrease;
+    float difficultyIncreaseSeparation;
     int difficultly;
-//    //float homingSpeed;
-//
-//    Obstacles extraLives;
-//    int extraLivesResId = R.drawable.lvlup;
-//    int extraLivesMaxNum = 1;
-//    float extraLivesDistBetween = 15000f;
-//    float extraLivesHorizontalSpeed = 3f;
-//    float extraLivesVerticalSpeed = 0f;
 
     float sX;
     float sY;
@@ -141,49 +72,15 @@ public class GameView extends SurfaceView implements Runnable {
     int collisionsWitnessed;
     LocationOne locationOne;
     LocationTwo locationTwo;
-
-//    //Using obstacle class to spawn footprints.
-////    Obstacles footprints;
-////    int footprintsImageResId = R.drawable.test_obstacle;
-////    int footprintsDMaxNumObs = 6;
-////    float footprintsDDistBetweenObs = 0f;
-////    float footprintsDHorizontalSpeed = 0f;
-////    float footprintsDVerticalSpeed = 0f;
-//
-//    Bitmap touchFollower;
-//    int touchFollowerHeight;
-//    int touchFollowerWidth;
-//    float tFX;          //current x coordinate of touchFollower
-//    float tFY;          //current y coordinate of touchFollower
-//    float tFXOffset;
-//    float tFYOffset;
-//    float touchDownX;   //desired x coordinate of touchFollower.
-//    float touchDownY;   //desired y coordinate of touchFollower.
-//
-//    Matrix matrixRotateClockwise = new Matrix();
-//    Matrix matrixRotateCounterClockwise = new Matrix();
-//    Boolean tFRotated = false;
-//
-//    //Sound effects
-//    SoundPool soundEffects;
-//    int badSoundId;
-//    int goodSoundId;
-//    int crashSoundId;
-//    int crashSound2Id;
-//    int crashSound3Id;
-//    int crashSound4Id;
-//    int crashSound5Id;
-//    int truckHornId;
-//    int carHornId;
-//    int wilhelmScreamId;
+    LocationThree locationThree;
     //-----------------------------------------------------------------------------------------
 
-    private SensorManager sensorMan;
-    private Sensor accelerometer;
-    private float[] mGravity;
-    private float mAccel;
-    private float mAccelCurrent;
-    private float mAccelLast;
+//    private SensorManager sensorMan;
+//    private Sensor accelerometer;
+//    private float[] mGravity;
+//    private float mAccel;
+//    private float mAccelCurrent;
+//    private float mAccelLast;
 
     MainActivity mA;
     int locationState;
@@ -222,6 +119,7 @@ public class GameView extends SurfaceView implements Runnable {
         //TODO: should initialize a location only when needed, but it takes a while so doing both here because there's only two at the moment.
         locationOne = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
         locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+        locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
         switch (mA.locationState){
             case 0:
 //                locationOne = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
@@ -230,68 +128,34 @@ public class GameView extends SurfaceView implements Runnable {
             case 1:
 //                locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
                 background = BitmapFactory.decodeResource(this.getResources(), locationTwo.getBackgroundResId(), ops);
+                break;
+            case 2:
+//                locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                background = BitmapFactory.decodeResource(this.getResources(), locationThree.getBackgroundResId(), ops);
+                break;
         }
 
         //System.out.println("GV| bitmap type: " + background.getConfig().name());
 
         //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
 
-
-//        locationOne = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
-//        locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
-
         setBackgroundSizePos(p);
-//        //-----------------Initialize obstacles----------------------------------------------------
-//        cone = new Obstacles(this.getContext(), (int)(sX *coneXScale), (int)(sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
-//        downTree = new Obstacles(this.getContext(), (int)(sX * downTreeXScale), (int)(sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, 0, backgroundWidth, backgroundHeight, false, false);
-//        truck = new Obstacles(this.getContext(), (int)(sX * truckXScale), (int)(sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
-//        crowd = new Obstacles(this.getContext(), (int)(sX * crowdXScale), (int)(sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
-//        car = new Obstacles(this.getContext(), (int)(sX * carXScale), (int)(sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, backgroundWidth, 0, backgroundHeight, true, true);
-//        homingOb = new Obstacles(this.getContext(), (int)(sX * 114), (int)(sY * 136), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, 0.005f, backgroundWidth, backgroundHeight, true, false);
-//        extraLives = new Obstacles(this.getContext(), (int)(sX * 62), (int)(sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, 0, extraLivesVerticalSpeed, extraLivesMaxNum, extraLivesMaxNum, true, false);
-//
-//        //Initialize footprints
-////        footprints = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
-//
-//        //Initialize touch follower.
-//        touchFollowerHeight = (int)(sY * 200);
-//        touchFollowerWidth = (int)(sX * 56);
-//        touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
-//        touchFollower = Bitmap.createScaledBitmap(touchFollower, touchFollowerWidth, touchFollowerHeight, true);
-//
-//        matrixRotateClockwise.postRotate(90);
-//        matrixRotateCounterClockwise.postRotate(270);
-//
-//        tFXOffset = -touchFollower.getWidth() / 2;
-//        tFYOffset = -touchFollower.getHeight();
+
 
         //Initialize finish line.
         finishLine = BitmapFactory.decodeResource(this.getResources(), R.drawable.finish, null);
         finishLine = Bitmap.createScaledBitmap(finishLine, (int)(sX * 940), (int)(sY * 200), true);
-        //-----------------------------------------------------------------------------------------
 
-//        //Sound effects.
-////        soundEffects = new SoundPool.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
-//        soundEffects = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-//        badSoundId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_sound, 1);
-//        goodSoundId = soundEffects.load(this.getContext(), R.raw.finger_runner_good_sound, 1);
-//        crashSound2Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_2, 1);
-//        crashSound3Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_3, 1);
-//        crashSound4Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_4, 1);
-//        crashSound5Id = soundEffects.load(this.getContext(), R.raw.finger_runner_crash_sound_5, 1);
-//        truckHornId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_truck_horn, 1);
-//        carHornId = soundEffects.load(this.getContext(), R.raw.finger_runner_bad_car_horn, 1);
-//        wilhelmScreamId = soundEffects.load(this.getContext(), R.raw.wilhelm_scream, 1);
 
-        sensorMan = (SensorManager) mA.getSystemService(SENSOR_SERVICE);
-        accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mAccel = 0.00f;
-        mAccelCurrent = SensorManager.GRAVITY_EARTH;
-        mAccelLast = SensorManager.GRAVITY_EARTH;
+//        sensorMan = (SensorManager) this.mA.getSystemService(Context.SENSOR_SERVICE);
+//        accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+//        mAccel = 0.00f;
+//        mAccelCurrent = SensorManager.GRAVITY_EARTH;
+//        mAccelLast = SensorManager.GRAVITY_EARTH;
 
 
         resetVariables();
-
     }
 
     public void setBackgroundSizePos(Point p) {
@@ -301,21 +165,6 @@ public class GameView extends SurfaceView implements Runnable {
         //For some reason, these need to be here to get initialized correctly the first time.
         backgroundWidth = background.getWidth();
         backgroundHeight = background.getHeight();
-
-//        tFX = tFXOffset + backgroundWidth/2;
-//        tFY = tFYOffset + backgroundHeight;
-//        switch (mA.locationState){
-//            case 0:
-//                locationOne.setBackgroundWidth(backgroundWidth);
-//                locationOne.setBackgroundHeight(backgroundHeight);
-//                locationOne.resetTF();
-//                break;
-//            case 1:
-//                locationTwo.setBackgroundWidth(backgroundWidth);
-//                locationTwo.setBackgroundHeight(backgroundHeight);
-//                locationTwo.resetTF();
-//                break;
-//        }
     }
 
     // Bitmap processing
@@ -385,43 +234,24 @@ public class GameView extends SurfaceView implements Runnable {
                         break;
                     case 1:
                         velocity *= locationTwo.getVelocityFactor();
+                        break;
+                    case 2:
+                        velocity *= locationThree.getVelocityFactor();
+                        break;
                 }
 //                velocity *= 0.75;//0.8f;//0.9f;
             }
 
-            //--------------Check if an obstacle has run into touchFollower when no fingers are down (only necessary if friendly sprite triggers obstacles)-----------------------------
-//            if (checkObstaclesTouched(0)) {//Looks like if(false), but false is a passed boolean.
-//                if (livesLeft == 0) {
-//                    mA.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 1, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
-////                    mA.requestGameState(MainActivity.LOSE);
-//                        }
-//                    });
-//                } else {
-//                    checkObstaclesTouched(2);
-//                    velocity = 0;
-//                    touchDownX = tFX - tFXOffset;
-//                    touchDownY = tFY - tFYOffset;
-//                    livesLeft--;
-//                    if(!mA.musicMuted) {
-//                        soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
-//                    }
-//                    collisionsWitnessed++;
-//                }
-//            } else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
-//                livesLeft++;
-//                if(!mA.musicMuted) {
-//                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
-//                }
-//            }
+            //--------------Check if an obstacle has run into touchFollower when no fingers are down-----------------------------
             switch (locationState){
                 case 0:
                     locationOne.checkIfObstacleRanIntoTouchFollower(livesLeft);
                     break;
                 case 1:
                     locationTwo.checkIfObstacleRanIntoTouchFollower(livesLeft);
+                    break;
+                case 2:
+                    locationThree.checkCollisions();
                     break;
             }
             //---------------------------------------------------------------------------
@@ -440,13 +270,7 @@ public class GameView extends SurfaceView implements Runnable {
             previousTime = System.currentTimeMillis();
 
             //Update touch follower position. Could put outside of if(gameRunning) if want to resume movement after game paused while touchFollower is moving
-            //...but then you could possibly cheat the timer by pausing right after the start of a big move.
-//            if(tFX != touchDownX + tFXOffset) {
-//                tFX += 0.1 * (touchDownX + tFXOffset - tFX);
-//            }
-//            if(tFY != touchDownY + tFYOffset){
-//                tFY += 0.1 * (touchDownY + tFYOffset - tFY);
-//            }
+            //...but then you could possibly cheat the timer by pausing right after the start of a big move.-------------------------------
             switch (locationState){
                 case 0:
                     locationOne.updateTouchFollower();
@@ -454,18 +278,10 @@ public class GameView extends SurfaceView implements Runnable {
                 case 1:
                     locationTwo.updateTouchFollower();
                     break;
+                case 2:
+                    //do nothing
+                    break;
             }
-
-//            for (int i = 0; i < homingObMaxNum; i++) {
-//                if (homingOb.spawnTracker[i] == 1) {
-//                    if (homingOb.coordinatesArray[i][0] != tFX) {
-//                        homingOb.coordinatesArray[i][0] += homingOb.speedArray[i][2] * (tFX - homingOb.coordinatesArray[i][0]);
-//                    }
-//                    if (homingOb.coordinatesArray[i][1] != tFY) {
-//                        homingOb.coordinatesArray[i][1] += homingOb.speedArray[i][3] * (tFY - homingOb.coordinatesArray[i][1]);
-//                    }
-//                }
-//            }
             switch (locationState){
                 case 0:
                     locationOne.updateHomingObstacle();
@@ -473,10 +289,13 @@ public class GameView extends SurfaceView implements Runnable {
                 case 1:
                     locationTwo.updateHomingObstacle();
                     break;
+                case 2:
+                    locationThree.updateHomingObstacle();
+                    break;
             }
+            //--------------------------------------------------------------------------------------
 
-
-            //For the touchFollower crossing the finish line to trigger course completion, use the following line:
+            //For the touchFollower crossing the finish line to trigger course completion, use the following:
             switch (locationState){
                 case 0:
                     distRemaining = courseLeft - backgroundHeight + locationOne.getTFY() + locationOne.getTouchFollowerHeight();
@@ -484,58 +303,33 @@ public class GameView extends SurfaceView implements Runnable {
                 case 1:
                     distRemaining = courseLeft - backgroundHeight + locationTwo.getTFY() + locationTwo.getTouchFollowerHeight();
                     break;
+                case 2:
+                    distRemaining = courseLeft - backgroundHeight + locationThree.getTouchDownY() - locationThree.getFootprintHeight()/2;
             }
-            //For a touch past the finish line to trigger course completion, use the following line instead of the previous line:
+            //For a touch past the finish line to trigger course completion, use the following line instead of the previous:
 //            distRemaining = courseLeft - backgroundHeight + touchDownY;
 
-            //Decrease distance between obstacles as odometer increases for distance mode.
-            //TODO: create variable for factor. Experiment with values.
-            if(distanceMode){
+            //----------Increase difficulty during distance mode.-----------------------------------
+//            if(distanceMode){
                 if(toNextDiffIncrease <= 0){
                     difficultly++;
-                    float factor = (difficultly + 4f) / (difficultly + 5f);
-
-//                    distBetweenCones *= factor;
-//                    cone.setDistanceBetweenObstacles(distBetweenCones);
-//                    distBetweenDownTrees *= factor;
-//                    downTree.setDistanceBetweenObstacles(distBetweenDownTrees);
-//                    distBetweenTrucks *= factor;
-//                    truck.setDistanceBetweenObstacles(distBetweenTrucks);
-//                    distBetweenCones *= factor;
-//                    crowd.setDistanceBetweenObstacles(distBetweenCrowds);
-//                    distBetweenCars *= factor;
-//                    car.setDistanceBetweenObstacles(distBetweenCars);
-//                    homingObDistBetween *= factor;
-//                    homingOb.setDistanceBetweenObstacles(homingObDistBetween);
-
-
-//                    //homingSpeed *= (difficultly + 5f) / (difficultly + 4f);
-//                    homingOb.homingSpeed *= (difficultly + 5f) / (difficultly + 4f);
                     switch (locationState){
                         case 0:
-                            locationOne.updateHomingSpeed((difficultly + 5f) / (difficultly + 4f));
+                            locationOne.updateObstacleSeparation();
                             break;
                         case 1:
-                            locationTwo.updateHomingSpeed((difficultly + 5f) / (difficultly + 4f));
+                            locationTwo.updateObstacleSeparation();
+                            break;
+                        case 2:
+                            locationThree.updateObstacleSeparation();
                             break;
                     }
 
-
-//                    extraLives.setDistanceBetweenObstacles(extraLivesDistBetween / factor);
-
-//                    toNextDiffIncrease = increaseDifficultyDistance;
-                    switch (locationState){
-                        case 0:
-                            toNextDiffIncrease = locationOne.getIncreaseDifficultyDistance();
-                            break;
-                        case 1:
-                            toNextDiffIncrease = locationTwo.getIncreaseDifficultyDistance();
-                            break;
-                    }
+                    toNextDiffIncrease = difficultyIncreaseSeparation;
 
                 }
-            }
-
+//            }
+            //--------------------------------------------------------------------------------------
 
             //Check if finish line has been reached.
             if(distanceMode == false) {
@@ -550,14 +344,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             }
 
-//            //Move obstacles(any movement independent from the road).
-//            cone.moveObstacles();
-//            downTree.moveObstacles();
-//            truck.moveObstacles();
-//            crowd.moveObstacles();
-//            car.moveObstacles();
-//            homingOb.moveObstacles();
-//            extraLives.moveObstacles();
+            //------Move obstacles(any movement independent from the road).-----
             switch (locationState){
                 case 0:
                     locationOne.move();
@@ -565,8 +352,11 @@ public class GameView extends SurfaceView implements Runnable {
                 case 1:
                     locationTwo.move();
                     break;
+                case 2:
+                    locationThree.move();
+                    break;
             }
-
+            //------------------------------------------------------------------
         }
 
         switch (gameVersion) {
@@ -585,30 +375,10 @@ public class GameView extends SurfaceView implements Runnable {
         mA.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                int minutes = (int) time / 60000;
-//                int remainder = (int) time - minutes * 60000;
-//                int seconds = (int) remainder / 1000;
-//                String secondsString;
-//                if(seconds > 10) {
-//                    secondsString = String.valueOf(seconds);
-//                }else {
-//                    secondsString = "0" + seconds;
-//                }
-//                remainder = remainder - seconds * 1000;
-//                int milSec = remainder;
-//                String string = minutes + ":" + secondsString + "." + milSec;
-//                mA.timer.setText(string);
                 if(distanceMode == false) {
                     gameTimer.changeTime(time);
 //                    mA.timer.setText(gameTimer.getTimeForDisplay());
-                    switch (locationState){
-                        case 0:
-                            mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
-                            break;
-                        case 1:
-                            mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
-                            break;
-                    }
+                    mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
                 } else {
                     //Display distance instead of time for distance mode.
 //                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY - touchFollowerHeight) + "\nLives: " + String.valueOf(livesLeft));
@@ -618,6 +388,9 @@ public class GameView extends SurfaceView implements Runnable {
                             break;
                         case 1:
                             mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationTwo.getTFY() - locationTwo.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
+                            break;
+                        case 2:
+                            mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationThree.getTouchDownY() + locationThree.getFootprintHeight()/2) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                     }
                 }
@@ -649,18 +422,6 @@ public class GameView extends SurfaceView implements Runnable {
             }
 
             //---------------------Draw obstacles---------------------------------------------
-////            footprints.drawObstacles(canvas, paint);
-//
-//            cone.drawObstacles(canvas, paint);
-//            downTree.drawObstacles(canvas, paint);
-//            crowd.drawObstacles(canvas, paint);
-//            car.drawObstacles(canvas, paint);
-//            homingOb.drawObstacles(canvas, paint);
-//            extraLives.drawObstacles(canvas, paint);
-//            truck.drawObstacles(canvas, paint);
-//
-//            //Draw touch follower.
-//            canvas.drawBitmap(touchFollower, tFX, tFY, paint);
             switch (locationState){
                 case 0:
                     locationOne.draw(canvas, paint);
@@ -668,6 +429,8 @@ public class GameView extends SurfaceView implements Runnable {
                 case 1:
                     locationTwo.draw(canvas, paint);
                     break;
+                case 2:
+                    locationThree.draw(canvas, paint);
             }
             //---------------------------------------------------------------------------------
 
@@ -719,6 +482,11 @@ public class GameView extends SurfaceView implements Runnable {
                         locationTwo.setTouchDownX(activeFinger.x);
                         locationTwo.setTouchDownY(activeFinger.y);
                         break;
+                    case 2:
+                        locationThree.setTouchDownX(activeFinger.x);
+                        locationThree.setTouchDownY(activeFinger.y);
+                        locationThree.spawnFootprint();
+                        break;
                 }
 
                 //Check if finish line has been reached.
@@ -731,40 +499,15 @@ public class GameView extends SurfaceView implements Runnable {
 //                footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
 
                 //--------------Check if an obstacle has been touched-----------------------------
-//                if (checkObstaclesTouched(2)) {
-//                    if (livesLeft == 0) {
-//
-////                        touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
-////                        tFRotated = true;
-////                        if(!mA.musicMuted) {
-////                            soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
-////                        }
-////                        collisionsWitnessed++;
-//                        locationTwo.gameOver();
-//
-//                        mA.setGameState(MainActivity.GAME_LOST);
-//                    } else {
-//                        velocity = 0;
-//                        touchDownX = tFX - tFXOffset;
-//                        touchDownY = tFY - tFYOffset;
-//                        --livesLeft;
-//                        if(!mA.musicMuted) {
-//                            soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
-//                        }
-//                        collisionsWitnessed++;
-//                    }
-//                }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
-//                    livesLeft++;
-//                    if(!mA.musicMuted) {
-//                        soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
-//                    }
-//                }
                 switch (locationState){
                     case 0:
                         locationOne.checkIfObstacleWasTouched(livesLeft);
                         break;
                     case 1:
                         locationTwo.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 2:
+                        locationThree.checkIfObstacleWasTouched(livesLeft);
                         break;
                 }
                 //---------------------------------------------------------------------------
@@ -790,46 +533,26 @@ public class GameView extends SurfaceView implements Runnable {
                                 locationTwo.setTouchDownX(activeFinger.x);
                                 locationTwo.setTouchDownY(activeFinger.y);
                                 break;
+                            case 2:
+                                locationThree.setTouchDownX(activeFinger.x);
+                                locationThree.setTouchDownY(activeFinger.y);
+                                locationThree.spawnFootprint();
+                                break;
                         }
 
 //                        footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
                     }
 
                     //--------------Check if an obstacle has been touched-----------------------------
-//                    if (checkObstaclesTouched(2)) {
-//                        if (livesLeft == 0) {
-//
-////                            touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
-////                            tFRotated = true;
-////                            if(!mA.musicMuted) {
-////                                soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
-////                            }
-////                            collisionsWitnessed++;
-//                            locationTwo.gameOver();
-//
-//                            mA.setGameState(MainActivity.GAME_LOST);
-//                        } else {
-//                            velocity = 0;
-//                            touchDownX = tFX - tFXOffset;
-//                            touchDownY = tFY - tFYOffset;
-//                            --livesLeft;
-//                            if(!mA.musicMuted) {
-//                                soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
-//                                collisionsWitnessed++;
-//                            }
-//                        }
-//                    }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
-//                        livesLeft++;
-//                        if(!mA.musicMuted) {
-//                            soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
-//                        }
-//                    }
                     switch (locationState){
                         case 0:
                             locationOne.checkIfObstacleWasTouched(livesLeft);
                             break;
                         case 1:
                             locationTwo.checkIfObstacleWasTouched(livesLeft);
+                            break;
+                        case 2:
+                            locationThree.checkIfObstacleWasTouched(livesLeft);
                             break;
                     }
                     //---------------------------------------------------------------------------
@@ -848,40 +571,16 @@ public class GameView extends SurfaceView implements Runnable {
                     }
                 }
                 //--------------Check if an obstacle has been touched-----------------------------
-//                if (checkObstaclesTouched(2)) {
-//                    if (livesLeft == 0) {
-//
-////                        touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
-////                        tFRotated = true;
-////                        if(!mA.musicMuted) {
-////                            soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
-////                        }
-////                        collisionsWitnessed++;
-//                        locationTwo.gameOver();
-//
-//                        mA.setGameState(MainActivity.GAME_LOST);
-//                    } else {
-//                        velocity = 0;
-//                        touchDownX = tFX - tFXOffset;
-//                        touchDownY = tFY - tFYOffset;
-//                        --livesLeft;
-//                        if(!mA.musicMuted) {
-//                            soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
-//                            collisionsWitnessed++;
-//                        }
-//                    }
-//                }else if(extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), 1, true)){
-//                    livesLeft++;
-//                    if(!mA.musicMuted) {
-//                        soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
-//                    }
-//                }
                 switch (locationState){
                     case 0:
                         locationOne.checkIfObstacleWasTouched(livesLeft);
                         break;
                     case 1:
                         locationTwo.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 2:
+//                        locationThree.checkCollisions();
+                        locationThree.checkIfObstacleWasTouched(livesLeft);
                         break;
                 }
                 //---------------------------------------------------------------------------
@@ -920,6 +619,10 @@ public class GameView extends SurfaceView implements Runnable {
                 break;
             case 1:
                 dist *= locationTwo.getDistanceFactor();
+                break;
+            case 2:
+                dist *= locationThree.getDistanceFactor();
+                break;
         }
 //        dist *= 0.75;
 //        //System.out.println("GV| addToFingerMoveDist: " + dist);
@@ -936,18 +639,33 @@ public class GameView extends SurfaceView implements Runnable {
 
         switch (locationState){
             case 0:
+                //Reduce velocity by factor.
                 velocity = distance * locationOne.getInertiaFactor();
+                //Reduce distance by factor.
                 distance *= locationOne.getDistanceFactor();
+                //Update touchFollowerer and obstacles.
                 locationOne.updateTouchDownY(distance);
                 locationOne.updateTFY(distance);
                 locationOne.updateObs(distance);
                 break;
             case 1:
+                //Reduce velocity by factor.
                 velocity = distance * locationTwo.getInertiaFactor();
+                //Reduce distance by factor.
                 distance *= locationTwo.getDistanceFactor();
+                //Update touchFollower and obstacles.
                 locationTwo.updateTouchDownY(distance);
                 locationTwo.updateTFY(distance);
                 locationTwo.updateObs(distance);
+                break;
+            case 2:
+                //Reduce velocity by factor.
+                velocity = distance * locationThree.getInertiaFactor();
+                //Reduce distance by factor.
+                distance *= locationThree.getDistanceFactor();
+                //Update touchFollower and obstacles.
+                locationThree.updateTouchDownY(distance);
+                locationThree.updateObs(distance);
                 break;
         }
 //        distance *= 0.75;
@@ -967,26 +685,6 @@ public class GameView extends SurfaceView implements Runnable {
         courseLeft -= distance;
         toNextDiffIncrease -= distance;
 
-        //---------------Update Obstacles---------------------------------------------------
-//        cone.updateObstacles(distance, true);
-//        downTree.updateObstacles(distance, true);
-//        if(truck.updateObstacles(distance, true)){
-//            if (!mA.musicMuted) {
-//                soundEffects.play(truckHornId, 0.5f, 0.5f, 0, 0, 1);
-//            }
-//        }
-//        crowd.updateObstacles(distance, true);
-//        if(car.updateObstacles(distance, true)) {
-//            if (!mA.musicMuted) {
-//                soundEffects.play(carHornId, 0.5f, 0.5f, 0, 0, 1);
-//            }
-//        }
-//        homingOb.updateObstacles(distance, true);
-//        extraLives.updateObstacles(distance, true);
-//
-////        footprints.updateObstacles(distance, false);
-        //-----------------------------------------------------------------------------
-
         // Loop backgrounds
         if(backgroundPositionY > background.getHeight()) {
             backgroundPositionY = -background.getHeight() + backgroundPositionY2;
@@ -995,6 +693,7 @@ public class GameView extends SurfaceView implements Runnable {
             backgroundPositionY2 = -background.getHeight() + backgroundPositionY;
         }
     }
+
 
 //    @Override
 //    public void onSensorChanged(SensorEvent event) {
@@ -1012,6 +711,17 @@ public class GameView extends SurfaceView implements Runnable {
 //            // motion you want to detect
 //            if(mAccel > 3){
 //                // do something
+//                switch (locationState){
+//                    case 0:
+//                        if(locationOne.getTouchDownX() > 0 && locationOne.getTouchDownX() < windowSize.x) {
+//                            locationOne.updateTouchDownX(x);
+//                        }
+//                        break;
+//                    case 1:
+//                        if(locationTwo.getTouchDownX() > 0 && locationTwo.getTouchDownX() < windowSize.x){
+//                            locationTwo.updateTouchDownX(x);
+//                        }
+//                }
 //            }
 //        }
 //
@@ -1021,6 +731,7 @@ public class GameView extends SurfaceView implements Runnable {
 //    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 //        // required method
 //    }
+
 
     public void pauseGame() {
         System.out.println("GV| pauseGame called");
@@ -1045,6 +756,22 @@ public class GameView extends SurfaceView implements Runnable {
         pauseGame();
         playing = false;
 
+        //Release audio. TODO: change to switch if only one location is initialized at a time.
+        locationOne.releaseAudio();
+        locationTwo.releaseAudio();
+        locationThree.releaseAudio();
+//        switch (locationState){
+//            case 0:
+//                locationOne.releaseAudio();
+//                break;
+//            case 1:
+//                locationTwo.releaseAudio();
+//                break;
+//            case 2:
+//                locationThree.releaseAudio();
+//                break;
+//        }
+
 //        sensorMan.unregisterListener(this);
 
         try {
@@ -1060,6 +787,22 @@ public class GameView extends SurfaceView implements Runnable {
 
         gameThread = new Thread(this);
         gameThread.start();
+
+        //Set audio. TODO: change to switch if only one location is initialized at a time.
+        locationOne.setAudio();
+        locationTwo.setAudio();
+        locationThree.setAudio();
+//        switch (locationState){
+//            case 0:
+//                locationOne.setAudio();
+//                break;
+//            case 1:
+//                locationTwo.setAudio();
+//                break;
+//            case 2:
+//                locationThree.setAudio();
+//                break;
+//        }
 
 //        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
@@ -1085,179 +828,6 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-//    //--------------Check if an obstacle was touched-----------------------------
-//    public Boolean checkObstaclesTouched(int action) {
-//        //First check if active finger is touching obstacle.
-////        if(!fingers.isEmpty()) {
-////            if (cone.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-////                return true;
-////            } else if (downTree.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-////                return true;
-////            } else if (truck.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-////                return true;
-////            } else if (crowd.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-////                return true;
-////            } else if (homingOb.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)){
-////                return true;
-////            }
-////        }
-//
-//        //Now check if touch follower is touching an obstacle.
-//        if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
-//            return true;
-//        } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
-//            return true;
-//        } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){//(activeFinger.x, activeFinger.y)) {
-//            return true;
-//        } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)) {//(activeFinger.x, activeFinger.y)) {
-//            return true;
-//        }else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){
-//            return true;
-//        } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), action, true)){
-//            return true;
-//        } else {
-////            return false;
-////        }
-//
-//            //Check if trucks have touched other obstacles.
-//            for (int i = 0; i < maxNumTrucks; i++) {
-//                if (truck.spawnTracker[i] == 1 || truck.spawnTracker[i] == 2) { //Truck should only destroy obstacles if it's moving.
-//                    if (truck.speedArray[i][1] != 0) {
-//                        if(cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 2, false)) {
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            truck.hitObstacle(i, false);
-//                            collisionsWitnessed++;
-//                        }
-//                        if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, 3, false);
-//                    }
-//                }
-//            }
-//            //Check if cars have touched other obstacles.
-//            for (int i = 0; i < maxNumCars; i++){
-//                if (car.spawnTracker[i] == 1){
-//                    if(car.speedArray[i][1] != 0){
-//                        if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 2, false)) {
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 2, false)) {
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if(truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        if(car.checkOverlap(i)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            collisionsWitnessed++;
-//                        }
-//                        extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, 3, false);
-//                    }
-//                }
-//            }
-//            for (int i = 0; i < maxNumCrowds; i++){
-//                if (crowd.spawnTracker[i] == 1){
-//                    if(crowd.speedArray[i][0] != 0 || crowd.speedArray[i][1] != 0){
-//                        if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 0, false)){
-//                            crowd.speedArray[i][0] *= -1;
-//                            crowd.speedArray[i][1] *= -1;
-//                            //collisionsWitnessed++; //Crowd can get stuck if a vehicle crashes and gets thrown on top of them.
-//                        }
-//                        if(car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 0, false)){
-//                            crowd.speedArray[i][0] *= -1;
-//                            crowd.speedArray[i][1] *= -1;
-//                            collisionsWitnessed++;
-//                        }
-//                        if(cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            crowd.speedArray[i][0] *= -1;
-//                            crowd.speedArray[i][1] *= -1;
-//                            collisionsWitnessed++;
-//                        }
-//                        if(downTree.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, 3, false)){
-//                            if (!mA.musicMuted) {
-//                                soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
-//                            }
-//                            crowd.speedArray[i][0] *= -1;
-//                            crowd.speedArray[i][1] *= -1;
-//                            collisionsWitnessed++;
-//                        }
-//                    }
-//                }
-//            }for (int i = 0; i < homingObMaxNum; i++){
-//                if (homingOb.spawnTracker[i] == 1){
-//                    if(cone.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, 3, false)){
-//                        if (!mA.musicMuted) {
-//                            soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-//                        }
-//                        homingOb.speedArray[i][2] *= 0.95f;
-//                        homingOb.speedArray[i][3] *= 0.95f;
-//                        collisionsWitnessed++;
-//                    }
-//                    if(downTree.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, 3, false)) {
-//                        if (!mA.musicMuted) {
-//                            soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
-//                        }
-//                        homingOb.speedArray[i][2] *= 0.95f;
-//                        homingOb.speedArray[i][3] *= 0.95f;
-//                        collisionsWitnessed++;
-//                    }
-//                }
-//            }
-//            return false;
-//        }
-//    }
-////---------------------------------------------------------------------------
-
     public void resetVariables(){
 
         odometer = 0f;
@@ -1269,13 +839,15 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
+//                    locationTwo.releaseAudio();
 //                    locationTwo = null;
+//                    locationThree.releaseAudio();
+//                    locationThree = null;
                     background = BitmapFactory.decodeResource(this.getResources(), locationOne.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }
                 courseDistance = locationOne.getCourseDistance();
-                courseLeft = courseDistance;
-                distRemaining = courseDistance;
+                difficultyIncreaseSeparation = locationOne.getIncreaseDifficultyDistance();
                 locationOne.setBackgroundWidth(backgroundWidth);
                 locationOne.setBackgroundHeight(backgroundHeight);
                 locationOne.resetObstacles();
@@ -1286,45 +858,43 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
+//                    locationOne.releaseAudio();
 //                    locationOne = null;
+//                    locationThree.releaseAudio();
+//                    locationThree = null;
                     background = BitmapFactory.decodeResource(this.getResources(), locationTwo.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }
                 courseDistance = locationTwo.getCourseDistance();
-                courseLeft = courseDistance;
-                distRemaining = courseDistance;
+                difficultyIncreaseSeparation = locationTwo.getIncreaseDifficultyDistance();
                 locationTwo.setBackgroundWidth(backgroundWidth);
                 locationTwo.setBackgroundHeight(backgroundHeight);
                 locationTwo.resetObstacles();
                 break;
+            case 2:
+                if(locationThree == null){
+                    locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                }
+                if(locationState != mA.locationState) {
+                    locationState = mA.locationState;
+//                    locationOne.releaseAudio();
+//                    locationOne = null;
+//                    locationTwo.releaseAudio();
+//                    locationTwo = null;
+                    background = BitmapFactory.decodeResource(this.getResources(), locationThree.getBackgroundResId(), ops);
+                    setBackgroundSizePos(windowSize);
+                }
+                courseDistance = locationThree.getCourseDistance();
+                difficultyIncreaseSeparation = locationThree.getIncreaseDifficultyDistance();
+                locationThree.setBackgroundWidth(backgroundWidth);
+                locationThree.setBackgroundHeight(backgroundHeight);
+                locationThree.resetObstacles();
+                break;
         }
+        courseLeft = courseDistance;
+        distRemaining = courseDistance;
+        toNextDiffIncrease = difficultyIncreaseSeparation;
 
-//        courseLeft = courseDistance;
-//        distRemaining = courseDistance;
-
-        //--------------------------Reset obstacles------------------------------------------
-//        distBetweenCones = 800f;
-//        distBetweenDownTrees = 4000f;
-//        distBetweenTrucks = 3000f;
-//        distBetweenCrowds = 2500f;
-//        distBetweenCars = 2000f;
-//        homingObDistBetween = 7500f;
-//        homingOb.setHomingSpeed(0.005f);
-//        //homingSpeed = 0.005f;
-//        cone.resetObstacles(distBetweenCones, backgroundWidth, backgroundHeight);
-//        downTree.resetObstacles(distBetweenDownTrees, backgroundWidth, backgroundHeight);
-//        truck.resetObstacles(distBetweenTrucks, backgroundWidth, backgroundHeight);
-//        crowd.resetObstacles(distBetweenCrowds, backgroundWidth, backgroundHeight);
-//        car.resetObstacles(distBetweenCars, backgroundWidth, backgroundHeight);
-//        homingOb.resetObstacles(homingObDistBetween, backgroundWidth, backgroundHeight);
-//        toNextDiffIncrease = increaseDifficultyDistance;
-//        difficultly = 0;
-//        extraLives.resetObstacles(extraLivesDistBetween, backgroundWidth, backgroundHeight);
-//        //Reset touch follower to bottom middle of screen.
-//        if(tFRotated) {
-//            touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateCounterClockwise, true);
-//            tFRotated = false;
-//        }
 
         if(!distanceMode){
             livesLeft = 0;
@@ -1334,11 +904,6 @@ public class GameView extends SurfaceView implements Runnable {
         collisionsWitnessed = 0;
 
 
-//        tFX = tFXOffset + backgroundWidth/2;
-//        tFY = tFYOffset + backgroundHeight;
-
-//        footprints.resetObstacles(footprintsDDistBetweenObs, backgroundWidth, backgroundHeight);
-        //-----------------------------------------------------------------------------------
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
         fingers.clear();

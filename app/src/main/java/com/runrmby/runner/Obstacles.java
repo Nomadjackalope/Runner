@@ -72,6 +72,7 @@ public class Obstacles {
         this.horizontalSpeed = originalHSpeed;
         this.originalVSpeed = verticalSpeed;
         this.verticalSpeed = originalVSpeed;
+        this.homingSpeed = homingSpeed;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
         //this.nextObstacleAt = distanceBetweenObstacles;
@@ -115,7 +116,7 @@ public class Obstacles {
             distanceToNextObstacle -= distance;
 
             if (autoSpawn) {
-                if(spawnObstacle(distanceToNextObstacle, random.nextInt(windowWidth - obstacleWidth), -obstacleHeight)) {
+                if(spawnObstacle(distanceToNextObstacle, random.nextInt(windowWidth - obstacleWidth), -obstacleHeight, false)) {
                     return true;
                 }
             }
@@ -123,7 +124,7 @@ public class Obstacles {
         return false;
     }
 
-    public boolean spawnObstacle(float distance, float x, float y){
+    public boolean spawnObstacle(float distance, float x, float y, boolean allowOverlap){
         //If enough distance has been covered and not at max spawns, spawn an obstacle.
         if(maxNumberOfObstacles > 0) {
             if (distance <= 0) {
@@ -134,12 +135,20 @@ public class Obstacles {
                 }
                 //for(int i = 0; i < maxNumberOfObstacles; i++){
                 if (spawnTracker[lastSpawnIndex] == DESTROYED || respawnWithMax) {
-                    if(wasObstacleTouched(x, y, obstacleWidth, obstacleHeight, false, false, false, true)){
-                        x += obstacleWidth;
+                    if(!allowOverlap) {
+                        if (wasObstacleTouched(x, y, obstacleWidth, obstacleHeight, false, false, false, true)) {
+                            if (random.nextBoolean()) {
+                                x += obstacleWidth;
+                            } else {
+                                x -= obstacleWidth;
+                            }
+                        }
                     }
                     spawnTracker[lastSpawnIndex] = SPAWNED;
                     coordinatesArray[lastSpawnIndex][0] = x;
                     coordinatesArray[lastSpawnIndex][1] = y;
+                    speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
+                    speedArray[lastSpawnIndex][3] = homingSpeed;
                     if (!randomizeParameters) {
                         distanceToNextObstacle = distanceBetweenObstacles;
                     } else {
@@ -149,8 +158,8 @@ public class Obstacles {
                         verticalSpeed = originalVSpeed * ((float)((random.nextInt(15) - 8)) / 4);
                         speedArray[lastSpawnIndex][0] = horizontalSpeed;
                         speedArray[lastSpawnIndex][1] = verticalSpeed;
-                        speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
-                        speedArray[lastSpawnIndex][3] = homingSpeed;
+//                        speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
+//                        speedArray[lastSpawnIndex][3] = homingSpeed;
 //                        if (random.nextBoolean()) {
 //                            horizontalSpeed = -originalHSpeed;
 //                        }
@@ -176,6 +185,7 @@ public class Obstacles {
     public void destroyObstacle(int obsIndex){
         spawnTracker[obsIndex] = DESTROYED;
         orientationArray[obsIndex] = 0;
+        blinkCyclesToDisappearArray[obsIndex] = blinkCyclesToDisappear;
     }
 
     public void hitObstacle(int obsIndex, boolean isTF, boolean trigger){
@@ -316,7 +326,10 @@ public class Obstacles {
 
     public Boolean checkOverlap(int i){
             if(spawnTracker[i] != DESTROYED){
-                for(int j = i+1; j < maxNumberOfObstacles; j++){
+                for(int j = 0; j < maxNumberOfObstacles; j++){
+                    if(i == j){
+                        continue;
+                    }
                     if(spawnTracker[j] != DESTROYED){
                         if (orientationArray[i] % 2 == 0 && orientationArray[j] % 2 == 0) {
                             if (coordinatesArray[i][0] + obstacleWidth > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleWidth
@@ -335,6 +348,13 @@ public class Obstacles {
                         } else if (orientationArray[i] % 2 == 0 && orientationArray[j] % 2 == 1) {
                             if (coordinatesArray[i][0] + obstacleWidth > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleHeight
                                     && coordinatesArray[i][1] + obstacleHeight > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleWidth) {
+                                hitObstacle(i, false, false);
+                                hitObstacle(j, false, false);
+                                return true;
+                            }
+                        } else {
+                            if (coordinatesArray[i][0] + obstacleHeight > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleHeight
+                                    && coordinatesArray[i][1] + obstacleWidth > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleWidth) {
                                 hitObstacle(i, false, false);
                                 hitObstacle(j, false, false);
                                 return true;

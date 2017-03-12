@@ -308,6 +308,25 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Statistics"
+            android:id="@+id/statsButton"
+            android:layout_above="@id/resetButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"
+            android:visibility="gone"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Credits"
+            android:id="@+id/creditsButton"
+            android:layout_above="@id/resetButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -316,6 +335,26 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="75dp"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/creditsText"
+        android:text="@string/credits"
+        android:textSize="20dp"
+        android:background="@color/colorTransparentLightGray"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:enabled="true"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/statsMenu"
+        android:visibility="gone">
 
     </RelativeLayout>
 

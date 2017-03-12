@@ -22,5 +22,7 @@
     <string name="win3">That was an alright run.</string>
 
     <string name="locationUnlocked">You unlocked a new location!</string>
+
+    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nBenjamin Gordon and Mark Horton\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nFont:\nPixellari by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
     
 </resources>
