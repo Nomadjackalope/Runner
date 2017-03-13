@@ -58,6 +58,8 @@ public class Obstacles {
     static final int blinkCyclesToDisappear = 6;
     int[] blinkCyclesToDisappearArray;
 
+    Matrix matrix;
+
     /**
      * @param randomize allows certain parameters to have variation.
      * //TODO: add two more columns to coordinates array to keep track of horizontal and vertical speed for individual obstacles so that randomizing doesn't affect spawned obstacles, even though that's kind of fun.
@@ -90,8 +92,9 @@ public class Obstacles {
 
         this.orientationArray = new int[maxNumberOfObstacles];
 
-        Matrix matrix = new Matrix();
+        matrix = new Matrix();
         matrix.postRotate(90);
+
         rotatedObsImage = Bitmap.createBitmap(obstacleImage, 0, 0, obstacleImage.getWidth(), obstacleImage.getHeight(), matrix, true);
         rotatedObsImage2 = Bitmap.createBitmap(rotatedObsImage, 0, 0, rotatedObsImage.getWidth(), rotatedObsImage.getHeight(), matrix, true);
         rotatedObsImage3 = Bitmap.createBitmap(rotatedObsImage2, 0, 0, rotatedObsImage2.getWidth(), rotatedObsImage2.getHeight(), matrix, true);
@@ -188,10 +191,10 @@ public class Obstacles {
         blinkCyclesToDisappearArray[obsIndex] = blinkCyclesToDisappear;
     }
 
-    public void hitObstacle(int obsIndex, boolean isTF, boolean trigger){
+    public boolean hitObstacle(int obsIndex, boolean isTF, boolean trigger){
         switch (spawnTracker[obsIndex]){
             case DESTROYED:
-                return;
+                return false;
             case SPAWNED:
                 if(isTF){
                     spawnTracker[obsIndex] = TRIGGERED;
@@ -210,9 +213,9 @@ public class Obstacles {
                 if(!isTF){
                     spawnTracker[obsIndex] = HIT_AND_TRIGGERED;
                 }
-                break;
+                return false;
             case HIT_AND_TRIGGERED:
-                break;
+                return false;
         }
         speedArray[obsIndex][0] = 0;
         speedArray[obsIndex][1] = 0;
@@ -228,6 +231,7 @@ public class Obstacles {
                 coordinatesArray[obsIndex][0] -= (float)obstacleWidth;
             }
         }
+        return true;
     }
 
     public void moveObstacles() {
@@ -300,10 +304,10 @@ public class Obstacles {
                         }
                         if(destroy){
                             destroyObstacle(i);
+                            return true;
                         } else {
-                            hitObstacle(i, isTF, trigger);
+                            return hitObstacle(i, isTF, trigger);
                         }
-                        return true;
                     }
                 } else {    //object rotated so width & height flipped.
                     if (x + width > coordinatesArray[i][0] && x < coordinatesArray[i][0] + obstacleHeight
@@ -313,10 +317,10 @@ public class Obstacles {
                         }
                         if(destroy){
                             destroyObstacle(i);
+                            return true;
                         } else {
-                            hitObstacle(i, isTF, trigger);
+                            return hitObstacle(i, isTF, trigger);
                         }
-                        return true;
                     }
                 }
             }

@@ -21,6 +21,10 @@
     <string name="win2">Woot woot! A new high score!</string>
     <string name="win3">That was an alright run.</string>
 
+    <string name="loc0">Out For A Run</string>
+    <string name="loc1">Crazy Road</string>
+    <string name="loc2">Giant Steps</string>
+
     <string name="locationUnlocked">You unlocked a new location!</string>
 
     <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nBenjamin Gordon and Mark Horton\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nFont:\nPixellari by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>

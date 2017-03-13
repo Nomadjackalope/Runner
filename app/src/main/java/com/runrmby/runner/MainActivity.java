@@ -327,21 +327,21 @@ public class MainActivity extends AppCompatActivity {
         //Buttons
         playAgainButton = (Button) findViewById(R.id.playAgainButton);
         playAgainButton.setTypeface(font2);
-        playAgainButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setGameState(GAME_INITIALIZING);
-            }
-        });
+//        playAgainButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                setGameState(GAME_INITIALIZING);
+//            }
+//        });
 
         mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuButton.setTypeface(font2);
-        mainMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setGameState(TRANSIT_TO_MM);
-            }
-        });
+//        mainMenuButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                setGameState(TRANSIT_TO_MM);
+//            }
+//        });
 
 
         playButton = (Button) findViewById(R.id.playButton);
@@ -618,6 +618,26 @@ public class MainActivity extends AppCompatActivity {
         root.addView(gameEndMenu);
         endGameText.setBackgroundColor(Color.RED);
 
+        //TODO: pause menu buttons were unresponsive after a while, so checking click listeners here.
+        if(!playAgainButton.hasOnClickListeners()) {
+            System.out.println("-----------------Play again button click listener had to be reset!------------");
+            playAgainButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setGameState(GAME_INITIALIZING);
+                }
+            });
+        }
+        if(!mainMenuButton.hasOnClickListeners()) {
+            System.out.println("-----------------Quit button click listener had to be reset!------------");
+            mainMenuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setGameState(TRANSIT_TO_MM);
+                }
+            });
+        }
+
         // TODO Shrink this or at least separate it into its functional parts
         yourTime = gameScreen.gameTimer;
         savedTime = loadBestTime();
@@ -711,8 +731,27 @@ public class MainActivity extends AppCompatActivity {
         endGameUserTime.setBackgroundColor(Color.RED);
         endGameText.setBackgroundColor(Color.RED);
 
+        if(!playAgainButton.hasOnClickListeners()) {
+            System.out.println("-----------------Play again button click listener had to be reset!------------");
+            playAgainButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setGameState(GAME_INITIALIZING);
+                }
+            });
+        }
+        if(!mainMenuButton.hasOnClickListeners()) {
+            System.out.println("-----------------Quit button click listener had to be reset!------------");
+            mainMenuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setGameState(TRANSIT_TO_MM);
+                }
+            });
+        }
+
         //Set end game textviews for losing.
-        if(gameScreen.distanceMode == false) {
+        if(!gameScreen.distanceMode) {
             //Start lose music.
 //        if(nowPlaying != LOSE_MUSIC_1) {
 //            setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
@@ -756,15 +795,7 @@ public class MainActivity extends AppCompatActivity {
         } else{
             //TODO: Not sure if a new state would be necessary for distance mode.
             savedDistance = loadBestDistance();
-            float yourDistance = 0f;
-            switch (locationState){
-                case 0:
-                    yourDistance = gameScreen.odometer + gameScreen.locationOne.getTFY();
-                    break;
-                case 1:
-                    yourDistance = gameScreen.odometer + gameScreen.locationTwo.getTFY();
-                    break;
-            }
+            float yourDistance = gameScreen.yourDistance;
             distanceDifferential = yourDistance - savedDistance;
             colWit += gameScreen.collisionsWitnessed;
             saveXP(colWit);
@@ -1105,7 +1136,8 @@ public class MainActivity extends AppCompatActivity {
                     locationRes = R.drawable.pan_1;
                     playMarathonButton.setEnabled(true);
                     playButton.setEnabled(true);
-                    lockedMessage.setVisibility(View.GONE);
+//                    lockedMessage.setVisibility(View.GONE);
+                    lockedMessage.setText(getResources().getString(R.string.loc0));
                     previousLocationButton.setVisibility(View.GONE);    //For the first location, this button should not be seen.
                     nextLocationButton.setVisibility(View.VISIBLE);    //For the last location, this button should not be seen.
                     //titleScreen.startAnimation(fadeOut);
@@ -1115,27 +1147,31 @@ public class MainActivity extends AppCompatActivity {
                     if(locationsUnlocked > 0) {
                         playMarathonButton.setEnabled(true);
                         playButton.setEnabled(true);
-                        lockedMessage.setVisibility(View.GONE);
+//                        lockedMessage.setVisibility(View.GONE);
+                        lockedMessage.setText(getResources().getString(R.string.loc1));
                     } else {
                         playMarathonButton.setEnabled(false);
                         playButton.setEnabled(false);
-                        lockedMessage.setVisibility(View.VISIBLE);
+//                        lockedMessage.setVisibility(View.VISIBLE);
+                        lockedMessage.setText(getResources().getString(R.string.loc1) + "\nLOCKED (100 XP)");
                         //lockedMessage.setText("??? XP to Unlock");
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
                     nextLocationButton.setVisibility(View.VISIBLE);
                     //titleScreen.startAnimation(fadeOut);
                     break;
-                case 2: //TODO: remove if only using 2 locations
+                case 2:
                     locationRes = R.drawable.right_foot;
                     if(locationsUnlocked > 1) {
                         playMarathonButton.setEnabled(true);
                         playButton.setEnabled(true);
-                        lockedMessage.setVisibility(View.GONE);
+//                        lockedMessage.setVisibility(View.GONE);
+                        lockedMessage.setText(getResources().getString(R.string.loc2));
                     } else {
                         playMarathonButton.setEnabled(false);
                         playButton.setEnabled(false);
-                        lockedMessage.setVisibility(View.VISIBLE);
+//                        lockedMessage.setVisibility(View.VISIBLE);
+                        lockedMessage.setText(getResources().getString(R.string.loc2) + "\nLOCKED (200 XP)");
                         //lockedMessage.setText("??? XP to Unlock");
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1154,10 +1190,10 @@ public class MainActivity extends AppCompatActivity {
                 mainMenu.setVisibility(View.INVISIBLE);
                 alternateTitleScreen.animate()
                         .translationX(windowSize.x)
-                        .setDuration(1000);
+                        .setDuration(750);
                 titleScreen.animate()
                         .translationX(0)
-                        .setDuration(1000)
+                        .setDuration(750)
                         .withEndAction(new Runnable() {
                             @Override
                             public void run() {
@@ -1177,10 +1213,10 @@ public class MainActivity extends AppCompatActivity {
                 mainMenu.setVisibility(View.INVISIBLE);
                 alternateTitleScreen.animate()
                         .translationX(-windowSize.x)
-                        .setDuration(1000);
+                        .setDuration(750);
                 titleScreen.animate()
                         .translationX(0)
-                        .setDuration(1000)
+                        .setDuration(750)
                         .withEndAction(new Runnable() {
                             @Override
                             public void run() {

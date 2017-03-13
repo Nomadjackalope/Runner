@@ -24,25 +24,28 @@ public class LocationTwo {
     private int coneResId = R.drawable.cone;
     private int coneXScale = 40;
     private int coneYScale = 55;
-    private int maxNumCones = 1;
+    private int maxNumCones = 3;
     private float distBetweenCones;   //Initialized in resetVariables()
     private float coneXSpeed = 0f;
     private float coneYSpeed = 0f;
 
-    private Obstacles downTree;
-    private int downTreeResId = R.drawable.log_moss_1;
-    private int downTreeXScale = 189;
-    private int downTreeYScale = 60;
-    private int maxNumDownTrees = 0;
-    private float distBetweenDownTrees;
-    private float downTreeXSpeed = 0f;
-    private float downTreeYSpeed = 0f;
+    private Obstacles invincibility;
+    private int downTreeResId = R.drawable.right_foot_yellow;
+    private int invXScale = 50;
+    private int invYScale = 100;
+    private int maxNumInv = 1;
+    private float distBetweenInv;
+    private float invXSpeed = 0f;
+    private float invYSpeed = 0f;
+    private boolean invincible;
+    private int invTime = 220;
+    private int invCountdown;
 
     private Obstacles truck;
     private int truckResId = R.drawable.shitty_truck_1;
     private int truckXScale = 120;
     private int truckYScale = 250;
-    private int maxNumTrucks = 3;
+    private int maxNumTrucks = 4;
     private float distBetweenTrucks;
     private float truckXSpeed = 0f;
     private float truckYSpeed = 15f;
@@ -51,7 +54,7 @@ public class LocationTwo {
     private int crowdResId = R.drawable.bug3;
     private int crowdXScale = 115;
     private int crowdYScale = 213;
-    private int maxNumCrowds = 5;
+    private int maxNumCrowds = 4;
     private float distBetweenCrowds;
     private float crowdXSpeed = 0f;
     private float crowdYSpeed = 12f;
@@ -60,7 +63,7 @@ public class LocationTwo {
     private int carResId = R.drawable.shitty_reg_car;
     private int carXScale = 100;
     private int carYScale = 200;
-    private int maxNumCars = 4;
+    private int maxNumCars = 5;
     private float distBetweenCars;
     private float carXSpeed = 0f;
     private float carYSpeed = 20f;
@@ -82,14 +85,14 @@ public class LocationTwo {
     private Obstacles extraLives;
     private int extraLivesResId = R.drawable.lvlup;
     private int extraLivesMaxNum = 1;
-    private float extraLivesDistBetween = 20000f;
+    private float extraLivesDistBetween = 30000f;
     private float extraLivesHorizontalSpeed = 2f;
     private float extraLivesVerticalSpeed = 0f;
 
     private Bitmap touchFollower;
     private int touchFollowerHeight;
     private int touchFollowerWidth;
-    private int tFXScale = 150;
+    private int tFXScale = 140;
     private int tFYScale = 120;
     private float tFX;          //current x coordinate of touchFollower
     private float tFY;          //current y coordinate of touchFollower
@@ -103,9 +106,9 @@ public class LocationTwo {
     private Matrix matrixRotateCounterClockwise = new Matrix();
     private Boolean tFRotated = false;
 
-    private float velocityFactor = .95f; //Must be less than 1 or else road will advance exponentially.
-    private float distanceFactor = 0.75f;  //Must be less than 1 or else road will advance exponentially.
-    private float inertiaFactor = 0.95f; //Must be less than 1 or else road will advance exponentially.
+    private float velocityFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
+    private float distanceFactor = 1.0f;  //Must be <= 1 or else road will advance exponentially.
+    private float inertiaFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
 
     //Sound effects
     private SoundPool soundEffects;
@@ -141,9 +144,9 @@ public class LocationTwo {
         this.context = gS.getContext();
         //-----------------Initialize obstacles----------------------------------------------------
         cone = new Obstacles(context, (int) (sX * coneXScale), (int) (sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
-        downTree = new Obstacles(context, (int) (sX * downTreeXScale), (int) (sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, 0, backgroundWidth, backgroundHeight, false, false);
+        invincibility = new Obstacles(context, (int) (sX * invXScale), (int) (sY * invYScale), downTreeResId, maxNumInv, false, distBetweenInv, invXSpeed, invYSpeed, 0, backgroundWidth, backgroundHeight, false, false);
         truck = new Obstacles(context, (int) (sX * truckXScale), (int) (sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
-        crowd = new Obstacles(context, (int) (sX * crowdXScale), (int) (sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
+        crowd = new Obstacles(context, (int) (sX * crowdXScale), (int) (sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
         car = new Obstacles(context, (int) (sX * carXScale), (int) (sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
         homingOb = new Obstacles(context, (int) (sX * homingObXScale), (int) (sY * homingObYScale), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, 0.005f, backgroundWidth, backgroundHeight, true, false);
         extraLives = new Obstacles(context, (int) (sX * 62), (int) (sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false);
@@ -250,14 +253,24 @@ public class LocationTwo {
         if(tFY > backgroundHeight + tFYOffset){
             tFY = backgroundHeight + tFYOffset;
         }
+
+        if(invincible){
+            if(invCountdown > 0){
+                --invCountdown;
+            }
+            else {
+                invincible = false;
+                invCountdown = invTime;
+            }
+        }
     }
 
     public void updateObstacleSeparation() {
         float factor = (difficultly + 4f) / (difficultly + 5f);
         distBetweenCones *= factor;
         cone.setDistanceBetweenObstacles(distBetweenCones);
-        distBetweenDownTrees *= factor;
-        downTree.setDistanceBetweenObstacles(distBetweenDownTrees);
+        distBetweenInv *= factor;
+        invincibility.setDistanceBetweenObstacles(distBetweenInv);
         distBetweenTrucks *= factor;
         truck.setDistanceBetweenObstacles(distBetweenTrucks);
         distBetweenCones *= factor;
@@ -288,7 +301,7 @@ public class LocationTwo {
 //            footprints.drawObstacles(canvas, paint);
 
         cone.drawObstacles(canvas, paint);
-        downTree.drawObstacles(canvas, paint);
+        invincibility.drawObstacles(canvas, paint);
         crowd.drawObstacles(canvas, paint);
         car.drawObstacles(canvas, paint);
         homingOb.drawObstacles(canvas, paint);
@@ -296,7 +309,25 @@ public class LocationTwo {
         truck.drawObstacles(canvas, paint);
 
         //Draw touch follower.
-        canvas.drawBitmap(touchFollower, tFX, tFY, paint);
+        if(!invincible) {
+            canvas.drawBitmap(touchFollower, tFX, tFY, paint);
+        } else {
+            if(invCountdown > invTime / 4) {
+                if (invCountdown % 10 < 4) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(goodSoundId, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    canvas.drawBitmap(touchFollower, tFX, tFY, paint);
+                }
+            } else { //Speed up blinking because invincibility is almost gone.
+                if (invCountdown % 6 < 3) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(goodSoundId, 0.75f, 0.75f, 0, 0, 1);
+                    }
+                    canvas.drawBitmap(touchFollower, tFX, tFY, paint);
+                }
+            }
+        }
     }
 
     //--------------Check if an obstacle has run into touchFollower when no fingers are down (only necessary if friendly sprite triggers obstacles)-----------------------------
@@ -306,6 +337,7 @@ public class LocationTwo {
                 mA.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        gS.simulatedTouch = true;
                         gS.getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 1, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
 //                    mA.requestGameState(MainActivity.LOSE);
                     }
@@ -355,13 +387,21 @@ public class LocationTwo {
             if (!mA.musicMuted) {
                 soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
             }
+        } else if (invincibility.wasObstacleTouched(tFX, tFY, touchFollowerWidth, touchFollowerHeight, true, true, true, false)) {
+            if(!invincible) {
+                invincible = true;
+                if (!mA.musicMuted) {
+                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
+                } else {
+                    invCountdown = invTime;
+                }
+            }
         }
     }
 
     //---------------Update Obstacles---------------------------------------------------
     public void updateObs(float distance) {
         cone.updateObstacles(distance, true);
-        downTree.updateObstacles(distance, true);
         if (truck.updateObstacles(distance, true)) {
             if (!mA.musicMuted) {
                 soundEffects.play(truckHornId, 0.5f, 0.5f, 0, 0, 1);
@@ -376,6 +416,7 @@ public class LocationTwo {
         homingOb.updateObstacles(distance, true);
 
         if(gS.distanceMode) {
+            invincibility.updateObstacles(distance, true);
             extraLives.updateObstacles(distance, true);
         }
 
@@ -385,7 +426,7 @@ public class LocationTwo {
     //Move obstacles(any movement independent from the road).
     public void move(){
         cone.moveObstacles();
-        downTree.moveObstacles();
+        invincibility.moveObstacles();
         truck.moveObstacles();
         crowd.moveObstacles();
         car.moveObstacles();
@@ -395,194 +436,223 @@ public class LocationTwo {
 
     //--------------Check if an obstacle was touched-----------------------------
     public Boolean checkObstaclesTouched(boolean checkOnly) {
-        //First check if active finger is touching obstacle.
-//        if(!fingers.isEmpty()) {
-//            if (cone.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-//                return true;
-//            } else if (downTree.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-//                return true;
-//            } else if (truck.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-//                return true;
-//            } else if (crowd.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)) {
-//                return true;
-//            } else if (homingOb.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f, destroy)){
-//                return true;
-//            }
-//        }
+
+        if(checkOnly){
+            checkCollisions();
+        }
 
         //Now check if touch follower is touching an obstacle.
-        if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)) {//(activeFinger.x, activeFinger.y)) {
-            return true;
-        }else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)){
-            return true;
-        } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)){
-            return true;
+        if(!invincible) {
+            if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)) {//(activeFinger.x, activeFinger.y)) {
+                return true;
+            } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)) {//(activeFinger.x, activeFinger.y)) {
+                return true;
+            } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)) {//(activeFinger.x, activeFinger.y)) {
+                return true;
+            } else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)) {
+                return true;
+            } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly)) {
+                return true;
+            }
         } else {
-//            return false;
-//        }
+            if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
+                if (!mA.musicMuted) {
+                    soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                }
+                gS.collisionsWitnessed++;
+            } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
+                if (!mA.musicMuted) {
+                    soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                }
+                gS.collisionsWitnessed++;
+            } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
+                if (!mA.musicMuted) {
+                    soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                }
+                gS.collisionsWitnessed++;
+            } else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
+                if (!mA.musicMuted) {
+                    soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                }
+                gS.collisionsWitnessed++;
+            } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
+                if (!mA.musicMuted) {
+                    soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                }
+                gS.collisionsWitnessed++;
+            }
+        }
+        return false;
+    }
 
-            //Check if trucks have touched other obstacles.
-            for (int i = 0; i < maxNumTrucks; i++) {
-                if (truck.spawnTracker[i] == 1 || truck.spawnTracker[i] == 2) { //Truck should only destroy obstacles if it's moving.
-                    if (truck.speedArray[i][1] != 0) {
-                        if(cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false)) {
-                            if (!mA.musicMuted) {
-                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false)) {
-                            if (!mA.musicMuted) {
-                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            truck.hitObstacle(i, false, false);
-                            gS.collisionsWitnessed++;
-                        }
-                        if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if(truck.checkOverlap(i)) {
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false);
-                    }
-                }
-            }
-            //Check if cars have touched other obstacles.
-            for (int i = 0; i < maxNumCars; i++){
-                if (car.spawnTracker[i] == 1){
-                    if(car.speedArray[i][1] != 0){
-                        if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false)) {
-                            if (!mA.musicMuted) {
-                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false)) {
-                            if (!mA.musicMuted) {
-                                soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if(truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        if(car.checkOverlap(i)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            gS.collisionsWitnessed++;
-                        }
-                        extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false);
-                    }
-                }
-            }
-            for (int i = 0; i < maxNumCrowds; i++){
-                if (crowd.spawnTracker[i] == 1){
-                    if(crowd.speedArray[i][0] != 0 || crowd.speedArray[i][1] != 0){
-                        if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)){
-                            crowd.speedArray[i][0] *= -1;
-                            crowd.speedArray[i][1] *= -1;
-                            //collisionsWitnessed++; //Crowd can get stuck if a vehicle crashes and gets thrown on top of them.
-                        }
-                        if(car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)){
-                            crowd.speedArray[i][0] *= -1;
-                            crowd.speedArray[i][1] *= -1;
-                            gS.collisionsWitnessed++;
-                        }
-                        if(cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            crowd.speedArray[i][0] *= -1;
-                            crowd.speedArray[i][1] *= -1;
-                            gS.collisionsWitnessed++;
-                        }
-                        if(downTree.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)){
-                            if (!mA.musicMuted) {
-                                soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
-                            }
-                            crowd.speedArray[i][0] *= -1;
-                            crowd.speedArray[i][1] *= -1;
-                            gS.collisionsWitnessed++;
-                        }
-                    }
-                }
-            }for (int i = 0; i < homingObMaxNum; i++){
-                if (homingOb.spawnTracker[i] == 1){
-                    if(cone.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false)){
+    public void checkCollisions() {
+        //Check if trucks have touched other obstacles.
+        for (int i = 0; i < maxNumTrucks; i++) {
+            if (truck.spawnTracker[i] == 1 || truck.spawnTracker[i] == 2) { //Truck should only destroy obstacles if it's moving.
+                if (truck.speedArray[i][1] != 0) {
+                    if (cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)) {
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
                         }
-                        homingOb.speedArray[i][2] *= 0.95f;
-                        homingOb.speedArray[i][3] *= 0.95f;
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false)) {
+                    if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)) {
                         if (!mA.musicMuted) {
-                            soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                         }
-                        homingOb.speedArray[i][2] *= 0.95f;
-                        homingOb.speedArray[i][3] *= 0.95f;
                         gS.collisionsWitnessed++;
                     }
+                    if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    if (car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+//                        if(invincibility.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
+//                            if (!mA.musicMuted) {
+//                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
+//                            }
+//                            gS.collisionsWitnessed++;
+//                        }
+                    if (truck.checkOverlap(i)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    extraLives.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false);
                 }
             }
-            return false;
+        }
+        //Check if cars have touched other obstacles.
+        for (int i = 0; i < maxNumCars; i++) {
+            if (car.spawnTracker[i] == 1) {
+                if (car.speedArray[i][1] != 0) {
+                    if (cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    if (truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        car.hitObstacle(i, false, false);
+                        gS.collisionsWitnessed++;
+                    }
+//                        if(invincibility.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
+//                            if (!mA.musicMuted) {
+//                                soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
+//                            }
+//                            gS.collisionsWitnessed++;
+//                        }
+                    if (car.checkOverlap(i)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false);
+                }
+            }
+        }
+        for (int i = 0; i < maxNumCrowds; i++) {
+            if (crowd.spawnTracker[i] == 1) {
+                if (crowd.speedArray[i][0] != 0 || crowd.speedArray[i][1] != 0) {
+                    if (truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        crowd.hitObstacle(i, false, false);
+                        gS.collisionsWitnessed++;
+                    }
+                    if (car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        crowd.hitObstacle(i, false, false);
+                        gS.collisionsWitnessed++;
+                    }
+                    if (cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        crowd.speedArray[i][0] *= -1;
+                        crowd.speedArray[i][1] *= -1;
+                        gS.collisionsWitnessed++;
+                    }
+                    if (crowd.checkOverlap(i)) {
+                        if (!mA.musicMuted) {
+                            soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                        }
+                        gS.collisionsWitnessed++;
+                    }
+                    extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false);
+//                        if(invincibility.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)){
+//                            if (!mA.musicMuted) {
+//                                soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
+//                            }
+//                            crowd.speedArray[i][0] *= -1;
+//                            crowd.speedArray[i][1] *= -1;
+//                            gS.collisionsWitnessed++;
+//                        }
+                }
+            }
+        }
+        for (int i = 0; i < homingObMaxNum; i++) {
+            if (homingOb.spawnTracker[i] == 1) {
+                if (cone.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false)) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    homingOb.speedArray[i][2] *= 0.95f;
+                    homingOb.speedArray[i][3] *= 0.95f;
+                    gS.collisionsWitnessed++;
+                }
+//                    if(invincibility.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false)) {
+//                        if (!mA.musicMuted) {
+//                            soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
+//                        }
+//                        homingOb.speedArray[i][2] *= 0.95f;
+//                        homingOb.speedArray[i][3] *= 0.95f;
+//                        gS.collisionsWitnessed++;
+//                    }
+            }
         }
     }
 
+
     //--------------------------Reset obstacles------------------------------------------
     public void resetObstacles() {
-        distBetweenCones = 9500f;
-        distBetweenDownTrees = 4000f;
+        distBetweenCones = 7500f;
+        distBetweenInv = 15000f;
         distBetweenTrucks = 2500f;
-        distBetweenCrowds = 2500f;
-        distBetweenCars = 1500f;
+        distBetweenCrowds = 1500f;
+        distBetweenCars = 2500f;
         homingObDistBetween = 7500f;
         homingOb.setHomingSpeed(0.005f);
         //homingSpeed = 0.005f; //TODO: experiment with value
         cone.resetObstacles(distBetweenCones, backgroundWidth, backgroundHeight);
-        downTree.resetObstacles(distBetweenDownTrees, backgroundWidth, backgroundHeight);
+        invincibility.resetObstacles(distBetweenInv, backgroundWidth, backgroundHeight);
         truck.resetObstacles(distBetweenTrucks, backgroundWidth, backgroundHeight);
         crowd.resetObstacles(distBetweenCrowds, backgroundWidth, backgroundHeight);
         car.resetObstacles(distBetweenCars, backgroundWidth, backgroundHeight);
@@ -590,6 +660,9 @@ public class LocationTwo {
         toNextDiffIncrease = increaseDifficultyDistance;
         difficultly = 0;
         extraLives.resetObstacles(extraLivesDistBetween, backgroundWidth, backgroundHeight);
+
+        invincible = false;
+        invCountdown = invTime;
 
         //Reset touch follower to bottom middle of screen.
         if(tFRotated) {

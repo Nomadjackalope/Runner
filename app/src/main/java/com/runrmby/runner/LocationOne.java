@@ -307,6 +307,7 @@ public class LocationOne {
                 mA.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        gS.simulatedTouch = true;
                         gS.getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 1, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
 //                    mA.requestGameState(MainActivity.LOSE);
                     }

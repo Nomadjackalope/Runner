@@ -59,6 +59,7 @@ public class GameView extends SurfaceView implements Runnable {
     float courseDistance;
     float courseLeft;               //Distance left for the finish line to reach the bottom of the screen.
     float distRemaining;            //Distance left for touchFollower to reach the finish line.
+    public float yourDistance;
     Bitmap finishLine;
 
     float toNextDiffIncrease;
@@ -74,6 +75,8 @@ public class GameView extends SurfaceView implements Runnable {
     LocationTwo locationTwo;
     LocationThree locationThree;
     //-----------------------------------------------------------------------------------------
+
+    boolean simulatedTouch = false;
 
 //    private SensorManager sensorMan;
 //    private Sensor accelerometer;
@@ -251,7 +254,8 @@ public class GameView extends SurfaceView implements Runnable {
                     locationTwo.checkIfObstacleRanIntoTouchFollower(livesLeft);
                     break;
                 case 2:
-                    locationThree.checkCollisions();
+//                    locationThree.checkCollisions();
+                    locationThree.checkIfObstacleRanIntoTouchFollower(livesLeft);
                     break;
             }
             //---------------------------------------------------------------------------
@@ -338,6 +342,7 @@ public class GameView extends SurfaceView implements Runnable {
                     mA.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            simulatedTouch = true;
                             getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 1, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
                         }
                     });
@@ -375,7 +380,7 @@ public class GameView extends SurfaceView implements Runnable {
         mA.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(distanceMode == false) {
+                if(!distanceMode) {
                     gameTimer.changeTime(time);
 //                    mA.timer.setText(gameTimer.getTimeForDisplay());
                     mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
@@ -384,13 +389,16 @@ public class GameView extends SurfaceView implements Runnable {
 //                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY - touchFollowerHeight) + "\nLives: " + String.valueOf(livesLeft));
                     switch (locationState){
                         case 0:
-                            mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationOne.getTFY() - locationOne.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
+                            yourDistance = odometer + backgroundHeight - locationOne.getTFY() - locationOne.getTouchFollowerHeight();
+                            mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 1:
-                            mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationTwo.getTFY() - locationTwo.getTouchFollowerHeight()) + "\nLives: " + String.valueOf(livesLeft));
+                            yourDistance = odometer + backgroundHeight - locationTwo.getTFY() - locationTwo.getTouchFollowerHeight();
+                            mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 2:
-                            mA.timer.setText(String.format("%.1f", odometer + backgroundHeight - locationThree.getTouchDownY() + locationThree.getFootprintHeight()/2) + "\nLives: " + String.valueOf(livesLeft));
+                            yourDistance = odometer + backgroundHeight - locationThree.getTouchDownY() + locationThree.getFootprintHeight()/2;
+                            mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                     }
                 }
@@ -415,7 +423,7 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(background, 0, backgroundPositionY2, paint);
 
             //Draw finish line.
-            if(distanceMode == false) {
+            if(!distanceMode) {
                 if (courseLeft < backgroundHeight) {   //Don't check using distRemaining because that can vary without the road advancing.
                     canvas.drawBitmap(finishLine, -5f, backgroundHeight - courseLeft - finishLine.getHeight(), paint);
                 }
@@ -468,29 +476,33 @@ public class GameView extends SurfaceView implements Runnable {
                     previousTime = System.currentTimeMillis();
                 }
 
-                activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
-                fingers.add(event.getPointerId(0));
+                if(!simulatedTouch) {
+                    activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
+                    fingers.add(event.getPointerId(0));
 
 //                touchDownY = activeFinger.y;
 //                touchDownX = activeFinger.x;
-                switch (locationState){
-                    case 0:
-                        locationOne.setTouchDownX(activeFinger.x);
-                        locationOne.setTouchDownY(activeFinger.y);
-                        break;
-                    case 1:
-                        locationTwo.setTouchDownX(activeFinger.x);
-                        locationTwo.setTouchDownY(activeFinger.y);
-                        break;
-                    case 2:
-                        locationThree.setTouchDownX(activeFinger.x);
-                        locationThree.setTouchDownY(activeFinger.y);
-                        locationThree.spawnFootprint();
-                        break;
+                    switch (locationState) {
+                        case 0:
+                            locationOne.setTouchDownX(activeFinger.x);
+                            locationOne.setTouchDownY(activeFinger.y);
+                            break;
+                        case 1:
+                            locationTwo.setTouchDownX(activeFinger.x);
+                            locationTwo.setTouchDownY(activeFinger.y);
+                            break;
+                        case 2:
+                            locationThree.setTouchDownX(activeFinger.x);
+                            locationThree.setTouchDownY(activeFinger.y);
+                            locationThree.spawnFootprint();
+                            break;
+                    }
+                } else{
+                    simulatedTouch = false;
                 }
 
                 //Check if finish line has been reached.
-                if(distanceMode == false) {
+                if(!distanceMode) {
                     if (distRemaining <= 0) {//odometer > courseDistance){
                         mA.setGameState(MainActivity.GAME_WON);
                     }
@@ -580,8 +592,8 @@ public class GameView extends SurfaceView implements Runnable {
                         break;
                     case 2:
 //                        locationThree.checkCollisions();
-                        locationThree.setTouchDownX(activeFinger.x);
-                        locationThree.setTouchDownY(activeFinger.y);
+//                        locationThree.setTouchDownX(activeFinger.x);
+//                        locationThree.setTouchDownY(activeFinger.y);
                         locationThree.checkIfObstacleWasTouched(livesLeft);
                         break;
                 }
@@ -645,7 +657,7 @@ public class GameView extends SurfaceView implements Runnable {
                 velocity = distance * locationOne.getInertiaFactor();
                 //Reduce distance by factor.
                 distance *= locationOne.getDistanceFactor();
-                //Update touchFollowerer and obstacles.
+                //Update touchFollower and obstacles.
                 locationOne.updateTouchDownY(distance);
                 locationOne.updateTFY(distance);
                 locationOne.updateObs(distance);
@@ -897,6 +909,7 @@ public class GameView extends SurfaceView implements Runnable {
         distRemaining = courseDistance;
         toNextDiffIncrease = difficultyIncreaseSeparation;
 
+        yourDistance = 0f;
 
         if(!distanceMode){
             livesLeft = 0;
@@ -905,6 +918,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
         collisionsWitnessed = 0;
 
+        simulatedTouch = false;
 
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
