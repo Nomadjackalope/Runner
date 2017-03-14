@@ -151,8 +151,8 @@ public class LocationTwo {
         homingOb = new Obstacles(context, (int) (sX * homingObXScale), (int) (sY * homingObYScale), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, 0.005f, backgroundWidth, backgroundHeight, true, false);
         extraLives = new Obstacles(context, (int) (sX * 62), (int) (sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false);
 
-        //Initialize footprints
-//        footprints = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
+        //Initialize fpMode
+//        fpMode = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
 
         //Initialize touch follower.
         touchFollowerHeight = (int) (sY * tFYScale);
@@ -298,7 +298,7 @@ public class LocationTwo {
 
     //---------------------Draw obstacles---------------------------------------------
     public void draw(Canvas canvas, Paint paint) {
-//            footprints.drawObstacles(canvas, paint);
+//            fpMode.drawObstacles(canvas, paint);
 
         cone.drawObstacles(canvas, paint);
         invincibility.drawObstacles(canvas, paint);
@@ -420,7 +420,7 @@ public class LocationTwo {
             extraLives.updateObstacles(distance, true);
         }
 
-//        footprints.updateObstacles(distance, false);
+//        fpMode.updateObstacles(distance, false);
     }
 
     //Move obstacles(any movement independent from the road).
@@ -467,7 +467,7 @@ public class LocationTwo {
                 gS.collisionsWitnessed++;
             } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
                 if (!mA.musicMuted) {
-                    soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                    soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                 }
                 gS.collisionsWitnessed++;
             } else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), false, true, false, false)) {
@@ -556,7 +556,7 @@ public class LocationTwo {
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                         }
-                        car.hitObstacle(i, false, false);
+                        car.hitObstacle(i, false, false, false);
                         gS.collisionsWitnessed++;
                     }
 //                        if(invincibility.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
@@ -582,14 +582,14 @@ public class LocationTwo {
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                         }
-                        crowd.hitObstacle(i, false, false);
+                        crowd.hitObstacle(i, false, false, false);
                         gS.collisionsWitnessed++;
                     }
                     if (car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)) {
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                         }
-                        crowd.hitObstacle(i, false, false);
+                        crowd.hitObstacle(i, false, false, false);
                         gS.collisionsWitnessed++;
                     }
                     if (cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)) {

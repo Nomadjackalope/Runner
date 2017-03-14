@@ -137,33 +137,6 @@
         android:id="@+id/mainMenu"
         android:visibility="gone">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Options"
-            android:id="@+id/settingsButton"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="50dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Marathon Mode"
-            android:id="@+id/playDistanceModeButton"
-            android:layout_above="@id/settingsButton"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="25dp"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Timed Mode"
-            android:id="@+id/playButton"
-            android:layout_above="@id/playDistanceModeButton"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="25dp"/>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -174,39 +147,111 @@
             android:layout_alignParentTop="true"
             android:layout_marginTop="75dp" />
 
-        <Button
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Next Location"
-            android:id="@+id/nextLocationButton"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginEnd="20dp"
-            android:layout_marginRight="20dp" />
+            android:id="@+id/menuPlaceholder"
+            android:layout_centerInParent="true"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Previous Location"
+            android:id="@+id/nextLocationButton"
+            android:text="@string/nextLocation"
+            android:layout_alignTop="@+id/menuPlaceholder"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/previousLocationButton"
-            android:layout_centerVertical="true"
+            android:text="@string/previousLocation"
+            android:layout_alignTop="@+id/menuPlaceholder"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginLeft="20dp"
-            android:visibility="gone"/>
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:visibility="invisible"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playButton"
+            android:text="Time Trial"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/nextLocationButton"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Marathon"
+            android:id="@+id/playDistanceModeButton"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/playButton"
+            android:layout_marginTop="25dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Options"
+            android:id="@+id/settingsButton"
+            android:layout_below="@+id/playDistanceModeButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/lockedMessage"
+            android:id="@+id/boxTextView"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/menuPlaceholder"
+            android:layout_alignStart="@+id/previousLocationButton"
+            android:layout_alignLeft="@+id/previousLocationButton"
+            android:layout_alignEnd="@+id/nextLocationButton"
+            android:layout_alignRight="@+id/nextLocationButton"
+            android:layout_alignBottom="@+id/settingsButton"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/menuText"
             android:text="@string/loc0"
-            android:background="@color/colorPrimary"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_centerHorizontal="true"
-            android:layout_above="@id/playButton"
-            android:layout_marginBottom="25dp"/>
+            android:textAlignment="center"
+            android:gravity="top"
+            android:layout_alignTop="@+id/menuPlaceholder"
+            android:layout_toRightOf="@+id/previousLocationButton"
+            android:layout_toLeftOf="@+id/nextLocationButton"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:id="@+id/menuBestTimeText"
+            android:text="Best Time: 1:23:45"
+            android:textAlignment="center"
+            android:layout_alignStart="@+id/boxTextView"
+            android:layout_alignLeft="@+id/boxTextView"
+            android:layout_alignEnd="@+id/boxTextView"
+            android:layout_alignRight="@+id/boxTextView"
+            android:layout_below="@+id/playButton"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:id="@+id/menuDistanceText"
+            android:text="Longest Run: 12345"
+            android:textAlignment="center"
+            android:layout_alignStart="@+id/boxTextView"
+            android:layout_alignLeft="@+id/boxTextView"
+            android:layout_alignEnd="@+id/boxTextView"
+            android:layout_alignRight="@+id/boxTextView"
+            android:layout_below="@+id/playDistanceModeButton"
+            android:layout_centerHorizontal="true"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -290,7 +335,7 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="Whistle Music\n(300 XP)"
+            android:textOff="Whistle Music\n(1000 XP)"
             android:textOn="Original Music"
             android:checked="false"
             android:enabled="false"
@@ -302,7 +347,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reset Records"
+            android:text="Reset Game"
             android:id="@+id/resetButton"
             android:layout_above="@id/whistleMusicButton"
             android:layout_centerHorizontal="true"
@@ -335,6 +380,18 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="75dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settingsTextView"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/creditsButton"
+            android:layout_alignStart="@+id/exitSettingsButton"
+            android:layout_alignLeft="@+id/exitSettingsButton"
+            android:layout_alignEnd="@+id/exitSettingsButton"
+            android:layout_alignRight="@+id/exitSettingsButton"
+            android:layout_alignBottom="@+id/exitSettingsButton"/>
 
     </RelativeLayout>
 

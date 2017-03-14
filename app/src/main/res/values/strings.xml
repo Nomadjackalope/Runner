@@ -21,12 +21,15 @@
     <string name="win2">Woot woot! A new high score!</string>
     <string name="win3">That was an alright run.</string>
 
-    <string name="loc0">Out For A Run</string>
-    <string name="loc1">Crazy Road</string>
-    <string name="loc2">Giant Steps</string>
+    <string name="loc0">Level 0:\nWarm-Ups</string>
+    <string name="loc1">Level 1:\nBackroads</string>
+    <string name="loc2">Level 2:\nThe Highway</string>
+    <string name="loc3">Level 3:\nThe Eitherway</string>
 
+    <string name="nextLocation">&gt;</string>
+    <string name="previousLocation">&lt;</string>
     <string name="locationUnlocked">You unlocked a new location!</string>
 
-    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nBenjamin Gordon and Mark Horton\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nFont:\nPixellari by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
+    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nBenjamin Gordon and Mark Horton\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
     
 </resources>

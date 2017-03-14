@@ -71,7 +71,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     int livesLeft;
     int collisionsWitnessed;
-    LocationOne locationOne;
+    LocationNoObstacles locationNoObstacles;
     LocationTwo locationTwo;
     LocationThree locationThree;
     //-----------------------------------------------------------------------------------------
@@ -120,20 +120,20 @@ public class GameView extends SurfaceView implements Runnable {
 
 //        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.road2, ops);
         //TODO: should initialize a location only when needed, but it takes a while so doing both here because there's only two at the moment.
-        locationOne = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
-        locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
-        locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+//        locationNoObstacles = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+//        locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+//        locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
         switch (mA.locationState){
             case 0:
-//                locationOne = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
-                background = BitmapFactory.decodeResource(this.getResources(), locationOne.getBackgroundResId(), ops);
+                locationNoObstacles = new LocationNoObstacles(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                background = BitmapFactory.decodeResource(this.getResources(), locationNoObstacles.getBackgroundResId(), ops);
                 break;
             case 1:
-//                locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                locationTwo = new LocationTwo(mA, this, sX, sY, backgroundWidth, backgroundHeight);
                 background = BitmapFactory.decodeResource(this.getResources(), locationTwo.getBackgroundResId(), ops);
                 break;
             case 2:
-//                locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                locationThree = new LocationThree(mA, this, sX, sY, backgroundWidth, backgroundHeight);
                 background = BitmapFactory.decodeResource(this.getResources(), locationThree.getBackgroundResId(), ops);
                 break;
         }
@@ -233,7 +233,7 @@ public class GameView extends SurfaceView implements Runnable {
 
                 switch (locationState){
                     case 0:
-                        velocity *= locationOne.getVelocityFactor();
+                        velocity *= locationNoObstacles.getVelocityFactor();
                         break;
                     case 1:
                         velocity *= locationTwo.getVelocityFactor();
@@ -248,7 +248,7 @@ public class GameView extends SurfaceView implements Runnable {
             //--------------Check if an obstacle has run into touchFollower when no fingers are down-----------------------------
             switch (locationState){
                 case 0:
-                    locationOne.checkIfObstacleRanIntoTouchFollower(livesLeft);
+                    locationNoObstacles.checkIfObstacleRanIntoTouchFollower(livesLeft);
                     break;
                 case 1:
                     locationTwo.checkIfObstacleRanIntoTouchFollower(livesLeft);
@@ -277,7 +277,7 @@ public class GameView extends SurfaceView implements Runnable {
             //...but then you could possibly cheat the timer by pausing right after the start of a big move.-------------------------------
             switch (locationState){
                 case 0:
-                    locationOne.updateTouchFollower();
+                    locationNoObstacles.updateTouchFollower();
                     break;
                 case 1:
                     locationTwo.updateTouchFollower();
@@ -288,7 +288,7 @@ public class GameView extends SurfaceView implements Runnable {
             }
             switch (locationState){
                 case 0:
-                    locationOne.updateHomingObstacle();
+                    locationNoObstacles.updateHomingObstacle();
                     break;
                 case 1:
                     locationTwo.updateHomingObstacle();
@@ -302,7 +302,7 @@ public class GameView extends SurfaceView implements Runnable {
             //For the touchFollower crossing the finish line to trigger course completion, use the following:
             switch (locationState){
                 case 0:
-                    distRemaining = courseLeft - backgroundHeight + locationOne.getTFY() + locationOne.getTouchFollowerHeight();
+                    distRemaining = courseLeft - backgroundHeight + locationNoObstacles.getTFY() + locationNoObstacles.getTouchFollowerHeight();
                     break;
                 case 1:
                     distRemaining = courseLeft - backgroundHeight + locationTwo.getTFY() + locationTwo.getTouchFollowerHeight();
@@ -319,7 +319,7 @@ public class GameView extends SurfaceView implements Runnable {
                     difficultly++;
                     switch (locationState){
                         case 0:
-                            locationOne.updateObstacleSeparation();
+                            locationNoObstacles.updateObstacleSeparation();
                             break;
                         case 1:
                             locationTwo.updateObstacleSeparation();
@@ -352,7 +352,7 @@ public class GameView extends SurfaceView implements Runnable {
             //------Move obstacles(any movement independent from the road).-----
             switch (locationState){
                 case 0:
-                    locationOne.move();
+                    locationNoObstacles.move();
                     break;
                 case 1:
                     locationTwo.move();
@@ -389,7 +389,7 @@ public class GameView extends SurfaceView implements Runnable {
 //                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY - touchFollowerHeight) + "\nLives: " + String.valueOf(livesLeft));
                     switch (locationState){
                         case 0:
-                            yourDistance = odometer + backgroundHeight - locationOne.getTFY() - locationOne.getTouchFollowerHeight();
+                            yourDistance = odometer + backgroundHeight - locationNoObstacles.getTFY() - locationNoObstacles.getTouchFollowerHeight();
                             mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 1:
@@ -432,7 +432,7 @@ public class GameView extends SurfaceView implements Runnable {
             //---------------------Draw obstacles---------------------------------------------
             switch (locationState){
                 case 0:
-                    locationOne.draw(canvas, paint);
+                    locationNoObstacles.draw(canvas, paint);
                     break;
                 case 1:
                     locationTwo.draw(canvas, paint);
@@ -484,8 +484,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                touchDownX = activeFinger.x;
                     switch (locationState) {
                         case 0:
-                            locationOne.setTouchDownX(activeFinger.x);
-                            locationOne.setTouchDownY(activeFinger.y);
+                            locationNoObstacles.setTouchDownX(activeFinger.x);
+                            locationNoObstacles.setTouchDownY(activeFinger.y);
                             break;
                         case 1:
                             locationTwo.setTouchDownX(activeFinger.x);
@@ -494,7 +494,7 @@ public class GameView extends SurfaceView implements Runnable {
                         case 2:
                             locationThree.setTouchDownX(activeFinger.x);
                             locationThree.setTouchDownY(activeFinger.y);
-                            locationThree.spawnFootprint();
+//                            locationThree.spawnFootprint();
                             break;
                     }
                 } else{
@@ -508,12 +508,12 @@ public class GameView extends SurfaceView implements Runnable {
                     }
                 }
 
-//                footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
+//                fpMode.spawnObstacle(0f, touchDownX - fpMode.getObstacleWidth()/2, touchDownY - fpMode.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
 
                 //--------------Check if an obstacle has been touched-----------------------------
                 switch (locationState){
                     case 0:
-                        locationOne.checkIfObstacleWasTouched(livesLeft);
+                        locationNoObstacles.checkIfObstacleWasTouched(livesLeft);
                         break;
                     case 1:
                         locationTwo.checkIfObstacleWasTouched(livesLeft);
@@ -538,8 +538,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                        touchDownX = activeFinger.x;
                         switch (locationState){
                             case 0:
-                                locationOne.setTouchDownX(activeFinger.x);
-                                locationOne.setTouchDownY(activeFinger.y);
+                                locationNoObstacles.setTouchDownX(activeFinger.x);
+                                locationNoObstacles.setTouchDownY(activeFinger.y);
                                 break;
                             case 1:
                                 locationTwo.setTouchDownX(activeFinger.x);
@@ -548,17 +548,17 @@ public class GameView extends SurfaceView implements Runnable {
                             case 2:
                                 locationThree.setTouchDownX(activeFinger.x);
                                 locationThree.setTouchDownY(activeFinger.y);
-                                locationThree.spawnFootprint();
+//                                locationThree.spawnFootprint();
                                 break;
                         }
 
-//                        footprints.spawnObstacle(0f, touchDownX - footprints.getObstacleWidth()/2, touchDownY - footprints.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
+//                        fpMode.spawnObstacle(0f, touchDownX - fpMode.getObstacleWidth()/2, touchDownY - fpMode.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
                     }
 
                     //--------------Check if an obstacle has been touched-----------------------------
                     switch (locationState){
                         case 0:
-                            locationOne.checkIfObstacleWasTouched(livesLeft);
+                            locationNoObstacles.checkIfObstacleWasTouched(livesLeft);
                             break;
                         case 1:
                             locationTwo.checkIfObstacleWasTouched(livesLeft);
@@ -585,7 +585,7 @@ public class GameView extends SurfaceView implements Runnable {
                 //--------------Check if an obstacle has been touched-----------------------------
                 switch (locationState){
                     case 0:
-                        locationOne.checkIfObstacleWasTouched(livesLeft);
+                        locationNoObstacles.checkIfObstacleWasTouched(livesLeft);
                         break;
                     case 1:
                         locationTwo.checkIfObstacleWasTouched(livesLeft);
@@ -629,7 +629,7 @@ public class GameView extends SurfaceView implements Runnable {
     void addToFingerMoveDist(float dist) {
         switch (locationState){
             case 0:
-                dist *= locationOne.getDistanceFactor();
+                dist *= locationNoObstacles.getDistanceFactor();
                 break;
             case 1:
                 dist *= locationTwo.getDistanceFactor();
@@ -654,13 +654,13 @@ public class GameView extends SurfaceView implements Runnable {
         switch (locationState){
             case 0:
                 //Reduce velocity by factor.
-                velocity = distance * locationOne.getInertiaFactor();
+                velocity = distance * locationNoObstacles.getInertiaFactor();
                 //Reduce distance by factor.
-                distance *= locationOne.getDistanceFactor();
+                distance *= locationNoObstacles.getDistanceFactor();
                 //Update touchFollower and obstacles.
-                locationOne.updateTouchDownY(distance);
-                locationOne.updateTFY(distance);
-                locationOne.updateObs(distance);
+                locationNoObstacles.updateTouchDownY(distance);
+                locationNoObstacles.updateTFY(distance);
+                locationNoObstacles.updateObs(distance);
                 break;
             case 1:
                 //Reduce velocity by factor.
@@ -727,8 +727,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                // do something
 //                switch (locationState){
 //                    case 0:
-//                        if(locationOne.getTouchDownX() > 0 && locationOne.getTouchDownX() < windowSize.x) {
-//                            locationOne.updateTouchDownX(x);
+//                        if(locationNoObstacles.getTouchDownX() > 0 && locationNoObstacles.getTouchDownX() < windowSize.x) {
+//                            locationNoObstacles.updateTouchDownX(x);
 //                        }
 //                        break;
 //                    case 1:
@@ -771,20 +771,26 @@ public class GameView extends SurfaceView implements Runnable {
         playing = false;
 
         //Release audio. TODO: change to switch if only one location is initialized at a time.
-        locationOne.releaseAudio();
-        locationTwo.releaseAudio();
-        locationThree.releaseAudio();
-//        switch (locationState){
-//            case 0:
-//                locationOne.releaseAudio();
-//                break;
-//            case 1:
-//                locationTwo.releaseAudio();
-//                break;
-//            case 2:
-//                locationThree.releaseAudio();
-//                break;
-//        }
+//        locationNoObstacles.releaseAudio();
+//        locationTwo.releaseAudio();
+//        locationThree.releaseAudio();
+        switch (locationState){
+            case 0:
+                if(locationNoObstacles != null) {
+                    locationNoObstacles.releaseAudio();
+                }
+                break;
+            case 1:
+                if(locationTwo != null) {
+                    locationTwo.releaseAudio();
+                }
+                break;
+            case 2:
+                if(locationThree != null) {
+                    locationThree.releaseAudio();
+                }
+                break;
+        }
 
 //        sensorMan.unregisterListener(this);
 
@@ -803,20 +809,26 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread.start();
 
         //Set audio. TODO: change to switch if only one location is initialized at a time.
-        locationOne.setAudio();
-        locationTwo.setAudio();
-        locationThree.setAudio();
-//        switch (locationState){
-//            case 0:
-//                locationOne.setAudio();
-//                break;
-//            case 1:
-//                locationTwo.setAudio();
-//                break;
-//            case 2:
-//                locationThree.setAudio();
-//                break;
-//        }
+//        locationNoObstacles.setAudio();
+//        locationTwo.setAudio();
+//        locationThree.setAudio();
+        switch (locationState){
+            case 0:
+                if(locationNoObstacles != null) {
+                    locationNoObstacles.setAudio();
+                }
+                break;
+            case 1:
+                if(locationTwo != null) {
+                    locationTwo.setAudio();
+                }
+                break;
+            case 2:
+                if(locationThree != null) {
+                    locationThree.setAudio();
+                }
+                break;
+        }
 
 //        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
@@ -848,23 +860,31 @@ public class GameView extends SurfaceView implements Runnable {
 
         switch (mA.locationState){
             case 0:
-                if(locationOne == null){
-                    locationOne = new LocationOne(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                if(locationNoObstacles == null){
+                    locationNoObstacles = new LocationNoObstacles(mA, this, sX, sY, backgroundWidth, backgroundHeight);
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
-//                    locationTwo.releaseAudio();
-//                    locationTwo = null;
-//                    locationThree.releaseAudio();
-//                    locationThree = null;
-                    background = BitmapFactory.decodeResource(this.getResources(), locationOne.getBackgroundResId(), ops);
+                    if(locationTwo != null) {
+                        locationTwo.releaseAudio();
+                        locationTwo = null;
+                    }
+                    if(locationThree != null) {
+                        locationThree.releaseAudio();
+                        locationThree = null;
+                    }
+                    background = BitmapFactory.decodeResource(this.getResources(), locationNoObstacles.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }
-                courseDistance = locationOne.getCourseDistance();
-                difficultyIncreaseSeparation = locationOne.getIncreaseDifficultyDistance();
-                locationOne.setBackgroundWidth(backgroundWidth);
-                locationOne.setBackgroundHeight(backgroundHeight);
-                locationOne.resetObstacles();
+
+//                locationNoObstacles.setTimeTrial2Flag(mA.timeTrial2Flag);
+                locationNoObstacles.setFpMode(mA.timeTrial2Flag);
+
+                courseDistance = locationNoObstacles.getCourseDistance();
+                difficultyIncreaseSeparation = locationNoObstacles.getIncreaseDifficultyDistance();
+                locationNoObstacles.setBackgroundWidth(backgroundWidth);
+                locationNoObstacles.setBackgroundHeight(backgroundHeight);
+                locationNoObstacles.resetObstacles();
                 break;
             case 1:
                 if(locationTwo == null){
@@ -872,10 +892,14 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
-//                    locationOne.releaseAudio();
-//                    locationOne = null;
-//                    locationThree.releaseAudio();
-//                    locationThree = null;
+                    if(locationNoObstacles != null) {
+                        locationNoObstacles.releaseAudio();
+                        locationNoObstacles = null;
+                    }
+                    if(locationThree != null) {
+                        locationThree.releaseAudio();
+                        locationThree = null;
+                    }
                     background = BitmapFactory.decodeResource(this.getResources(), locationTwo.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }
@@ -891,10 +915,14 @@ public class GameView extends SurfaceView implements Runnable {
                 }
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
-//                    locationOne.releaseAudio();
-//                    locationOne = null;
-//                    locationTwo.releaseAudio();
-//                    locationTwo = null;
+                    if(locationNoObstacles != null) {
+                        locationNoObstacles.releaseAudio();
+                        locationNoObstacles = null;
+                    }
+                    if(locationTwo != null) {
+                        locationTwo.releaseAudio();
+                        locationTwo = null;
+                    }
                     background = BitmapFactory.decodeResource(this.getResources(), locationThree.getBackgroundResId(), ops);
                     setBackgroundSizePos(windowSize);
                 }

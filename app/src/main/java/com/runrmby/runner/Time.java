@@ -20,7 +20,7 @@ public class Time {
         this.minutes = 0;
         this.seconds = 0;
         this.milliseconds = 0;
-        this.timeForDisplay = "0:00:00";
+        this.timeForDisplay = "0:00:000";
     }
 
     public long getTime(){

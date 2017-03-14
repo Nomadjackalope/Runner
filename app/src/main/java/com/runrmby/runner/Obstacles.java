@@ -52,19 +52,22 @@ public class Obstacles {
 
     int[] orientationArray;
 
-    static final int blinkTime = 10;
+    int blinkTime = 10;
     int blinkOnCountDown = blinkTime;
     int blinkOffCountDown = blinkTime;
-    static final int blinkCyclesToDisappear = 6;
+    static int blinkCyclesToDisappear = 6;
     int[] blinkCyclesToDisappearArray;
 
     Matrix matrix;
+
+    Context context;
 
     /**
      * @param randomize allows certain parameters to have variation.
      * //TODO: add two more columns to coordinates array to keep track of horizontal and vertical speed for individual obstacles so that randomizing doesn't affect spawned obstacles, even though that's kind of fun.
      */
     public Obstacles(Context context, int scaleX, int scaleY, int obstacleImageResID, int maxNumberOfObstacles, Boolean respawnWithMax, float distanceBetweenObstacles, float horizontalSpeed, float verticalSpeed, float homingSpeed, int windowWidth, int windowHeight, Boolean randomize, boolean directional){
+        this.context = context;
         this.obstacleImage = BitmapFactory.decodeResource(context.getResources(), obstacleImageResID, null);
         this.obstacleImage = Bitmap.createScaledBitmap(this.obstacleImage, scaleX, scaleY, true);
         this.maxNumberOfObstacles = maxNumberOfObstacles;
@@ -191,7 +194,7 @@ public class Obstacles {
         blinkCyclesToDisappearArray[obsIndex] = blinkCyclesToDisappear;
     }
 
-    public boolean hitObstacle(int obsIndex, boolean isTF, boolean trigger){
+    public boolean hitObstacle(int obsIndex, boolean isTF, boolean trigger, boolean move){
         switch (spawnTracker[obsIndex]){
             case DESTROYED:
                 return false;
@@ -225,10 +228,12 @@ public class Obstacles {
             } else {
                 orientationArray[obsIndex]++;
             }
-            if(random.nextBoolean()){
-                coordinatesArray[obsIndex][0] += (float)obstacleWidth;
-            } else {
-                coordinatesArray[obsIndex][0] -= (float)obstacleWidth;
+            if(move) {
+                if (random.nextBoolean()) {
+                    coordinatesArray[obsIndex][0] += (float) obstacleWidth;
+                } else {
+                    coordinatesArray[obsIndex][0] -= (float) obstacleWidth;
+                }
             }
         }
         return true;
@@ -306,7 +311,7 @@ public class Obstacles {
                             destroyObstacle(i);
                             return true;
                         } else {
-                            return hitObstacle(i, isTF, trigger);
+                            return hitObstacle(i, isTF, trigger, true);
                         }
                     }
                 } else {    //object rotated so width & height flipped.
@@ -319,7 +324,7 @@ public class Obstacles {
                             destroyObstacle(i);
                             return true;
                         } else {
-                            return hitObstacle(i, isTF, trigger);
+                            return hitObstacle(i, isTF, trigger, true);
                         }
                     }
                 }
@@ -338,29 +343,29 @@ public class Obstacles {
                         if (orientationArray[i] % 2 == 0 && orientationArray[j] % 2 == 0) {
                             if (coordinatesArray[i][0] + obstacleWidth > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleWidth
                                     && coordinatesArray[i][1] + obstacleHeight > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleHeight) {
-                                hitObstacle(i, false, false);
-                                hitObstacle(j, false, false);
+                                hitObstacle(i, false, false, false);
+                                hitObstacle(j, false, false, true);
                                 return true;
                             }
                         } else if (orientationArray[i] % 2 == 1 && orientationArray[j] % 2 == 0) {
                             if (coordinatesArray[i][0] + obstacleHeight > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleWidth
                                     && coordinatesArray[i][1] + obstacleWidth > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleHeight) {
-                                hitObstacle(i, false, false);
-                                hitObstacle(j, false, false);
+                                hitObstacle(i, false, false, false);
+                                hitObstacle(j, false, false, true);
                                 return true;
                             }
                         } else if (orientationArray[i] % 2 == 0 && orientationArray[j] % 2 == 1) {
                             if (coordinatesArray[i][0] + obstacleWidth > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleHeight
                                     && coordinatesArray[i][1] + obstacleHeight > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleWidth) {
-                                hitObstacle(i, false, false);
-                                hitObstacle(j, false, false);
+                                hitObstacle(i, false, false, false);
+                                hitObstacle(j, false, false, true);
                                 return true;
                             }
                         } else {
                             if (coordinatesArray[i][0] + obstacleHeight > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleHeight
                                     && coordinatesArray[i][1] + obstacleWidth > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleWidth) {
-                                hitObstacle(i, false, false);
-                                hitObstacle(j, false, false);
+                                hitObstacle(i, false, false, false);
+                                hitObstacle(j, false, false, true);
                                 return true;
                             }
                         }
@@ -410,6 +415,21 @@ public class Obstacles {
 
     public void setDistanceBetweenObstacles(float d){
         this.distanceBetweenObstacles = d;
+    }
+
+    public void setRotatedObsImage(int resID, int scaleX, int scaleY){
+        this.rotatedObsImage = BitmapFactory.decodeResource(context.getResources(), resID, null);
+        this.rotatedObsImage = Bitmap.createScaledBitmap(this.rotatedObsImage, scaleX, scaleY, true);
+    }
+
+//    public void setRotatedObsImage2(int resID, int scaleX, int scaleY){
+//        this.rotatedObsImage2 = BitmapFactory.decodeResource(context.getResources(), resID, null);
+//        this.rotatedObsImage2 = Bitmap.createScaledBitmap(this.rotatedObsImage2, scaleX, scaleY, true);
+//    }
+
+    public void setBlink(int count, int cycles){
+        this.blinkTime = count;
+        this.blinkCyclesToDisappear = cycles;
     }
 }
 
