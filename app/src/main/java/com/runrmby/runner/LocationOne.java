@@ -141,13 +141,13 @@ public class LocationOne {
         this.context = gS.getContext();
 
         //-----------------Initialize obstacles----------------------------------------------------
-        cone = new Obstacles(context, (int) (sX * coneXScale), (int) (sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
-        downTree = new Obstacles(context, (int) (sX * downTreeXScale), (int) (sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, 0, backgroundWidth, backgroundHeight, false, false);
-        truck = new Obstacles(context, (int) (sX * truckXScale), (int) (sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
-        crowd = new Obstacles(context, (int) (sX * crowdXScale), (int) (sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, false);
-        car = new Obstacles(context, (int) (sX * carXScale), (int) (sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, 0, backgroundWidth, backgroundHeight, true, true);
-        homingOb = new Obstacles(context, (int) (sX * homingObXScale), (int) (sY * homingObYScale), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, 0.005f, backgroundWidth, backgroundHeight, true, false);
-        extraLives = new Obstacles(context, (int) (sX * 62), (int) (sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false);
+        cone = new Obstacles(context, (int) (sX * coneXScale), (int) (sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
+        downTree = new Obstacles(context, (int) (sX * downTreeXScale), (int) (sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, 0, backgroundWidth, backgroundHeight, false, false, false);
+        truck = new Obstacles(context, (int) (sX * truckXScale), (int) (sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, 0, backgroundWidth, backgroundHeight, true, true, false);
+        crowd = new Obstacles(context, (int) (sX * crowdXScale), (int) (sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
+        car = new Obstacles(context, (int) (sX * carXScale), (int) (sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, 0, backgroundWidth, backgroundHeight, true, true, false);
+        homingOb = new Obstacles(context, (int) (sX * homingObXScale), (int) (sY * homingObYScale), homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, 0.005f, backgroundWidth, backgroundHeight, true, false, false);
+        extraLives = new Obstacles(context, (int) (sX * 62), (int) (sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
 
         //Initialize fpMode
 //        fpMode = new Obstacles(this.getContext(), (int)(sX * 50), (int)(sY * 50), footprintsImageResId, footprintsDMaxNumObs, true, footprintsDDistBetweenObs, footprintsDHorizontalSpeed, footprintsDVerticalSpeed, backgroundWidth, backgroundHeight, false, false);
@@ -285,19 +285,19 @@ public class LocationOne {
     }
 
     //---------------------Draw obstacles---------------------------------------------
-    public void draw(Canvas canvas, Paint paint) {
+    public void draw(Canvas canvas, Paint paint, float interpolation, float velocity) {
 //            fpMode.drawObstacles(canvas, paint);
 
-        cone.drawObstacles(canvas, paint);
-        downTree.drawObstacles(canvas, paint);
-        crowd.drawObstacles(canvas, paint);
-        car.drawObstacles(canvas, paint);
-        homingOb.drawObstacles(canvas, paint);
-        extraLives.drawObstacles(canvas, paint);
-        truck.drawObstacles(canvas, paint);
+        cone.drawObstacles(canvas, paint, interpolation, velocity);
+        downTree.drawObstacles(canvas, paint, interpolation, velocity);
+        crowd.drawObstacles(canvas, paint, interpolation, velocity);
+        car.drawObstacles(canvas, paint, interpolation, velocity);
+        homingOb.drawObstacles(canvas, paint, interpolation, velocity);
+        extraLives.drawObstacles(canvas, paint, interpolation, velocity);
+        truck.drawObstacles(canvas, paint, interpolation, velocity);
 
         //Draw touch follower.
-        canvas.drawBitmap(touchFollower, tFX, tFY, paint);
+        canvas.drawBitmap(touchFollower, tFX, tFY, paint);  //TODO: implement interpolation
     }
 
     //--------------Check if an obstacle has run into touchFollower when no fingers are down (only necessary if friendly sprite triggers obstacles)-----------------------------
@@ -455,7 +455,7 @@ public class LocationOne {
                             if (!mA.musicMuted) {
                                 soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                             }
-                            truck.hitObstacle(i, false, false, false);
+                            truck.hitObstacle(i, false, false, false, true);
                             gS.collisionsWitnessed++;
                         }
                         if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
@@ -502,7 +502,7 @@ public class LocationOne {
                             }
                             gS.collisionsWitnessed++;
                         }
-                        if(car.checkOverlap(i)){
+                        if(car.checkOverlap(i, false) != -1){
                             if (!mA.musicMuted) {
                                 soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                             }

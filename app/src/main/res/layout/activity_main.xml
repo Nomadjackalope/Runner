@@ -53,11 +53,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Timer 1:23.45"
             android:id="@+id/timer"
             android:layout_gravity="left|top"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:background="@drawable/rectangle"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -96,7 +97,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="PLACEHOLDER"
             android:id="@+id/endGameText"
             android:layout_alignParentTop="true"
@@ -112,6 +113,7 @@
             android:layout_height="wrap_content"
             android:text="Time: 1:23.45"
             android:id="@+id/endGameUserTime"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
@@ -123,6 +125,7 @@
             android:layout_height="wrap_content"
             android:text="Best: 1:23.45"
             android:id="@+id/endGameBestTime"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
@@ -157,7 +160,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/nextLocationButton"
-            android:text="@string/nextLocation"
+            android:text="@string/next_location"
             android:layout_alignTop="@+id/menuPlaceholder"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
@@ -168,7 +171,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/previousLocationButton"
-            android:text="@string/previousLocation"
+            android:text="@string/previous_location"
             android:layout_alignTop="@+id/menuPlaceholder"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"

@@ -24,6 +24,7 @@ public class Obstacles {
     int maxNumberOfObstacles;
     int scaleX;
     int scaleY;
+    float originalDistanceBetweenObstacles;
     float distanceBetweenObstacles;
     float originalHSpeed;
     float originalVSpeed;
@@ -32,6 +33,7 @@ public class Obstacles {
     //float nextObstacleAt;
     float horizontalSpeed;
     float verticalSpeed;
+    float originalHomingSpeed;
     float homingSpeed;
     float distanceToNextObstacle;
     int obstacleWidth;
@@ -49,6 +51,7 @@ public class Obstacles {
     int lastSpawnIndex;
     Boolean randomizeParameters;
     Boolean directional;
+    Boolean followRoad;
 
     int[] orientationArray;
 
@@ -66,17 +69,20 @@ public class Obstacles {
      * @param randomize allows certain parameters to have variation.
      * //TODO: add two more columns to coordinates array to keep track of horizontal and vertical speed for individual obstacles so that randomizing doesn't affect spawned obstacles, even though that's kind of fun.
      */
-    public Obstacles(Context context, int scaleX, int scaleY, int obstacleImageResID, int maxNumberOfObstacles, Boolean respawnWithMax, float distanceBetweenObstacles, float horizontalSpeed, float verticalSpeed, float homingSpeed, int windowWidth, int windowHeight, Boolean randomize, boolean directional){
+    public Obstacles(Context context, int scaleX, int scaleY, int obstacleImageResID, int maxNumberOfObstacles, Boolean respawnWithMax, float distanceBetweenObstacles,
+                     float horizontalSpeed, float verticalSpeed, float homingSpeed, int windowWidth, int windowHeight, Boolean randomize, boolean directional, boolean followRoad){
         this.context = context;
         this.obstacleImage = BitmapFactory.decodeResource(context.getResources(), obstacleImageResID, null);
         this.obstacleImage = Bitmap.createScaledBitmap(this.obstacleImage, scaleX, scaleY, true);
         this.maxNumberOfObstacles = maxNumberOfObstacles;
         this.respawnWithMax = respawnWithMax;
+        this.originalDistanceBetweenObstacles = distanceBetweenObstacles;
         this.distanceBetweenObstacles = distanceBetweenObstacles;
         this.originalHSpeed = horizontalSpeed;
         this.horizontalSpeed = originalHSpeed;
         this.originalVSpeed = verticalSpeed;
         this.verticalSpeed = originalVSpeed;
+        this.originalHomingSpeed = homingSpeed;
         this.homingSpeed = homingSpeed;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
@@ -92,6 +98,7 @@ public class Obstacles {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
         this.directional = directional;
+        this.followRoad = followRoad;
 
         this.orientationArray = new int[maxNumberOfObstacles];
 
@@ -113,7 +120,7 @@ public class Obstacles {
                     coordinatesArray[i][1] += distance;
                 }
                 //If now off screen, set as destroyed.
-                if (coordinatesArray[i][1] > windowHeight || coordinatesArray[i][1] < -obstacleHeight || coordinatesArray[i][0] > windowWidth || coordinatesArray[i][0] < -obstacleWidth) {
+                if (coordinatesArray[i][1] > windowHeight + obstacleHeight || coordinatesArray[i][1] < -2*obstacleHeight || coordinatesArray[i][0] > windowWidth || coordinatesArray[i][0] < -obstacleWidth) {
                     spawnTracker[i] = DESTROYED;
                     //Could reset coordinates here, but doesn't seem necessary as they are always set when a spawn occurs.
                 }
@@ -122,7 +129,7 @@ public class Obstacles {
             distanceToNextObstacle -= distance;
 
             if (autoSpawn) {
-                if(spawnObstacle(distanceToNextObstacle, random.nextInt(windowWidth - obstacleWidth), -obstacleHeight, false)) {
+                if(spawnObstacle(distanceToNextObstacle, random.nextInt(windowWidth) - obstacleWidth / 2, -obstacleHeight, false)) {
                     return true;
                 }
             }
@@ -143,42 +150,95 @@ public class Obstacles {
                 if (spawnTracker[lastSpawnIndex] == DESTROYED || respawnWithMax) {
                     if(!allowOverlap) {
                         if (wasObstacleTouched(x, y, obstacleWidth, obstacleHeight, false, false, false, true)) {
-                            if (random.nextBoolean()) {
-                                x += obstacleWidth;
+                            if (lastSpawnIndex > 0) {
+                                lastSpawnIndex--;
                             } else {
-                                x -= obstacleWidth;
+                                lastSpawnIndex = maxNumberOfObstacles - 1;
                             }
+                            return false;
+//                            if (random.nextBoolean()) {
+//                                x += obstacleWidth;
+//                            } else {
+//                                x -= obstacleWidth;
+//                            }
                         }
                     }
                     spawnTracker[lastSpawnIndex] = SPAWNED;
-                    coordinatesArray[lastSpawnIndex][0] = x;
-                    coordinatesArray[lastSpawnIndex][1] = y;
-                    speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
-                    speedArray[lastSpawnIndex][3] = homingSpeed;
+                    float hS = horizontalSpeed;
+                    float vS = verticalSpeed;
+//                    coordinatesArray[lastSpawnIndex][0] = x;
+//                    coordinatesArray[lastSpawnIndex][1] = y;
+//                    speedArray[lastSpawnIndex][0] = horizontalSpeed;
+//                    speedArray[lastSpawnIndex][1] = verticalSpeed;
+//                    speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
+//                    speedArray[lastSpawnIndex][3] = homingSpeed;
                     if (!randomizeParameters) {
                         distanceToNextObstacle = distanceBetweenObstacles;
                     } else {
                         //If randomizeParameters selected, vary several parameters for each spawn. !!!THIS AFFECTS MOTION OF ALL SPAWNED OBSTACLES!!!
                         distanceToNextObstacle = distanceBetweenObstacles * (random.nextInt(7) + 1) / 4;
-                        horizontalSpeed = originalHSpeed * (((float)(random.nextInt(15) - 8)) / 4);
-                        verticalSpeed = originalVSpeed * ((float)((random.nextInt(15) - 8)) / 4);
-                        speedArray[lastSpawnIndex][0] = horizontalSpeed;
-                        speedArray[lastSpawnIndex][1] = verticalSpeed;
-//                        speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
-//                        speedArray[lastSpawnIndex][3] = homingSpeed;
-//                        if (random.nextBoolean()) {
-//                            horizontalSpeed = -originalHSpeed;
-//                        }
-//                        if (random.nextBoolean()){
-//                            verticalSpeed = -originalVSpeed;
-//                        }
-
+                        hS *= (((random.nextInt(7) + 1 + random.nextFloat())) / 4);
+                        vS *= (((random.nextInt(7) + 1 + random.nextFloat())) / 4);
+                        if(random.nextBoolean()){
+                            hS *= -1;
+                        }
+                        if(random.nextBoolean()){
+                            vS *= -1;
+                        }
                     }
-                    if(directional && verticalSpeed < 0){
+
+                    if(followRoad){
+                        //Place approximately within lane.
+                        if(x < windowWidth / 2 && x > windowWidth / 2 - obstacleWidth || x > windowWidth - obstacleWidth){
+                            x -= obstacleWidth;
+                        }
+
+                        //Change speed direction to match correct side of road.
+                        if(x < windowWidth / 2){//On left half of screen.
+                            if(vS < 0){
+                                vS *= -1;
+                            }
+                        } else {
+                            if(vS > 0){
+                                vS *= -1;
+                            }
+                        }
+                    }
+
+                    if(directional && (vS < 0 || followRoad && x > windowWidth / 2)){
                         orientationArray[lastSpawnIndex] = 2;
                     }else{
                         orientationArray[lastSpawnIndex] = 0;
                     }
+
+                    if(vS < 0 && random.nextBoolean()){//if obstacle has negative y speed, randomly spawn at bottom of screen
+                        y = windowHeight;
+                    }
+
+
+                    if(horizontalSpeed > 0){
+                        x = -obstacleWidth;
+                        if(vS >= 0) {
+                            y = random.nextInt(windowHeight / 2) - obstacleHeight;
+                        } else {
+                            y = random.nextInt(windowHeight / 2) - obstacleHeight + windowHeight / 2;
+                        }
+                    } else if (hS < 0){
+                        x = windowWidth;
+                        if(verticalSpeed >= 0) {
+                            y = random.nextInt(windowHeight / 2) - obstacleHeight;
+                        } else {
+                            y = random.nextInt(windowHeight / 2) - obstacleHeight + windowHeight / 2;
+                        }
+                    }
+
+                    coordinatesArray[lastSpawnIndex][0] = x;
+                    coordinatesArray[lastSpawnIndex][1] = y;
+                    speedArray[lastSpawnIndex][0] = hS;
+                    speedArray[lastSpawnIndex][1] = vS;
+                    speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
+                    speedArray[lastSpawnIndex][3] = homingSpeed;
+
                     return true;
                     //break;
                 }
@@ -191,10 +251,12 @@ public class Obstacles {
     public void destroyObstacle(int obsIndex){
         spawnTracker[obsIndex] = DESTROYED;
         orientationArray[obsIndex] = 0;
+        coordinatesArray[obsIndex][0] = -windowWidth;
+        coordinatesArray[obsIndex][1] = -windowHeight;
         blinkCyclesToDisappearArray[obsIndex] = blinkCyclesToDisappear;
     }
 
-    public boolean hitObstacle(int obsIndex, boolean isTF, boolean trigger, boolean move){
+    public boolean hitObstacle(int obsIndex, boolean isTF, boolean trigger, boolean move, boolean rotate){
         switch (spawnTracker[obsIndex]){
             case DESTROYED:
                 return false;
@@ -223,10 +285,12 @@ public class Obstacles {
         speedArray[obsIndex][0] = 0;
         speedArray[obsIndex][1] = 0;
         if(!isTF) {
-            if(orientationArray[obsIndex] == 3){
-                orientationArray[obsIndex] = 0;
-            } else {
-                orientationArray[obsIndex]++;
+            if(rotate) {
+                if (orientationArray[obsIndex] == 3) {
+                    orientationArray[obsIndex] = 0;
+                } else {
+                    orientationArray[obsIndex]++;
+                }
             }
             if(move) {
                 if (random.nextBoolean()) {
@@ -243,27 +307,37 @@ public class Obstacles {
         //Obstacle movement independent of road.
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] != DESTROYED) {
-                if (coordinatesArray[i][0] < windowWidth) {
+//                if(homingSpeed != 0){
+//                    //TODO: handle homing here
+//                }
+//                if (coordinatesArray[i][0] < windowWidth) {
                     coordinatesArray[i][0] += speedArray[i][0];
-                }
-                if (coordinatesArray[i][1] < windowHeight) {
+//                }
+//                if (coordinatesArray[i][1] < windowHeight) {
+                    if(directional && speedArray[i][1] < 0){
+                        orientationArray[i] = 2;
+                    } else if(directional && speedArray[i][1] > 0){
+                        orientationArray[i] = 0;
+                    }
                     coordinatesArray[i][1] += speedArray[i][1];
-                }
+//                }
             }
         }
     }
 
-    public void drawObstacles(Canvas canvas, Paint paint) {
+    public void drawObstacles(Canvas canvas, Paint paint, float interpolation, float velocity) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
+            float ix = coordinatesArray[i][0];// + (speedArray[i][0] * interpolation);
+            float iy = coordinatesArray[i][1];// + ((speedArray[i][1] + velocity) * interpolation);
             if(spawnTracker[i] == SPAWNED || spawnTracker[i] == HIT_BY_OBSTACLE){
                 if (orientationArray[i] == 0) {
-                    canvas.drawBitmap(obstacleImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                    canvas.drawBitmap(obstacleImage, ix, iy, paint);
                 } else if (orientationArray[i] == 1) {
-                    canvas.drawBitmap(rotatedObsImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                    canvas.drawBitmap(rotatedObsImage, ix, iy, paint);
                 } else if (orientationArray[i] == 2) {
-                    canvas.drawBitmap(rotatedObsImage2, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                    canvas.drawBitmap(rotatedObsImage2, ix, iy, paint);
                 } else if (orientationArray[i] == 3) {
-                    canvas.drawBitmap(rotatedObsImage3, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                    canvas.drawBitmap(rotatedObsImage3, ix, iy, paint);
                 }
             } else if(spawnTracker[i] == TRIGGERED || spawnTracker[i] == HIT_AND_TRIGGERED){
                 //TODO: Figure out how to make transparent or a different look so user can see it's been triggered
@@ -272,13 +346,13 @@ public class Obstacles {
                 } else if(blinkOnCountDown > 0) {
                     --blinkOnCountDown;
                     if (orientationArray[i] == 0) {
-                        canvas.drawBitmap(obstacleImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                        canvas.drawBitmap(obstacleImage, ix, iy, paint);
                     } else if (orientationArray[i] == 1) {
-                        canvas.drawBitmap(rotatedObsImage, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                        canvas.drawBitmap(rotatedObsImage, ix, iy, paint);
                     } else if (orientationArray[i] == 2) {
-                        canvas.drawBitmap(rotatedObsImage2, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                        canvas.drawBitmap(rotatedObsImage2, ix, iy, paint);
                     } else if (orientationArray[i] == 3) {
-                        canvas.drawBitmap(rotatedObsImage3, coordinatesArray[i][0], coordinatesArray[i][1], paint);
+                        canvas.drawBitmap(rotatedObsImage3, ix, iy, paint);
                     }
                 } else {
                     blinkOnCountDown = blinkTime;
@@ -311,7 +385,7 @@ public class Obstacles {
                             destroyObstacle(i);
                             return true;
                         } else {
-                            return hitObstacle(i, isTF, trigger, true);
+                            return hitObstacle(i, isTF, trigger, true, true);
                         }
                     }
                 } else {    //object rotated so width & height flipped.
@@ -324,7 +398,7 @@ public class Obstacles {
                             destroyObstacle(i);
                             return true;
                         } else {
-                            return hitObstacle(i, isTF, trigger, true);
+                            return hitObstacle(i, isTF, trigger, true, true);
                         }
                     }
                 }
@@ -333,7 +407,7 @@ public class Obstacles {
         return false;
     }
 
-    public Boolean checkOverlap(int i){
+    public int checkOverlap(int i, boolean checkOnly){
             if(spawnTracker[i] != DESTROYED){
                 for(int j = 0; j < maxNumberOfObstacles; j++){
                     if(i == j){
@@ -343,47 +417,61 @@ public class Obstacles {
                         if (orientationArray[i] % 2 == 0 && orientationArray[j] % 2 == 0) {
                             if (coordinatesArray[i][0] + obstacleWidth > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleWidth
                                     && coordinatesArray[i][1] + obstacleHeight > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleHeight) {
-                                hitObstacle(i, false, false, false);
-                                hitObstacle(j, false, false, true);
-                                return true;
+                                if(!checkOnly) {
+                                    hitObstacle(i, false, false, false, true);
+                                    hitObstacle(j, false, false, true, true);
+                                }
+                                return j;
                             }
                         } else if (orientationArray[i] % 2 == 1 && orientationArray[j] % 2 == 0) {
                             if (coordinatesArray[i][0] + obstacleHeight > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleWidth
                                     && coordinatesArray[i][1] + obstacleWidth > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleHeight) {
-                                hitObstacle(i, false, false, false);
-                                hitObstacle(j, false, false, true);
-                                return true;
+                                if(!checkOnly) {
+                                    hitObstacle(i, false, false, false, true);
+                                    hitObstacle(j, false, false, true, true);
+                                }
+                                return j;
                             }
                         } else if (orientationArray[i] % 2 == 0 && orientationArray[j] % 2 == 1) {
                             if (coordinatesArray[i][0] + obstacleWidth > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleHeight
                                     && coordinatesArray[i][1] + obstacleHeight > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleWidth) {
-                                hitObstacle(i, false, false, false);
-                                hitObstacle(j, false, false, true);
-                                return true;
+                                if(!checkOnly) {
+                                    hitObstacle(i, false, false, false, true);
+                                    hitObstacle(j, false, false, true, true);
+                                }
+                                return j;
                             }
                         } else {
                             if (coordinatesArray[i][0] + obstacleHeight > coordinatesArray[j][0] && coordinatesArray[i][0] < coordinatesArray[j][0] + obstacleHeight
                                     && coordinatesArray[i][1] + obstacleWidth > coordinatesArray[j][1] && coordinatesArray[i][1] < coordinatesArray[j][1] + obstacleWidth) {
-                                hitObstacle(i, false, false, false);
-                                hitObstacle(j, false, false, true);
-                                return true;
+                                if(!checkOnly) {
+                                    hitObstacle(i, false, false, false, true);
+                                    hitObstacle(j, false, false, true, true);
+                                }
+                                return j;
                             }
                         }
                     }
                 }
             }
-        return false;
+        return -1;
     }
 
     public void resetObstacles(){
-        this.distanceToNextObstacle = distanceBetweenObstacles;
+        this.distanceBetweenObstacles = originalDistanceBetweenObstacles;
+        this.distanceToNextObstacle = originalDistanceBetweenObstacles;
+        this.horizontalSpeed = this.originalHSpeed;
+        this.verticalSpeed = this.originalVSpeed;
+        homingSpeed = originalHomingSpeed;
         //this.nextObstacleAt = distanceBetweenObstacles;
         for(int i = 0; i < maxNumberOfObstacles; i++){
-            coordinatesArray[i][0] = 0;
-            coordinatesArray[i][1] = 0;
-            orientationArray[i] = 0;
-            speedArray[i][0] = horizontalSpeed;
-            speedArray[i][1] = verticalSpeed;
+//            coordinatesArray[i][0] = 0;
+//            coordinatesArray[i][1] = 0;
+//            orientationArray[i] = 0;
+//            speedArray[i][0] = originalHSpeed;
+//            speedArray[i][1] = originalVSpeed;
+//            speedArray[i][2] = 0.75f * homingSpeed;
+//            speedArray[i][3] = homingSpeed;
             spawnTracker[i] = DESTROYED;
 
             blinkCyclesToDisappearArray[i] = blinkCyclesToDisappear;
@@ -396,7 +484,7 @@ public class Obstacles {
 
     public void resetObstacles(float distanceBetweenObstacles, int windowWidth, int windowHeight){
         resetObstacles();
-        this.distanceBetweenObstacles = distanceBetweenObstacles;
+//        this.originalDistanceBetweenObstacles = distanceBetweenObstacles;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
     }
@@ -414,7 +502,11 @@ public class Obstacles {
     }
 
     public void setDistanceBetweenObstacles(float d){
-        this.distanceBetweenObstacles = d;
+//        this.originalDistanceBetweenObstacles = d;
+    }
+
+    public void updateDistanceBetweenObstacles(float factor){
+        this.distanceBetweenObstacles *= factor;
     }
 
     public void setRotatedObsImage(int resID, int scaleX, int scaleY){
@@ -430,6 +522,14 @@ public class Obstacles {
     public void setBlink(int count, int cycles){
         this.blinkTime = count;
         this.blinkCyclesToDisappear = cycles;
+    }
+
+    public void increaseHorizontalSpeed(float factor){
+        this.horizontalSpeed += originalHSpeed * factor;
+    }
+
+    public void increaseVerticalSpeed(float factor){
+        this.verticalSpeed += originalVSpeed * factor;
     }
 }
 
