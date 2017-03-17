@@ -1349,7 +1349,7 @@ public class MainActivity extends AppCompatActivity {
                             menuTimeText.setText("-:--:---");
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));
-                        } else if (bestTime.getSeconds() > 29){
+                        } else if (bestTime.getSeconds() > 24){
                             menuTimeText.setText(bestTime.getTimeForDisplay());
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));

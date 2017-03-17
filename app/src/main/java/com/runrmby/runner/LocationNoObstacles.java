@@ -202,18 +202,7 @@ public class LocationNoObstacles {
         tFYOffset = -touchFollower.getHeight();
 
         //Sound effects.
-//        setAudio();
-        soundEffects = mA.sfx;
-//        badSoundId = mA.badSoundId;
-//        goodSoundId = mA.goodSoundId;
-//        crashSoundId = mA.crashSoundId;
-//        crashSound2Id = mA.crashSound2Id;
-//        crashSound3Id = mA.crashSound3Id;
-//        crashSound4Id = mA.crashSound4Id;
-        crashSound5Id = mA.crashSound5Id;
-//        truckHornId = mA.truckHornId;
-//        carHornId = mA.carHornId;
-//        wilhelmScreamId = mA.wilhelmScreamId;
+        setAudio();
     }
 
     public float getCourseDistance(){
@@ -845,8 +834,8 @@ public class LocationNoObstacles {
 
         //Show fpMode at bottom of screen at start of game.
         if(fpMode) {
-            footprintsL.spawnObstacle(0f, touchDownX - touchDownX / 2, backgroundHeight - footprintsHeight, true);
-            footprintsR.spawnObstacle(0f, touchDownX + touchDownX / 2 - footprintsWidth, backgroundHeight - footprintsHeight, true);
+            footprintsL.spawnObstacle(0f, touchDownX - footprintsWidth * 2, backgroundHeight - footprintsHeight, true);
+            footprintsR.spawnObstacle(0f, touchDownX + footprintsWidth, backgroundHeight - footprintsHeight, true);
             fLTempX = footprintsL.coordinatesArray[0][0];
             fLTempY = footprintsL.coordinatesArray[0][1];
             fRTempX = footprintsR.coordinatesArray[0][0];
@@ -861,15 +850,15 @@ public class LocationNoObstacles {
         }
     }
 
-//    public void releaseAudio(){
-//        if(soundEffects != null) {
-//            soundEffects.release();
-//            soundEffects = null;
-//        }
-//    }
-//
-//    public void setAudio(){
-//        if(soundEffects == null) {
+    public void releaseAudio(){
+        if(soundEffects != null) {
+            soundEffects.release();
+            soundEffects = null;
+        }
+    }
+
+    public void setAudio(){
+        if(soundEffects == null) {
 ////        soundEffects = new SoundPool.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
 //            soundEffects = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
 ////            badSoundId = soundEffects.load(context, R.raw.finger_runner_bad_sound, 1);
@@ -881,8 +870,19 @@ public class LocationNoObstacles {
 ////            truckHornId = soundEffects.load(context, R.raw.finger_runner_bad_truck_horn, 1);
 ////            carHornId = soundEffects.load(context, R.raw.finger_runner_bad_car_horn, 1);
 ////            wilhelmScreamId = soundEffects.load(context, R.raw.wilhelm_scream, 1);
-//        }
-//    }
+            soundEffects = mA.sfx;
+//        badSoundId = mA.badSoundId;
+//        goodSoundId = mA.goodSoundId;
+//        crashSoundId = mA.crashSoundId;
+//        crashSound2Id = mA.crashSound2Id;
+//        crashSound3Id = mA.crashSound3Id;
+//        crashSound4Id = mA.crashSound4Id;
+            crashSound5Id = mA.crashSound5Id;
+//        truckHornId = mA.truckHornId;
+//        carHornId = mA.carHornId;
+//        wilhelmScreamId = mA.wilhelmScreamId;
+        }
+    }
 
     public void setFpMode(boolean m){
         this.fpMode = m;

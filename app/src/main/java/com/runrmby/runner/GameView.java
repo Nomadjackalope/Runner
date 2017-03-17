@@ -359,8 +359,10 @@ public class GameView extends SurfaceView implements Runnable {
                     break;
                 case 2:
                     distRemaining = courseLeft - backgroundHeight + levelTwo.getTouchDownY() - levelTwo.getFootprintHeight()/2;
+                    break;
                 case 3:
                     distRemaining = courseLeft - backgroundHeight + levelThree.getTouchDownY() - levelThree.getFootprintHeight()/2;
+                    break;
             }
             //For a touch past the finish line to trigger course completion, use the following line instead of the previous:
 //            distRemaining = courseLeft - backgroundHeight + touchDownY;
@@ -441,29 +443,30 @@ public class GameView extends SurfaceView implements Runnable {
         mA.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                yourDistance = courseDistance - distRemaining;
                 if(!distanceMode) {
                     gameTimer.changeTime(time);
 //                    mA.timer.setText(gameTimer.getTimeForDisplay());
-                    mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (courseDistance - distRemaining)/courseDistance*100) + "%");
+                    mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (yourDistance)/courseDistance*100) + "%");
                 } else {
                     //Display distance instead of time for distance mode.
 //                    mA.timer.setText(String.valueOf(odometer + backgroundHeight - tFY - touchFollowerHeight) + "\nLives: " + String.valueOf(livesLeft));
                     switch (locationState){
                         case 0:
 //                            yourDistance = odometer + backgroundHeight - levelZero.getTFY() - levelZero.getTouchFollowerHeight();
-                            yourDistance = odometer + backgroundHeight - levelZero.getTouchDownY() - levelZero.getFootprintHeight();
+//                            yourDistance = odometer + backgroundHeight - levelZero.getTouchDownY() - levelZero.getFootprintHeight();
                             mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 1:
-                            yourDistance = odometer + backgroundHeight - levelOne.getTouchDownY() - levelOne.getFootprintHeight();
+//                            yourDistance = odometer + backgroundHeight - levelOne.getTouchDownY() - levelOne.getFootprintHeight();
                             mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 2:
-                            yourDistance = odometer + backgroundHeight - levelTwo.getTouchDownY() + levelTwo.getFootprintHeight()/2;
+//                            yourDistance = odometer + backgroundHeight - levelTwo.getTouchDownY() + levelTwo.getFootprintHeight()/2;
                             mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                         case 3:
-                            yourDistance = odometer + backgroundHeight - levelThree.getTouchDownY() + levelThree.getFootprintHeight()/2;
+//                            yourDistance = odometer + backgroundHeight - levelThree.getTouchDownY() + levelThree.getFootprintHeight()/2;
                             mA.timer.setText(String.format("%.1f", yourDistance) + "\nLives: " + String.valueOf(livesLeft));
                             break;
                     }
@@ -886,24 +889,29 @@ public class GameView extends SurfaceView implements Runnable {
         pauseGame();
         playing = false;
 
-//        //Release audio.
-//        switch (locationState){
-//            case 0:
-//                if(levelZero != null) {
-//                    levelZero.releaseAudio();
-//                }
-//                break;
-//            case 1:
-//                if(levelOne != null) {
-//                    levelOne.releaseAudio();
-//                }
-//                break;
-//            case 2:
-//                if(levelTwo != null) {
-//                    levelTwo.releaseAudio();
-//                }
-//                break;
-//        }
+        //Release audio.
+        switch (locationState){
+            case 0:
+                if(levelZero != null) {
+                    levelZero.releaseAudio();
+                }
+                break;
+            case 1:
+                if(levelOne != null) {
+                    levelOne.releaseAudio();
+                }
+                break;
+            case 2:
+                if(levelTwo != null) {
+                    levelTwo.releaseAudio();
+                }
+                break;
+            case 3:
+                if(levelThree != null){
+                    levelThree.releaseAudio();
+                }
+                break;
+        }
 
 //        sensorMan.unregisterListener(this);
 
@@ -921,24 +929,29 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
 
-//        //Set audio.
-//        switch (locationState){
-//            case 0:
-//                if(levelZero != null) {
-//                    levelZero.setAudio();
-//                }
-//                break;
-//            case 1:
-//                if(levelOne != null) {
-//                    levelOne.setAudio();
-//                }
-//                break;
-//            case 2:
-//                if(levelTwo != null) {
-//                    levelTwo.setAudio();
-//                }
-//                break;
-//        }
+        //Set audio.
+        switch (locationState){
+            case 0:
+                if(levelZero != null) {
+                    levelZero.setAudio();
+                }
+                break;
+            case 1:
+                if(levelOne != null) {
+                    levelOne.setAudio();
+                }
+                break;
+            case 2:
+                if(levelTwo != null) {
+                    levelTwo.setAudio();
+                }
+                break;
+            case 3:
+                if(levelThree != null){
+                    levelThree.setAudio();
+                }
+                break;
+        }
 
 //        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
     }
@@ -976,11 +989,11 @@ public class GameView extends SurfaceView implements Runnable {
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
                     if(levelOne != null) {
-//                        levelOne.releaseAudio();
+                        levelOne.releaseAudio();
                         levelOne = null;
                     }
                     if(levelTwo != null) {
-//                        levelTwo.releaseAudio();
+                        levelTwo.releaseAudio();
                         levelTwo = null;
                     }
                     if(levelThree != null){
@@ -1006,11 +1019,11 @@ public class GameView extends SurfaceView implements Runnable {
                 if(locationState != mA.locationState) {
                     locationState = mA.locationState;
                     if(levelZero != null) {
-//                        levelZero.releaseAudio();
+                        levelZero.releaseAudio();
                         levelZero = null;
                     }
                     if(levelTwo != null) {
-//                        levelTwo.releaseAudio();
+                        levelTwo.releaseAudio();
                         levelTwo = null;
                     }
                     if(levelThree != null){

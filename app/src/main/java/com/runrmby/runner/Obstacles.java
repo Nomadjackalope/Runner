@@ -65,6 +65,11 @@ public class Obstacles {
 
     Context context;
 
+    boolean limitSpawnX = false;
+    int xMin;
+    int xMax;
+    boolean mirror = false;
+
     /**
      * @param randomize allows certain parameters to have variation.
      * //TODO: add two more columns to coordinates array to keep track of horizontal and vertical speed for individual obstacles so that randomizing doesn't affect spawned obstacles, even though that's kind of fun.
@@ -102,14 +107,17 @@ public class Obstacles {
 
         this.orientationArray = new int[maxNumberOfObstacles];
 
-        matrix = new Matrix();
-        matrix.postRotate(90);
+        if(distanceBetweenObstacles > 0) {//Should be every obstacle except footprints
+            matrix = new Matrix();
+            matrix.postRotate(90);
 
-        rotatedObsImage = Bitmap.createBitmap(obstacleImage, 0, 0, obstacleImage.getWidth(), obstacleImage.getHeight(), matrix, true);
-        rotatedObsImage2 = Bitmap.createBitmap(rotatedObsImage, 0, 0, rotatedObsImage.getWidth(), rotatedObsImage.getHeight(), matrix, true);
-        rotatedObsImage3 = Bitmap.createBitmap(rotatedObsImage2, 0, 0, rotatedObsImage2.getWidth(), rotatedObsImage2.getHeight(), matrix, true);
+            rotatedObsImage = Bitmap.createBitmap(obstacleImage, 0, 0, obstacleImage.getWidth(), obstacleImage.getHeight(), matrix, true);
+            rotatedObsImage2 = Bitmap.createBitmap(rotatedObsImage, 0, 0, rotatedObsImage.getWidth(), rotatedObsImage.getHeight(), matrix, true);
+            rotatedObsImage3 = Bitmap.createBitmap(rotatedObsImage2, 0, 0, rotatedObsImage2.getWidth(), rotatedObsImage2.getHeight(), matrix, true);
+        }
 
         this.blinkCyclesToDisappearArray = new int[maxNumberOfObstacles];
+
     }
 
     public boolean updateObstacles(float distance, boolean autoSpawn) {
@@ -129,12 +137,31 @@ public class Obstacles {
             distanceToNextObstacle -= distance;
 
             if (autoSpawn) {
-                if(spawnObstacle(distanceToNextObstacle, random.nextInt(windowWidth) - obstacleWidth / 2, -obstacleHeight, false)) {
+
+                int sx;
+
+                if(limitSpawnX){
+                    sx = random.nextInt(xMax - xMin) + xMin;
+                    if(mirror && random.nextBoolean()){//Will only mirror from left half to right half of screen.
+                        sx = windowWidth - sx - obstacleWidth;
+                    }
+                } else {
+                    sx = random.nextInt(windowWidth) - obstacleWidth / 2;
+                }
+
+                if(spawnObstacle(distanceToNextObstacle, sx, -obstacleHeight, false)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public void setLimitSpawnX(int xMin, int xMax, boolean mirror){
+        this.xMin = xMin;
+        this.xMax = xMax;
+        this.mirror = mirror;
+        this.limitSpawnX = true;
     }
 
     public boolean spawnObstacle(float distance, float x, float y, boolean allowOverlap){
@@ -149,7 +176,7 @@ public class Obstacles {
                 //for(int i = 0; i < maxNumberOfObstacles; i++){
                 if (spawnTracker[lastSpawnIndex] == DESTROYED || respawnWithMax) {
                     if(!allowOverlap) {
-                        if (wasObstacleTouched(x, y, obstacleWidth, obstacleHeight, false, false, false, true)) {
+                        if (wasObstacleTouched(x, y, obstacleWidth, obstacleHeight, false, false, false, true) != -1) {
                             if (lastSpawnIndex > 0) {
                                 lastSpawnIndex--;
                             } else {
@@ -216,7 +243,7 @@ public class Obstacles {
                     }
 
 
-                    if(horizontalSpeed > 0){
+                    if(hS > 0){
                         x = -obstacleWidth;
                         if(vS >= 0) {
                             y = random.nextInt(windowHeight / 2) - obstacleHeight;
@@ -369,7 +396,7 @@ public class Obstacles {
     }
 
     //x and y are view coordinates. Width and height should be 0f if checking a point instead of an area.
-    public Boolean wasObstacleTouched(float x, float y, float width, float height, boolean isTF, boolean trigger, boolean destroy, boolean checkOnly) {
+    public int wasObstacleTouched(float x, float y, float width, float height, boolean isTF, boolean trigger, boolean destroy, boolean checkOnly) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] != DESTROYED) {
                 if((spawnTracker[i] == TRIGGERED && isTF) || (spawnTracker[i] == HIT_AND_TRIGGERED && isTF)) {
@@ -379,32 +406,36 @@ public class Obstacles {
                     if (x + width > coordinatesArray[i][0] && x < coordinatesArray[i][0] + obstacleWidth
                             && y + height > coordinatesArray[i][1] && y < coordinatesArray[i][1] + obstacleHeight) {
                         if(checkOnly){
-                            return true;
+                            return i;
                         }
                         if(destroy){
                             destroyObstacle(i);
-                            return true;
+                            return i;
+                        } else if(hitObstacle(i, isTF, trigger, true, true)){
+                                return i;
                         } else {
-                            return hitObstacle(i, isTF, trigger, true, true);
+                            return -1;
                         }
                     }
                 } else {    //object rotated so width & height flipped.
                     if (x + width > coordinatesArray[i][0] && x < coordinatesArray[i][0] + obstacleHeight
                             && y + height > coordinatesArray[i][1] && y < coordinatesArray[i][1] + obstacleWidth) {
                         if(checkOnly){
-                            return true;
+                            return i;
                         }
                         if(destroy){
                             destroyObstacle(i);
-                            return true;
+                            return i;
+                        } else if (hitObstacle(i, isTF, trigger, true, true)){
+                            return i;
                         } else {
-                            return hitObstacle(i, isTF, trigger, true, true);
+                            return -1;
                         }
                     }
                 }
             }
         }
-        return false;
+        return -1;
     }
 
     public int checkOverlap(int i, boolean checkOnly){

@@ -25,7 +25,7 @@
     <string name="loc1">Level 1:\nConstruction Zone</string>
     <string name="loc1MarathonLocked">"LOCKED: You must complete Level 1 Time Trial in under 0:30:000."</string>
     <string name="loc2">Level 2:\nThe Highway</string>
-    <string name="loc2MarathonLocked">LOCKED: You must complete Level 2 Time Trial in under 0:30:000."</string>
+    <string name="loc2MarathonLocked">LOCKED: You must complete Level 2 Time Trial in under 0:25:000."</string>
     <string name="loc3">Level 3:\nThe Eitherway</string>
     <string name="loc3MarathonLocked">LOCKED: You must complete Level 3 Time Trial in under 0:25:000."</string>
 

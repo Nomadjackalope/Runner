@@ -449,7 +449,7 @@ public class LocationThree {
                 }
                 gS.collisionsWitnessed++;
             }
-        } else if (extraLives.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false)) {
+        } else if (extraLives.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false) != -1) {
             gS.livesLeft++;
             if (!mA.musicMuted) {
                 soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
@@ -478,7 +478,7 @@ public class LocationThree {
                     gS.collisionsWitnessed++;
                 }
             }
-        } else if (extraLives.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false)) {
+        } else if (extraLives.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false) != -1) {
             gS.livesLeft++;
             if (!mA.musicMuted) {
                 soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
@@ -609,32 +609,32 @@ public class LocationThree {
 //        }
         for(int i = 0; i < maxNumFootprints; i++) {
             if(footprintsR.spawnTracker[i] == 1){
-                if (cone.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                if (cone.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (downTree.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (downTree.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (truck.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (truck.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (crowd.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (crowd.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (car.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (car.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (homingOb.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (homingOb.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
                 }
             }
             if(footprintsL.spawnTracker[i] == 1) {
-                if (cone.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                if (cone.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (downTree.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (downTree.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (truck.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (truck.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (crowd.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (crowd.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (car.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (car.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
-                } else if (homingOb.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly)) {
+                } else if (homingOb.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                     return true;
                 }
             }
@@ -647,32 +647,32 @@ public class LocationThree {
         for (int i = 0; i < maxNumTrucks; i++) {
             if (truck.spawnTracker[i] == 1 || truck.spawnTracker[i] == 2) { //Truck should only destroy obstacles if it's moving.
                 if (truck.speedArray[i][1] != 0) {
-                    if(cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
+                    if(cone.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false)) {
+                    if (crowd.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false) != -1) {
                         if (!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false)) {
+                    if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false) != -1) {
                         if (!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
+                    if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                         }
                         truck.hitObstacle(i, false, false, false, true);
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
+                    if(downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -692,31 +692,31 @@ public class LocationThree {
         for (int i = 0; i < maxNumCars; i++){
             if (car.spawnTracker[i] == 1){
                 if(car.speedArray[i][1] != 0){
-                    if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
+                    if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false)) {
+                    if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false) != -1) {
                         if (!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false)) {
+                    if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false) != -1) {
                         if (!mA.musicMuted) {
                             soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if(truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
+                    if(truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false)){
+                    if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -735,17 +735,17 @@ public class LocationThree {
         for (int i = 0; i < maxNumCrowds; i++){
             if (crowd.spawnTracker[i] == 1){
                 if(crowd.speedArray[i][0] != 0 || crowd.speedArray[i][1] != 0){
-                    if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)){
+                    if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true) != -1){
                         crowd.speedArray[i][0] *= -1;
                         crowd.speedArray[i][1] *= -1;
                         //collisionsWitnessed++; //Crowd can get stuck if a vehicle crashes and gets thrown on top of them.
                     }
-                    if(car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true)){
+                    if(car.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true) != -1){
                         crowd.speedArray[i][0] *= -1;
                         crowd.speedArray[i][1] *= -1;
                         gS.collisionsWitnessed++;
                     }
-                    if(cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)){
+                    if(cone.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -753,7 +753,7 @@ public class LocationThree {
                         crowd.speedArray[i][1] *= -1;
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false)){
+                    if(downTree.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -765,7 +765,7 @@ public class LocationThree {
             }
         }for (int i = 0; i < homingObMaxNum; i++){
             if (homingOb.spawnTracker[i] == 1){
-                if(cone.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false)){
+                if(cone.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false) != -1){
                     if (!mA.musicMuted) {
                         soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
                     }
@@ -773,7 +773,7 @@ public class LocationThree {
                     homingOb.speedArray[i][3] *= 0.95f;
                     gS.collisionsWitnessed++;
                 }
-                if(downTree.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false)) {
+                if(downTree.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false) != -1) {
                     if (!mA.musicMuted) {
                         soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
                     }
