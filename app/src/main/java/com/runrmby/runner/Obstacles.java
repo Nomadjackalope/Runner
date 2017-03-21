@@ -69,6 +69,10 @@ public class Obstacles {
     int xMin;
     int xMax;
     boolean mirror = false;
+//    boolean autoSpawn = true;
+    boolean multiSpawn = false;
+    boolean spawnBottom = false;
+    boolean flipY = false;
 
     /**
      * @param randomize allows certain parameters to have variation.
@@ -78,7 +82,13 @@ public class Obstacles {
                      float horizontalSpeed, float verticalSpeed, float homingSpeed, int windowWidth, int windowHeight, Boolean randomize, boolean directional, boolean followRoad){
         this.context = context;
         this.obstacleImage = BitmapFactory.decodeResource(context.getResources(), obstacleImageResID, null);
-        this.obstacleImage = Bitmap.createScaledBitmap(this.obstacleImage, scaleX, scaleY, true);
+        this.obstacleWidth = obstacleImage.getWidth();
+        this.obstacleHeight = obstacleImage.getHeight();
+        if(obstacleWidth != scaleX  || obstacleHeight != scaleY) {//Only scale if necessary.
+            this.obstacleImage = Bitmap.createScaledBitmap(this.obstacleImage, scaleX, scaleY, true);
+            this.obstacleWidth = obstacleImage.getWidth();
+            this.obstacleHeight = obstacleImage.getHeight();
+        }
         this.maxNumberOfObstacles = maxNumberOfObstacles;
         this.respawnWithMax = respawnWithMax;
         this.originalDistanceBetweenObstacles = distanceBetweenObstacles;
@@ -93,8 +103,6 @@ public class Obstacles {
         this.windowHeight = windowHeight;
         //this.nextObstacleAt = distanceBetweenObstacles;
         this.distanceToNextObstacle = distanceBetweenObstacles;
-        this.obstacleWidth = obstacleImage.getWidth();
-        this.obstacleHeight = obstacleImage.getHeight();
         this.spawnTracker = new int[maxNumberOfObstacles];
         this.coordinatesArray = new float[maxNumberOfObstacles][2];
         this.speedArray = new float[maxNumberOfObstacles][4];   //[i][0] = x speed, [i][1] = y speed, [i][2] = homing x speed, [i][3] = homing y speed
@@ -137,24 +145,23 @@ public class Obstacles {
             distanceToNextObstacle -= distance;
 
             if (autoSpawn) {
-
-                int sx;
-
-                if(limitSpawnX){
-                    sx = random.nextInt(xMax - xMin) + xMin;
-                    if(mirror && random.nextBoolean()){//Will only mirror from left half to right half of screen.
-                        sx = windowWidth - sx - obstacleWidth;
-                    }
-                } else {
-                    sx = random.nextInt(windowWidth) - obstacleWidth / 2;
-                }
-
-                if(spawnObstacle(distanceToNextObstacle, sx, -obstacleHeight, false)) {
-                    return true;
-                }
+                return doAutoSpawn(distanceToNextObstacle);
             }
         }
         return false;
+    }
+
+    public boolean doAutoSpawn(float distanceToNextObstacle){
+        int sx;
+        if(limitSpawnX){
+            sx = random.nextInt(xMax - xMin) + xMin;
+            if(mirror && random.nextBoolean()){//Will only mirror from left half to right half of screen.
+                sx = windowWidth - sx - obstacleWidth;
+            }
+        } else {
+            sx = random.nextInt(windowWidth) - obstacleWidth / 2;
+        }
+        return spawnObstacle(distanceToNextObstacle, sx, -obstacleHeight, false);
     }
 
     public void setLimitSpawnX(int xMin, int xMax, boolean mirror){
@@ -232,13 +239,13 @@ public class Obstacles {
                         }
                     }
 
-                    if(directional && (vS < 0 || followRoad && x > windowWidth / 2)){
+                    if(directional && (vS < 0 || followRoad && x > windowWidth / 2 || flipY)){
                         orientationArray[lastSpawnIndex] = 2;
                     }else{
                         orientationArray[lastSpawnIndex] = 0;
                     }
 
-                    if(vS < 0 && random.nextBoolean()){//if obstacle has negative y speed, randomly spawn at bottom of screen
+                    if(vS < 0 && (random.nextBoolean() || spawnBottom)){//if obstacle has negative y speed, randomly spawn at bottom of screen
                         y = windowHeight;
                     }
 
@@ -265,6 +272,11 @@ public class Obstacles {
                     speedArray[lastSpawnIndex][1] = vS;
                     speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
                     speedArray[lastSpawnIndex][3] = homingSpeed;
+
+                    //TODO: testing this
+                    if(multiSpawn && random.nextBoolean()){
+                        doAutoSpawn(0);
+                    }
 
                     return true;
                     //break;
@@ -561,6 +573,22 @@ public class Obstacles {
 
     public void increaseVerticalSpeed(float factor){
         this.verticalSpeed += originalVSpeed * factor;
+    }
+
+//    public void setAutoSpawn(boolean b){
+//        this.autoSpawn = b;
+//    }
+
+    public void setMultiSpawn(boolean b){
+        this.multiSpawn = b;
+    }
+
+    public void setSpawnBottom(boolean b){
+        this.spawnBottom = b;
+    }
+
+    public void setFlipY(boolean b){
+        this.flipY = b;
     }
 }
 

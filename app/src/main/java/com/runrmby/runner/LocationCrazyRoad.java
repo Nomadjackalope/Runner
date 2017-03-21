@@ -1,10 +1,7 @@
 package com.runrmby.runner;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -20,10 +17,10 @@ public class LocationCrazyRoad {
     //No touchFollower, just footprintsR where fingers touch
 
     //boolean distanceMode;
-    private float courseDistance = 25000f;  //Currently an arbitrary distance to the finish line.
+    private float courseDistance = 40000f;  //Currently an arbitrary distance to the finish line.
 
     private Obstacles cone;
-    private int coneResId = R.drawable.cone;
+    private int coneResId = R.drawable.cone_xxhdpi;
     private int coneXScale = 31;
     private int coneYScale = 43;
     private int maxNumCones = 10;
@@ -31,17 +28,17 @@ public class LocationCrazyRoad {
     private float coneXSpeed = 0f;
     private float coneYSpeed = 0f;
 
-    private Obstacles downTree;
-    private int downTreeResId = R.drawable.down_tree;
-    private int downTreeXScale = 110;
-    private int downTreeYScale = 39;
-    private int maxNumDownTrees = 4;
-    private float distBetweenDownTrees = 5000f;
-    private float downTreeXSpeed = 0f;
-    private float downTreeYSpeed = 0f;
+    private Obstacles semi;
+    private int semiResId = R.drawable.semi_xxhdpi;
+    private int semiXScale = 117;
+    private int semiYScale = 470;
+    private int maxNumSemis = 2;
+    private float distBetweenSemis = 5000f;
+    private float semiXSpeed = 0f;
+    private float semiYSpeed = 4f;
 
     private Obstacles truck;
-    private int truckResId = R.drawable.shitty_truck_1;
+    private int truckResId = R.drawable.orange_truck_xxhdpi;
     private int truckXScale = 91;
     private int truckYScale = 189;
     private int maxNumTrucks = 10;
@@ -50,7 +47,7 @@ public class LocationCrazyRoad {
     private float truckYSpeed = 5f;
 //
     private Obstacles crowd;
-    private int crowdResId = R.drawable.dumbppl;
+    private int crowdResId = R.drawable.crowd_xxhdpi;
     private int crowdXScale = 83;
     private int crowdYScale = 85;
     private int maxNumCrowds = 10;
@@ -59,7 +56,7 @@ public class LocationCrazyRoad {
     private float crowdYSpeed = 1f;
 
     private Obstacles car;
-    private int carResId = R.drawable.bug3;
+    private int carResId = R.drawable.race_car_xxhdpi;
     private int carXScale = 84;
     private int carYScale = 166;
     private int maxNumCars = 10;
@@ -68,7 +65,7 @@ public class LocationCrazyRoad {
     private float carYSpeed = 7f;
 
     private Obstacles car2;
-    private int car2ResId = R.drawable.shitty_reg_car;
+    private int car2ResId = R.drawable.red_bug_xxhdpi;
     private int car2XScale = 88;
     private int car2YScale = 169;
     private int maxNumCars2 = 12;
@@ -77,7 +74,7 @@ public class LocationCrazyRoad {
     private float car2YSpeed = 6f;
 
     private Obstacles homingOb;
-    private int homingObResID = R.drawable.dude;
+    private int homingObResID = R.drawable.dude_xxhdpi;
     private int homingObXScale = 75;
     private int homingObYScale = 83;
     private int homingObWidth;
@@ -93,6 +90,14 @@ public class LocationCrazyRoad {
     private int difficultly;
     //float homingObHomingSpeed;
 
+    private Obstacles coins;
+    private int coinsResId = R.drawable.coin;
+    private int coinScale = 75;
+    private int maxNumCoins = 4;
+    private float distBetweenCoins = 1500f;
+    private float coinsHorizontalSpeed = 0f;
+    private float coinsVerticalSpeed = 0f;
+
     private Obstacles extraLives;
     private int extraLivesResId = R.drawable.lvlup;
     private int extraLivesMaxNum = 1;
@@ -100,37 +105,37 @@ public class LocationCrazyRoad {
     private float extraLivesHorizontalSpeed = 2f;
     private float extraLivesVerticalSpeed = 0f;
 
-    private Bitmap touchFollower;
-    private int touchFollowerHeight;
-    private int touchFollowerWidth;
-    private int tFXScale = 64;
-    private int tFYScale = 118;
-    private float tFX;          //current x coordinate of touchFollower
-    private float tFY;          //current y coordinate of touchFollower
-    private float tFXOffset;
-    private float tFYOffset;
+//    private Bitmap touchFollower;
+//    private int touchFollowerHeight;
+//    private int touchFollowerWidth;
+//    private int tFXScale = 64;
+//    private int tFYScale = 118;
+//    private float tFX;          //current x coordinate of touchFollower
+//    private float tFY;          //current y coordinate of touchFollower
+//    private float tFXOffset;
+//    private float tFYOffset;
     private float touchDownX;   //desired x coordinate of touchFollower.
     private float touchDownY;   //desired y coordinate of touchFollower.
-    private float tFSpeed = 0.15f;
+//    private float tFSpeed = 0.15f;
 
     private Obstacles footprintsR;
-    private int footprintsRImageResId = R.drawable.right_foot_yellow;
+    private int footprintsRImageResId = R.drawable.right_foot_yellow_xxhdpi;
     private int footprintsHeight;
     private int footprintsWidth;
     private int footprintsXScale = 44;
     private int footprintsYScale = 88;
     private int maxNumFootprints = 1;
-    private float fRTempX;
-    private float fRTempY;
+//    private float fRTempX;
+//    private float fRTempY;
 
     private Obstacles footprintsL;
-    private int footprintsLImageResId = R.drawable.left_foot_yellow;
-    private float fLTempX;
-    private float fLTempY;
+    private int footprintsLImageResId = R.drawable.left_foot_yellow_xxhdpi;
+//    private float fLTempX;
+//    private float fLTempY;
 
-    private Matrix matrixRotateClockwise = new Matrix();
-    private Matrix matrixRotateCounterClockwise = new Matrix();
-    private Boolean tFRotated = false;
+//    private Matrix matrixRotateClockwise = new Matrix();
+//    private Matrix matrixRotateCounterClockwise = new Matrix();
+//    private Boolean tFRotated = false;
 
     private float velocityFactor = .75f; //Must be less than 1 or else road will advance exponentially.
     private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
@@ -148,13 +153,14 @@ public class LocationCrazyRoad {
     private int truckHornId;
     private int carHornId;
     private int wilhelmScreamId;
+    private int driveSoundId;
 
     private MainActivity mA;
     private GameView gS;
     private float sX;
     private float sY;
 
-    private int backgroundResId = R.drawable.road3;
+    private int backgroundResId = R.mipmap.road_0;
     private int backgroundWidth;
     private int backgroundHeight;
 
@@ -181,35 +187,36 @@ public class LocationCrazyRoad {
         homingObHeight = (int) (sY * homingObYScale);
 
         cone = new Obstacles(context, (int) (sX * coneXScale), (int) (sY * coneYScale), coneResId, maxNumCones, false, distBetweenCones, coneXSpeed, coneYSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
-        downTree = new Obstacles(context, (int) (sX * downTreeXScale), (int) (sY * downTreeYScale), downTreeResId, maxNumDownTrees, false, distBetweenDownTrees, downTreeXSpeed, downTreeYSpeed, 0, backgroundWidth, backgroundHeight, false, false, false);
+        semi = new Obstacles(context, (int) (sX * semiXScale), (int) (sY * semiYScale), semiResId, maxNumSemis, false, distBetweenSemis, semiXSpeed, semiYSpeed, 0, backgroundWidth, backgroundHeight, true, true, false);
         truck = new Obstacles(context, (int) (sX * truckXScale), (int) (sY * truckYScale), truckResId, maxNumTrucks, false, distBetweenTrucks, truckXSpeed, truckYSpeed, 0, backgroundWidth, backgroundHeight, true, true, false);
         crowd = new Obstacles(context, (int) (sX * crowdXScale), (int) (sY * crowdYScale), crowdResId, maxNumCrowds, false, distBetweenCrowds, crowdXSpeed, crowdYSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
         car = new Obstacles(context, (int) (sX * carXScale), (int) (sY * carYScale), carResId, maxNumCars, false, distBetweenCars, carXSpeed, carYSpeed, 0, backgroundWidth, backgroundHeight, true, true, false);
         car2 = new Obstacles(context, (int) (sX * car2XScale), (int) (sY * car2YScale), car2ResId, maxNumCars2, false, distBetweenCars2, car2XSpeed, car2YSpeed, 0, backgroundWidth, backgroundHeight, true, true, false);
         homingOb = new Obstacles(context, homingObWidth, homingObHeight, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, homingObHomingSpeed, backgroundWidth, backgroundHeight + backgroundHeight, false, false, false);
+        coins = new Obstacles(context, (int) (sX * coinScale), (int) (sY * coinScale), coinsResId, maxNumCoins, false, distBetweenCoins, coinsHorizontalSpeed, coinsVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
         extraLives = new Obstacles(context, (int) (sX * 62), (int) (sY * 110), extraLivesResId, extraLivesMaxNum, false, extraLivesDistBetween, extraLivesHorizontalSpeed, extraLivesVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
 
         //Initialize fpMode
         footprintsWidth = (int)(sX * footprintsXScale);
         footprintsHeight = (int)(sY * footprintsYScale);
         footprintsR = new Obstacles(context, footprintsWidth, footprintsHeight, footprintsRImageResId, maxNumFootprints, true, 0, 0, 0, 0, backgroundWidth, backgroundHeight, false, false, false);
-        footprintsR.setRotatedObsImage(R.drawable.right_foot_yellow_transparent, footprintsWidth*2, footprintsHeight*2);
+        footprintsR.setRotatedObsImage(R.drawable.right_foot_yellow_transparent_xxhdpi, footprintsWidth*2, footprintsHeight*2);
 //        footprintsR.setBlink(5, 2);
         footprintsL = new Obstacles(context, footprintsWidth, footprintsHeight, footprintsLImageResId, maxNumFootprints, true, 0, 0, 0, 0, backgroundWidth, backgroundHeight, false, false, false);
-        footprintsL.setRotatedObsImage(R.drawable.left_foot_yellow_transparent, footprintsWidth*2, footprintsHeight*2);
+        footprintsL.setRotatedObsImage(R.drawable.left_foot_yellow_transparent_xxhdpi, footprintsWidth*2, footprintsHeight*2);
 //        footprintsL.setBlink(5,2);
 
-        //Initialize touch follower.
-        touchFollowerHeight = (int) (sY * tFYScale);
-        touchFollowerWidth = (int) (sX * tFXScale);
-        touchFollower = BitmapFactory.decodeResource(context.getResources(), R.drawable.fatty, null);
-        touchFollower = Bitmap.createScaledBitmap(touchFollower, touchFollowerWidth, touchFollowerHeight, true);
+//        //Initialize touch follower.
+//        touchFollowerHeight = (int) (sY * tFYScale);
+//        touchFollowerWidth = (int) (sX * tFXScale);
+//        touchFollower = BitmapFactory.decodeResource(context.getResources(), R.drawable.fatty, null);
+//        touchFollower = Bitmap.createScaledBitmap(touchFollower, touchFollowerWidth, touchFollowerHeight, true);
 
-        matrixRotateClockwise.postRotate(90);
-        matrixRotateCounterClockwise.postRotate(270);
+//        matrixRotateClockwise.postRotate(90);
+//        matrixRotateCounterClockwise.postRotate(270);
 
-        tFXOffset = -touchFollower.getWidth() / 2;
-        tFYOffset = -touchFollower.getHeight();
+//        tFXOffset = -touchFollower.getWidth() / 2;
+//        tFYOffset = -touchFollower.getHeight();
 
         //Sound effects.
         setAudio();
@@ -219,13 +226,13 @@ public class LocationCrazyRoad {
         return this.courseDistance;
     }
 
-    public float getTFY(){
-        return this.tFY;
-    }
+//    public float getTFY(){
+//        return this.tFY;
+//    }
 
-    public int getTouchFollowerHeight(){
-        return this.touchFollowerHeight;
-    }
+//    public int getTouchFollowerHeight(){
+//        return this.touchFollowerHeight;
+//    }
 
     public float getIncreaseDifficultyDistance(){
         return this.increaseDifficultyDistance;
@@ -275,24 +282,24 @@ public class LocationCrazyRoad {
 //            if(fRTempY == fLTempY){//neither foot ahead (start)
             if (touchDownX < backgroundWidth / 2) {//if touch is on left half of screen, spawn left footprint, otherwise spawn right
                 footprintsL.spawnObstacle(0f, x, y, true);
-                fLTempX = footprintsL.coordinatesArray[0][0];
-                fLTempY = footprintsL.coordinatesArray[0][1];
+//                fLTempX = footprintsL.coordinatesArray[0][0];
+//                fLTempY = footprintsL.coordinatesArray[0][1];
                 if (footprintsR.spawnTracker[0] == 1) {
 //                        footprintsR.spawnTracker[0] = 2;
-                    fRTempX = footprintsR.coordinatesArray[0][0];
-                    fRTempY = footprintsR.coordinatesArray[0][1];
+//                    fRTempX = footprintsR.coordinatesArray[0][0];
+//                    fRTempY = footprintsR.coordinatesArray[0][1];
                     footprintsR.coordinatesArray[0][0] -= footprintsWidth / 2;
                     footprintsR.coordinatesArray[0][1] -= footprintsHeight / 2;
                     footprintsR.hitObstacle(0, false, false, false, true);
                 }
             } else {
                 footprintsR.spawnObstacle(0f, x, y, true);
-                fRTempX = footprintsR.coordinatesArray[0][0];
-                fRTempY = footprintsR.coordinatesArray[0][1];
+//                fRTempX = footprintsR.coordinatesArray[0][0];
+//                fRTempY = footprintsR.coordinatesArray[0][1];
                 if (footprintsL.spawnTracker[0] == 1) {
 //                        footprintsL.spawnTracker[0] = 2;
-                    fLTempX = footprintsL.coordinatesArray[0][0];
-                    fLTempY = footprintsL.coordinatesArray[0][1];
+//                    fLTempX = footprintsL.coordinatesArray[0][0];
+//                    fLTempY = footprintsL.coordinatesArray[0][1];
                     footprintsL.coordinatesArray[0][0] -= footprintsWidth / 2;
                     footprintsL.coordinatesArray[0][1] -= footprintsHeight / 2;
                     footprintsL.hitObstacle(0, false, false, false, true);
@@ -302,19 +309,19 @@ public class LocationCrazyRoad {
             if (x < footprintsL.coordinatesArray[0][0] + footprintsWidth) {//Touch is to left of right side of left foot.
                 //Spawn left foot.
                 footprintsL.spawnObstacle(0f, x, y, true);
-                fLTempX = footprintsL.coordinatesArray[0][0];
-                fLTempY = footprintsL.coordinatesArray[0][1];
+//                fLTempX = footprintsL.coordinatesArray[0][0];
+//                fLTempY = footprintsL.coordinatesArray[0][1];
                 hopping = true;
             } else {//Touch is to right of right side of left foot.
                 //Spawn right foot.
                 footprintsR.spawnObstacle(0f, x, y, true);
-                fRTempX = footprintsR.coordinatesArray[0][0];
-                fRTempY = footprintsR.coordinatesArray[0][1];
+//                fRTempX = footprintsR.coordinatesArray[0][0];
+//                fRTempY = footprintsR.coordinatesArray[0][1];
                 //"Lift" left foot.
                 if (footprintsL.spawnTracker[0] == 1) {
 //                        footprintsL.spawnTracker[0] = 2;
-                    fLTempX = footprintsL.coordinatesArray[0][0];
-                    fLTempY = footprintsL.coordinatesArray[0][1];
+//                    fLTempX = footprintsL.coordinatesArray[0][0];
+//                    fLTempY = footprintsL.coordinatesArray[0][1];
                     footprintsL.coordinatesArray[0][0] -= footprintsWidth / 2;
                     footprintsL.coordinatesArray[0][1] -= footprintsHeight / 2;
                     footprintsL.hitObstacle(0, false, false, false, true);
@@ -325,13 +332,13 @@ public class LocationCrazyRoad {
             if (x < footprintsR.coordinatesArray[0][0] - footprintsWidth) {//Touch is to left of left side of right foot.
                 //Spawn left foot.
                 footprintsL.spawnObstacle(0f, x, y, true);
-                fLTempX = footprintsL.coordinatesArray[0][0];
-                fLTempY = footprintsL.coordinatesArray[0][1];
+//                fLTempX = footprintsL.coordinatesArray[0][0];
+//                fLTempY = footprintsL.coordinatesArray[0][1];
                 //"Lift" right foot.
                 if (footprintsR.spawnTracker[0] == 1) {
 //                        footprintsR.spawnTracker[0] = 2;
-                    fRTempX = footprintsR.coordinatesArray[0][0];
-                    fRTempY = footprintsR.coordinatesArray[0][1];
+//                    fRTempX = footprintsR.coordinatesArray[0][0];
+//                    fRTempY = footprintsR.coordinatesArray[0][1];
                     footprintsR.coordinatesArray[0][0] -= footprintsWidth / 2;
                     footprintsR.coordinatesArray[0][1] -= footprintsHeight / 2;
                     footprintsR.hitObstacle(0, false, false, false, true);
@@ -340,8 +347,8 @@ public class LocationCrazyRoad {
             } else {//Touch is to right of left side of right foot.
                 //Spawn right foot.
                 footprintsR.spawnObstacle(0f, x, y, true);
-                fRTempX = footprintsR.coordinatesArray[0][0];
-                fRTempY = footprintsR.coordinatesArray[0][1];
+//                fRTempX = footprintsR.coordinatesArray[0][0];
+//                fRTempY = footprintsR.coordinatesArray[0][1];
                 hopping = true;
             }
         }
@@ -352,9 +359,9 @@ public class LocationCrazyRoad {
     }
 
 
-    public void updateTFY(float d){
-        this.tFY += d;
-    }
+//    public void updateTFY(float d){
+//        this.tFY += d;
+//    }
 
     public void updateHomingSpeed(float factor){
         homingOb.homingSpeed += homingObHomingSpeed * factor;
@@ -377,18 +384,18 @@ public class LocationCrazyRoad {
         }
     }
 
-    public void updateTouchFollower(){
-        if(tFX != touchDownX + tFXOffset) {
-            tFX += tFSpeed * (touchDownX + tFXOffset - tFX);
-        }
-        if(tFY != touchDownY + tFYOffset){
-            tFY += tFSpeed * (touchDownY + tFYOffset - tFY);
-        }
-        //Prevent touchFollower from disappearing off bottom of screen.
-        if(tFY > backgroundHeight + tFYOffset){
-            tFY = backgroundHeight + tFYOffset;
-        }
-    }
+//    public void updateTouchFollower(){
+//        if(tFX != touchDownX + tFXOffset) {
+//            tFX += tFSpeed * (touchDownX + tFXOffset - tFX);
+//        }
+//        if(tFY != touchDownY + tFYOffset){
+//            tFY += tFSpeed * (touchDownY + tFYOffset - tFY);
+//        }
+//        //Prevent touchFollower from disappearing off bottom of screen.
+//        if(tFY > backgroundHeight + tFYOffset){
+//            tFY = backgroundHeight + tFYOffset;
+//        }
+//    }
 
     public void updateDifficulty(int difficultly){
         updateObstacleSeparation();
@@ -398,7 +405,7 @@ public class LocationCrazyRoad {
     public void updateObstacleSeparation() {
         float factor = (difficultly + 49f) / (difficultly + 50f);
         cone.updateDistanceBetweenObstacles(factor);
-        downTree.updateDistanceBetweenObstacles(factor);
+        semi.updateDistanceBetweenObstacles(factor);
         truck.updateDistanceBetweenObstacles(factor);
         crowd.updateDistanceBetweenObstacles(factor);
         car.updateDistanceBetweenObstacles(factor);
@@ -412,16 +419,17 @@ public class LocationCrazyRoad {
         car.increaseVerticalSpeed(factor);
         car2.increaseVerticalSpeed(factor);
 //        truck.increaseVerticalSpeed(factor);
+        semi.increaseVerticalSpeed(factor);
         truck.increaseVerticalSpeed(factor);
         crowd.increaseHorizontalSpeed(factor);
         crowd.increaseVerticalSpeed(factor);
         extraLives.increaseHorizontalSpeed(factor);
     }
 
-    public void resetTF(){
-        tFX = tFXOffset + backgroundWidth/2;
-        tFY = tFYOffset + backgroundHeight;
-    }
+//    public void resetTF(){
+//        tFX = tFXOffset + backgroundWidth/2;
+//        tFY = tFYOffset + backgroundHeight;
+//    }
 
     public void setTouchDownX(float x){
         this.touchDownX = x;
@@ -439,23 +447,25 @@ public class LocationCrazyRoad {
     //---------------------Draw obstacles---------------------------------------------
     public void draw(Canvas canvas, Paint paint, float interpolation, float velocity) {
 
+        coins.drawObstacles(canvas, paint, interpolation, velocity);
+        extraLives.drawObstacles(canvas, paint, interpolation, velocity);
         cone.drawObstacles(canvas, paint, interpolation, velocity);
-        downTree.drawObstacles(canvas, paint, interpolation, velocity);
         crowd.drawObstacles(canvas, paint, interpolation, velocity);
+        homingOb.drawObstacles(canvas, paint, interpolation, velocity);
         car.drawObstacles(canvas, paint, interpolation, velocity);
         car2.drawObstacles(canvas, paint, interpolation, velocity);
-        homingOb.drawObstacles(canvas, paint, interpolation, velocity);
-        extraLives.drawObstacles(canvas, paint, interpolation, velocity);
         truck.drawObstacles(canvas, paint, interpolation, velocity);
+        semi.drawObstacles(canvas, paint, interpolation, velocity);
 
         //Draw last so is the top layer.
         if(fpMode) {
             footprintsR.drawObstacles(canvas, paint, interpolation, velocity);
             footprintsL.drawObstacles(canvas, paint, interpolation, velocity);
-        } else {
-            //Draw touch follower.
-            canvas.drawBitmap(touchFollower, tFX, tFY, paint);  //TODO: implement interpolation.
         }
+//        else {
+//            //Draw touch follower.
+//            canvas.drawBitmap(touchFollower, tFX, tFY, paint);  //TODO: implement interpolation.
+//        }
     }
 
     //--------------Check if an obstacle has run into touchFollower when no fingers are down (only necessary if friendly sprite triggers obstacles)-----------------------------
@@ -473,10 +483,10 @@ public class LocationCrazyRoad {
             } else {
                 checkObstaclesTouched(false);
                 gS.velocity = 0;
-                if(!fpMode) {
-                    touchDownX = tFX - tFXOffset;
-                    touchDownY = tFY - tFYOffset;
-                }
+//                if(!fpMode) {
+//                    touchDownX = tFX - tFXOffset;
+//                    touchDownY = tFY - tFYOffset;
+//                }
                 gS.livesLeft--;
                 if (!mA.musicMuted) {
                     soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
@@ -488,15 +498,23 @@ public class LocationCrazyRoad {
             if(extraLives.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false) != -1) {
                 gS.livesLeft++;
                 if (!mA.musicMuted) {
-                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
+                    soundEffects.play(goodSoundId, 0.5f, 0.5f, 0, 0, 1);
                 }
             }
-        } else {
-            if (extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, true, false) != -1) {
-                gS.livesLeft++;
-                if (!mA.musicMuted) {
-                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
-                }
+        }
+//        else {
+//            if (extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, true, false) != -1) {
+//                gS.livesLeft++;
+//                if (!mA.musicMuted) {
+//                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
+//                }
+//            }
+//        }
+        if(coins.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false) != -1) {
+//                gS.livesLeft++;
+            gS.coins++;
+            if (!mA.musicMuted) {
+                soundEffects.play(goodSoundId, 0.5f, 0.5f, 0, 0, 1);
             }
         }
     }
@@ -505,10 +523,10 @@ public class LocationCrazyRoad {
     public void checkIfObstacleWasTouched(int livesLeft) {
         if (checkObstaclesTouched(false)) {
             if (livesLeft == 0) {
-                if(!fpMode) {
-                    touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
-                    tFRotated = true;
-                }
+//                if(!fpMode) {
+//                    touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateClockwise, true);
+//                    tFRotated = true;
+//                }
                 if (!mA.musicMuted) {
                     soundEffects.play(wilhelmScreamId, 1, 1, 0, 0, 1);
                 }
@@ -516,10 +534,10 @@ public class LocationCrazyRoad {
                 mA.setGameState(MainActivity.GAME_LOST);
             } else {
                 gS.velocity = 0;
-                if(!fpMode) {
-                    touchDownX = tFX - tFXOffset;
-                    touchDownY = tFY - tFYOffset;
-                }
+//                if(!fpMode) {
+//                    touchDownX = tFX - tFXOffset;
+//                    touchDownY = tFY - tFYOffset;
+//                }
                 --gS.livesLeft;
                 if (!mA.musicMuted) {
                     soundEffects.play(badSoundId, 1, 1, 0, 0, 1);
@@ -531,15 +549,23 @@ public class LocationCrazyRoad {
             if(extraLives.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false) != -1) {
                 gS.livesLeft++;
                 if (!mA.musicMuted) {
-                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
+                    soundEffects.play(goodSoundId, 0.5f, 0.5f, 0, 0, 1);
                 }
             }
-        } else {
-            if (extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, true, false) != -1) {
-                gS.livesLeft++;
-                if (!mA.musicMuted) {
-                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
-                }
+        }
+//        else {
+//            if (extraLives.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, true, false) != -1) {
+//                gS.livesLeft++;
+//                if (!mA.musicMuted) {
+//                    soundEffects.play(goodSoundId, 1, 1, 0, 0, 1);
+//                }
+//            }
+//        }
+        if(coins.wasObstacleTouched(touchDownX - footprintsWidth/2, touchDownY - footprintsHeight/2, footprintsWidth, footprintsHeight, true, true, true, false) != -1) {
+//                gS.livesLeft++;
+            gS.coins++;
+            if (!mA.musicMuted) {
+                soundEffects.play(goodSoundId, 0.5f, 0.5f, 0, 0, 1);
             }
         }
     }
@@ -547,19 +573,29 @@ public class LocationCrazyRoad {
     //---------------Update Obstacles---------------------------------------------------
     public void updateObs(float distance) {
         cone.updateObstacles(distance, true);
-        downTree.updateObstacles(distance, true);
         if (truck.updateObstacles(distance, true)) {
             if (!mA.musicMuted) {
-                soundEffects.play(truckHornId, 0.5f, 0.5f, 0, 0, 1);
+                soundEffects.play(driveSoundId, 0.5f, 0.5f, 0, 0, 1.5f);
+            }
+        }
+        if(semi.updateObstacles(distance, true)){
+            if(!mA.musicMuted){
+                soundEffects.play(driveSoundId, 0.5f, 0.5f, 0, 0, 1);
             }
         }
         crowd.updateObstacles(distance, true);
         if (car.updateObstacles(distance, true)) {
             if (!mA.musicMuted) {
-                soundEffects.play(carHornId, 0.5f, 0.5f, 0, 0, 1);
+                soundEffects.play(driveSoundId, 0.5f, 0.5f, 0, 0, 2f);
+            }
+        }
+        if (car2.updateObstacles(distance, true)) {
+            if (!mA.musicMuted) {
+                soundEffects.play(driveSoundId, 0.5f, 0.5f, 0, 0, 1.75f);
             }
         }
         homingOb.updateObstacles(distance, true);
+        coins.updateObstacles(distance, true);
 
         if(gS.distanceMode) {
             extraLives.updateObstacles(distance, true);
@@ -582,7 +618,7 @@ public class LocationCrazyRoad {
                     footprintsR.coordinatesArray[0][1] += 0.01 * (touchDownY - footprintsHeight * 2 - footprintsR.coordinatesArray[0][1]);
                 }
             }
-            fRTempY += distance;
+//            fRTempY += distance;
             if (footprintsL.spawnTracker[0] != 2) {//Left foot is down.
                 footprintsL.updateObstacles(distance, false);
             } else {//Left foot isn't down.
@@ -599,7 +635,7 @@ public class LocationCrazyRoad {
                     footprintsL.coordinatesArray[0][1] += 0.01 * (touchDownY - footprintsHeight * 2 - footprintsL.coordinatesArray[0][1]);
                 }
             }
-            fLTempY += distance;
+//            fLTempY += distance;
 
             //Don't let last footprint go off bottom of screen (otherwise you could sort of cheat if you scrolled fast enough)
             if (gS.fingers.isEmpty()) {
@@ -621,12 +657,13 @@ public class LocationCrazyRoad {
     //Move obstacles(any movement independent from the road).
     public void move(){
         cone.moveObstacles();
-        downTree.moveObstacles();
+        semi.moveObstacles();
         truck.moveObstacles();
         crowd.moveObstacles();
         car.moveObstacles();
         car2.moveObstacles();
         homingOb.moveObstacles();
+        coins.moveObstacles();
         extraLives.moveObstacles();
     }
 
@@ -637,30 +674,30 @@ public class LocationCrazyRoad {
         checkCollisions();
 
         //Now check if touch follower is touching an obstacle.
-        if(!fpMode) {
-            if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
-                return true;
-            } else if (downTree.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
-                return true;
-            } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
-                return true;
-            } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1) {
-                return true;
-            }else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
-                return true;
-            }else if (car2.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
-                return true;
-            } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+//        if(!fpMode) {
+//            if (cone.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
+//                return true;
+//            } else if (semi.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
+//                return true;
+//            } else if (truck.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
+//                return true;
+//            } else if (crowd.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1) {
+//                return true;
+//            }else if (car.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
+//                return true;
+//            }else if (car2.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
+//                return true;
+//            } else if (homingOb.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight(), true, true, false, checkOnly) != -1){
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        } else {
             for (int i = 0; i < maxNumFootprints; i++) {
                 if (footprintsR.spawnTracker[i] == 1) {
                     if (cone.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                         return true;
-                    } else if (downTree.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
+                    } else if (semi.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                         return true;
                     } else if (truck.wasObstacleTouched(footprintsR.coordinatesArray[i][0], footprintsR.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                         return true;
@@ -677,7 +714,7 @@ public class LocationCrazyRoad {
                 if (footprintsL.spawnTracker[i] == 1) {
                     if (cone.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                         return true;
-                    } else if (downTree.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
+                    } else if (semi.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                         return true;
                     } else if (truck.wasObstacleTouched(footprintsL.coordinatesArray[i][0], footprintsL.coordinatesArray[i][1], footprintsWidth, footprintsHeight, true, true, false, checkOnly) != -1) {
                         return true;
@@ -692,7 +729,7 @@ public class LocationCrazyRoad {
                     }
                 }
             }
-        }
+//        }
         return false;
     }
 
@@ -707,7 +744,7 @@ public class LocationCrazyRoad {
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if (downTree.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false) != -1) {
+                    if (semi.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false) != -1) {
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -820,9 +857,56 @@ public class LocationCrazyRoad {
 //                }
             }
         }
+        for(int i = 0; i < maxNumSemis; i++){
+            if(semi.speedArray[i][1] != 0) {
+                if (cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound5Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (crowd.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1.1f);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (homingOb.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, true, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1.2f);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (car2.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (car.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (semi.checkOverlap(i, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false);
+            }
+        }
         //Check if cars have touched other obstacles.
         for (int i = 0; i < maxNumCars; i++){
-            if (car.spawnTracker[i] == 1){
+//            if (car.spawnTracker[i] == 1){
                 if(car.speedArray[i][1] != 0){
                     if(cone.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
@@ -854,7 +938,7 @@ public class LocationCrazyRoad {
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1){
+                    if(semi.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -868,10 +952,10 @@ public class LocationCrazyRoad {
                     }
                     extraLives.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false);
                 }
-            }
+//            }
         }
         for (int i = 0; i < maxNumCars2; i++){
-            if (car2.spawnTracker[i] == 1){
+//            if (car2.spawnTracker[i] == 1){
                 if(car2.speedArray[i][1] != 0){
                     if(cone.wasObstacleTouched(car2.coordinatesArray[i][0], car2.coordinatesArray[i][1], car2.obstacleWidth, car2.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
@@ -903,7 +987,7 @@ public class LocationCrazyRoad {
                         }
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(car2.coordinatesArray[i][0], car2.coordinatesArray[i][1], car2.obstacleWidth, car2.obstacleHeight, false, false, false, false) != -1){
+                    if(semi.wasObstacleTouched(car2.coordinatesArray[i][0], car2.coordinatesArray[i][1], car2.obstacleWidth, car2.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound4Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -917,10 +1001,10 @@ public class LocationCrazyRoad {
                         gS.collisionsWitnessed++;
                     }
                 }
-            }
+//            }
         }
         for (int i = 0; i < maxNumCrowds; i++){
-            if (crowd.spawnTracker[i] == 1){
+//            if (crowd.spawnTracker[i] == 1){
                 if(crowd.speedArray[i][0] != 0 || crowd.speedArray[i][1] != 0){
                     if(truck.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, true) != -1){
                         crowd.speedArray[i][0] *= -1;
@@ -945,7 +1029,7 @@ public class LocationCrazyRoad {
                         crowd.speedArray[i][1] *= -1;
                         gS.collisionsWitnessed++;
                     }
-                    if(downTree.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false) != -1){
+                    if(semi.wasObstacleTouched(crowd.coordinatesArray[i][0], crowd.coordinatesArray[i][1], crowd.obstacleWidth, crowd.obstacleHeight, false, false, false, false) != -1){
                         if (!mA.musicMuted) {
                             soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
                         }
@@ -954,7 +1038,7 @@ public class LocationCrazyRoad {
                         gS.collisionsWitnessed++;
                     }
                 }
-            }
+//            }
         }
         for (int i = 0; i < homingObMaxNum; i++){
             if (homingOb.spawnTracker[i] == 1){
@@ -966,7 +1050,7 @@ public class LocationCrazyRoad {
 //                    homingOb.speedArray[i][3] *= 0.99f;
                     gS.collisionsWitnessed++;
                 }
-                if(downTree.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false) != -1) {
+                if(semi.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, false) != -1) {
                     if (!mA.musicMuted) {
                         soundEffects.play(crashSound3Id, 0.5f, 0.5f, 0, 0, 1);
                     }
@@ -981,12 +1065,13 @@ public class LocationCrazyRoad {
     //--------------------------Reset obstacles------------------------------------------
     public void resetObstacles() {
         cone.resetObstacles(distBetweenCones, backgroundWidth, backgroundHeight);
-        downTree.resetObstacles(distBetweenDownTrees, backgroundWidth, backgroundHeight);
+        semi.resetObstacles(distBetweenSemis, backgroundWidth, backgroundHeight);
         truck.resetObstacles(distBetweenTrucks, backgroundWidth, backgroundHeight);
         crowd.resetObstacles(distBetweenCrowds, backgroundWidth, backgroundHeight);
         car.resetObstacles(distBetweenCars, backgroundWidth, backgroundHeight);
         car2.resetObstacles(distBetweenCars, backgroundWidth, backgroundHeight);
         homingOb.resetObstacles(homingObDistBetween, backgroundWidth, backgroundHeight);
+        coins.resetObstacles(distBetweenCoins, backgroundWidth, backgroundHeight);
         extraLives.resetObstacles(extraLivesDistBetween, backgroundWidth, backgroundHeight);
         footprintsR.resetObstacles(0f, backgroundWidth, backgroundHeight);
         footprintsL.resetObstacles(0f, backgroundWidth, backgroundHeight);
@@ -1002,22 +1087,26 @@ public class LocationCrazyRoad {
         if(fpMode) {
             footprintsL.spawnObstacle(0f, touchDownX - footprintsWidth * 2, backgroundHeight - footprintsHeight, true);
             footprintsR.spawnObstacle(0f, touchDownX + footprintsWidth, backgroundHeight - footprintsHeight, true);
-            fLTempX = footprintsL.coordinatesArray[0][0];
-            fLTempY = footprintsL.coordinatesArray[0][1];
-            fRTempX = footprintsR.coordinatesArray[0][0];
-            fRTempY = footprintsR.coordinatesArray[0][1];
-        } else {
-            //Reset touch follower to bottom middle of screen.
-            if (tFRotated) {
-                touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateCounterClockwise, true);
-                tFRotated = false;
-            }
-            resetTF();
+//            fLTempX = footprintsL.coordinatesArray[0][0];
+//            fLTempY = footprintsL.coordinatesArray[0][1];
+//            fRTempX = footprintsR.coordinatesArray[0][0];
+//            fRTempY = footprintsR.coordinatesArray[0][1];
         }
+//        else {
+//            //Reset touch follower to bottom middle of screen.
+//            if (tFRotated) {
+//                touchFollower = Bitmap.createBitmap(touchFollower, 0, 0, touchFollower.getWidth(), touchFollower.getHeight(), matrixRotateCounterClockwise, true);
+//                tFRotated = false;
+//            }
+//            resetTF();
+//        }
     }
 
     public void releaseAudio(){
         if(soundEffects != null) {
+            for(int i = 0; i < 30; i++){
+                soundEffects.stop(i);
+            }
             soundEffects.release();
             soundEffects = null;
         }
@@ -1025,28 +1114,30 @@ public class LocationCrazyRoad {
 //
     public void setAudio(){
         if(soundEffects == null) {
-////        soundEffects = new SoundPool.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
-//            soundEffects = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-//            badSoundId = soundEffects.load(context, R.raw.finger_runner_bad_sound, 1);
-//            goodSoundId = soundEffects.load(context, R.raw.finger_runner_good_sound, 1);
-//            crashSound2Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_2, 1);
-//            crashSound3Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_3, 1);
-//            crashSound4Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_4, 1);
-//            crashSound5Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_5, 1);
-//            truckHornId = soundEffects.load(context, R.raw.finger_runner_bad_truck_horn, 1);
-//            carHornId = soundEffects.load(context, R.raw.finger_runner_bad_car_horn, 1);
-//            wilhelmScreamId = soundEffects.load(context, R.raw.wilhelm_scream, 1);
-            soundEffects = mA.sfx;
-            badSoundId = mA.badSoundId;
-            goodSoundId = mA.goodSoundId;
-            crashSoundId = mA.crashSoundId;
-            crashSound2Id = mA.crashSound2Id;
-            crashSound3Id = mA.crashSound3Id;
-            crashSound4Id = mA.crashSound4Id;
-            crashSound5Id = mA.crashSound5Id;
-            truckHornId = mA.truckHornId;
-            carHornId = mA.carHornId;
-            wilhelmScreamId = mA.wilhelmScreamId;
+//        soundEffects = new SoundPool.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
+            soundEffects = new SoundPool(30, AudioManager.STREAM_MUSIC, 0);
+            badSoundId = soundEffects.load(context, R.raw.finger_runner_bad_sound, 1);
+            goodSoundId = soundEffects.load(context, R.raw.coin_sound_2, 1);
+            crashSound2Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_2, 1);
+            crashSound3Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_3, 1);
+            crashSound4Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_4, 1);
+            crashSound5Id = soundEffects.load(context, R.raw.finger_runner_crash_sound_5, 1);
+            truckHornId = soundEffects.load(context, R.raw.finger_runner_bad_truck_horn, 1);
+            carHornId = soundEffects.load(context, R.raw.finger_runner_bad_car_horn, 1);
+            wilhelmScreamId = soundEffects.load(context, R.raw.wilhelm_scream, 1);
+            driveSoundId = soundEffects.load(context, R.raw.car_driving, 1);
+
+//            soundEffects = mA.sfx;
+//            badSoundId = mA.badSoundId;
+//            goodSoundId = mA.goodSoundId;
+//            crashSoundId = mA.crashSoundId;
+//            crashSound2Id = mA.crashSound2Id;
+//            crashSound3Id = mA.crashSound3Id;
+//            crashSound4Id = mA.crashSound4Id;
+//            crashSound5Id = mA.crashSound5Id;
+//            truckHornId = mA.truckHornId;
+//            carHornId = mA.carHornId;
+//            wilhelmScreamId = mA.wilhelmScreamId;
         }
     }
 

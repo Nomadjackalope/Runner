@@ -21,8 +21,8 @@
     <string name="win2">Woot woot! A new high score!</string>
     <string name="win3">That was an alright run.</string>
 
-    <string name="loc0">Level 0:\nWarm-Ups</string>
-    <string name="loc1">Level 1:\nConstruction Zone</string>
+    <string name="loc0">Level 0:\nWarm-Up</string>
+    <string name="loc1">Level 1:\nRace Track</string>
     <string name="loc1MarathonLocked">"LOCKED: You must complete Level 1 Time Trial in under 0:30:000."</string>
     <string name="loc2">Level 2:\nThe Highway</string>
     <string name="loc2MarathonLocked">LOCKED: You must complete Level 2 Time Trial in under 0:25:000."</string>
