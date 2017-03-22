@@ -53,7 +53,7 @@ public class Time {
         int remainder = (int) time - minutes * 60000;
         this.seconds = (int) remainder / 1000;
         String secondsString;
-        if(seconds > 10) {
+        if(seconds > 9) {
             secondsString = String.valueOf(seconds);
         }else {
             secondsString = "0" + seconds;

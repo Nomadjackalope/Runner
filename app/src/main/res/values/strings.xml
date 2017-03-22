@@ -26,11 +26,11 @@
     <string name="loc1MarathonLocked">"LOCKED: You must complete Level 1 Time Trial in under 0:30:000."</string>
     <string name="loc2">Level 2:\nThe Highway</string>
     <string name="loc2MarathonLocked">LOCKED: You must complete Level 2 Time Trial in under 0:25:000."</string>
-    <string name="loc3">Level 3:\nThe Eitherway</string>
+    <string name="loc3">Level 3:\nTiny Traffic</string>
     <string name="loc3MarathonLocked">LOCKED: You must complete Level 3 Time Trial in under 0:25:000."</string>
 
     <string name="time_trial">Time Trial</string>
-    <string name="marathon">Marathon</string>
+    <string name="marathon">Distance</string>
     <string name="next_location">&gt;</string>
     <string name="previous_location">&lt;</string>
     <string name="location_unlocked">You unlocked a new location!</string>

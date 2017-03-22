@@ -24,8 +24,8 @@ public class LocationStationaryObstacles {
     private int coneResId = R.drawable.cone_xxhdpi;
     private int coneXScale = 74;
     private int coneYScale = 104;
-    private int maxNumCones = 40;
-    private float distBetweenCones = 500f;   //Initialized in resetVariables()
+    private int maxNumCones = 50;
+    private float distBetweenCones = 800f;   //Initialized in resetVariables()
     private float coneXSpeed = 0f;
     private float coneYSpeed = 0f;
 
@@ -569,6 +569,9 @@ public class LocationStationaryObstacles {
             racerTrigger = true;
             truck.verticalSpeed = -24;
             truck.doAutoSpawn(0);
+            if (!mA.musicMuted) {
+                soundEffects.play(driveSoundId, 0.5f, 0.5f, 1, 0, 2);
+            }
             truck.setDistanceBetweenObstacles(10000);
 //            truck.randomizeParameters = true;
         }
@@ -759,7 +762,7 @@ public class LocationStationaryObstacles {
 //                    }
                     if (homingOb.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, true, false, false) != -1) {
                         if (!mA.musicMuted) {
-                            soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1);
+                            soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1.2f);
                         }
                     }
 //                    if(car.wasObstacleTouched(truck.coordinatesArray[i][0], truck.coordinatesArray[i][1], truck.obstacleWidth, truck.obstacleHeight, false, false, false, false)){
@@ -882,12 +885,11 @@ public class LocationStationaryObstacles {
 //                    gS.collisionsWitnessed++;
 //                }
                 if(truck.wasObstacleTouched(homingOb.coordinatesArray[i][0], homingOb.coordinatesArray[i][1], homingOb.obstacleWidth, homingOb.obstacleHeight, false, false, false, true) != -1) {
-                    if (!mA.musicMuted) {
-                        soundEffects.play(crashSoundId, 0.5f, 0.5f, 0, 0, 1);
-                    }
+//                    if (!mA.musicMuted) {
+//                        soundEffects.play(crashSoundId, 0.5f, 0.5f, 0, 0, 1);
+//                    }
                     homingOb.speedArray[i][2] *= 0;
                     homingOb.speedArray[i][3] *= 0;
-                    gS.collisionsWitnessed++;
                 }
             }
         }

@@ -88,27 +88,23 @@
             android:id="@+id/endGameMenuAnchor"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="80dp"
             android:text=" " />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/endGameHeader"
+            android:text="RESULTS"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="PLACEHOLDER"
-            android:id="@+id/endGameText"
+            android:textAlignment="center"
+            android:background="@drawable/rectangle_white"
+            android:textStyle="bold"
             android:layout_alignTop="@+id/endGameMenuAnchor"
-            android:layout_alignLeft="@+id/endGameUserTime"
-            android:layout_alignStart="@+id/endGameUserTime"
-            android:layout_alignRight="@+id/endGameBestTime"
-            android:layout_alignEnd="@+id/endGameBestTime"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/endGameYourRun"
-            android:layout_below="@+id/endGameText"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginLeft="45dp"
@@ -116,16 +112,50 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="45dp"
-            android:layout_marginEnd="45dp"
-            android:text="Your Run: ###  Best Run: ###"
+            android:layout_marginEnd="45dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameUserTime"
+            android:text="Time: 1:23.45"
+            android:paddingLeft="4dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:background="@drawable/rectangle"/>
+            android:textColor="@android:color/black"
+            android:background="@drawable/rectangle_white"
+            android:layout_below="@+id/endGameHeader"
+            android:layout_alignStart="@+id/endGameHeader"
+            android:layout_alignLeft="@+id/endGameHeader"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameBestTime"
+            android:text="Best: 1:23.45"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/endGameHeader"
+            android:layout_alignStart="@+id/endGameMenuAnchor"
+            android:layout_alignLeft="@+id/endGameMenuAnchor"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/endGameStatNames"
-            android:layout_below="@+id/endGameYourRun"
+            android:layout_below="@+id/endGameUserTime"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginLeft="45dp"
@@ -134,42 +164,51 @@
             android:layout_alignParentEnd="true"
             android:layout_marginRight="45dp"
             android:layout_marginEnd="45dp"
-            android:text="Time:\nDistance:\nSteps:\nCoins:\n__________\nRun Score:\nHigh Score:\nXP Gained:"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:background="@drawable/rectangle"/>
+            android:text="Distance:\nTime:\nSteps:\nCoins:\n__________\nRun Score:\nHigh Score:\nRP Gained:"
+            android:paddingLeft="4dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/black"
+            android:background="@drawable/rectangle_white"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/endGameStats"
             android:layout_alignTop="@+id/endGameStatNames"
-            android:layout_toRightOf="@+id/endGameMenuAnchor"
-            android:text="-:--:---\n12345\n123\n123\n__________\n12345"
-            android:textAppearance="?android:attr/textAppearanceLarge"/>
+            android:layout_alignStart="@+id/endGameMenuAnchor"
+            android:layout_alignLeft="@+id/endGameMenuAnchor"
+            android:layout_alignEnd="@+id/endGameStatNames"
+            android:layout_alignRight="@+id/endGameStatNames"
+            android:text="12345\n-:--:---\n123\n123\n__________\n12345"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/black"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time: 1:23.45"
-            android:id="@+id/endGameUserTime"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_below="@+id/endGameStats"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="45dp"
-            android:layout_marginStart="45dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Best: 1:23.45"
-            android:id="@+id/endGameBestTime"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_below="@+id/endGameStats"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="45dp"
-            android:layout_marginEnd="45dp" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="PLACEHOLDER"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:id="@+id/endGameText"
+            android:layout_below="@+id/endGameStatNames"
+            android:gravity="center"
+            android:background="@drawable/rectangle_white"
+            android:layout_alignStart="@+id/endGameHeader"
+            android:layout_alignLeft="@+id/endGameHeader"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -177,7 +216,7 @@
             android:id="@+id/playAgainButton"
             android:background="@mipmap/play_again_text"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/endGameBestTime"
+            android:layout_below="@+id/endGameText"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="40dp"/>
 
@@ -207,6 +246,14 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="75dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/experiencePoints"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/textView"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -380,7 +427,7 @@
             android:id="@+id/exitSettingsButton"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="50dp"/>
+            android:layout_marginBottom="100dp"/>
 
         <ToggleButton
             android:layout_width="wrap_content"
@@ -396,7 +443,7 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="Whistle Music\n(1000 XP)"
+            android:textOff="Whistle Music\n(1000 RP)"
             android:textOn="Original Music"
             android:checked="false"
             android:enabled="false"
@@ -432,15 +479,6 @@
             android:layout_above="@id/resetButton"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/experiencePoints"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="75dp"/>
 
         <TextView
             android:layout_width="wrap_content"
