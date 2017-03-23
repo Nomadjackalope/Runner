@@ -62,18 +62,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
             android:text="Timer 1:23.45"
             android:id="@+id/timer"
             android:layout_gravity="left|top"
             android:visibility="visible"
-            android:background="@drawable/rectangle"/>
+            android:background="@drawable/rectangle"
+            android:padding="5dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/pause"
             android:id="@+id/tempButton"
-            android:layout_gravity="top|right" />
+            android:layout_gravity="top|right"
+            android:background="@mipmap/pause_symbol"
+            android:layout_marginTop="2dp" />
+
     </FrameLayout>
 
     <RelativeLayout
@@ -88,7 +92,7 @@
             android:id="@+id/endGameMenuAnchor"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="75dp"
             android:text=" " />
 
         <TextView
@@ -169,7 +173,7 @@
             android:paddingRight="2dp"
             android:paddingTop="5dp"
             android:paddingBottom="4dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@android:color/black"
             android:background="@drawable/rectangle_white"/>
 
@@ -189,7 +193,7 @@
             android:paddingBottom="4dp"
             android:textAlignment="viewStart"
             android:gravity="start"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@android:color/black"/>
 
         <TextView
@@ -210,6 +214,18 @@
             android:layout_alignEnd="@+id/endGameHeader"
             android:layout_alignRight="@+id/endGameHeader"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameButtonsBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/playAgainButton"
+            android:layout_alignStart="@+id/playAgainButton"
+            android:layout_alignLeft="@+id/playAgainButton"
+            android:layout_alignEnd="@+id/playAgainButton"
+            android:layout_alignRight="@+id/playAgainButton"
+            android:layout_alignBottom="@+id/mainMenuButton"/>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -226,8 +242,7 @@
             android:id="@+id/mainMenuButton"
             android:background="@mipmap/menu_text"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/playAgainButton"
-            android:layout_marginBottom="40dp"/>
+            android:layout_below="@+id/playAgainButton"/>
 
     </RelativeLayout>
 
@@ -241,6 +256,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="36dp"
             android:text="@string/finger_runner"
             android:id="@+id/textView"
             android:layout_centerHorizontal="true"
@@ -253,7 +269,8 @@
             android:id="@+id/experiencePoints"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/textView"/>
+            android:layout_below="@+id/textView"
+            android:layout_marginTop="2dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -261,12 +278,48 @@
             android:id="@+id/menuPlaceholder"
             android:layout_centerInParent="true"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/boxTextView"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/menuText"
+            android:layout_alignStart="@+id/previousLocationButton"
+            android:layout_alignLeft="@+id/previousLocationButton"
+            android:layout_alignEnd="@+id/nextLocationButton"
+            android:layout_alignRight="@+id/nextLocationButton"
+            android:layout_alignBottom="@+id/settingsButton"/>
+
+        <!--TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ttBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/playButton"
+            android:layout_alignStart="@+id/playButton"
+            android:layout_alignLeft="@+id/playButton"
+            android:layout_alignEnd="@+id/playButton"
+            android:layout_alignRight="@+id/playButton"
+            android:layout_alignBottom="@+id/menuBestTimeText"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/playDistanceModeButton"
+            android:layout_alignStart="@+id/playDistanceModeButton"
+            android:layout_alignLeft="@+id/playDistanceModeButton"
+            android:layout_alignEnd="@+id/playDistanceModeButton"
+            android:layout_alignRight="@+id/playDistanceModeButton"
+            android:layout_alignBottom="@+id/menuDistanceText"/-->
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/nextLocationButton"
-            android:text="@string/next_location"
-            android:layout_alignTop="@+id/menuPlaceholder"
+            android:background="@mipmap/right_arrow"
+            android:layout_alignBottom="@+id/menuText"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_marginEnd="15dp"
@@ -276,8 +329,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/previousLocationButton"
-            android:text="@string/previous_location"
-            android:layout_alignTop="@+id/menuPlaceholder"
+            android:background="@mipmap/left_arrow"
+            android:layout_alignBottom="@+id/menuText"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_marginStart="15dp"
@@ -288,39 +341,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/playButton"
-            android:background="@mipmap/time_trial_text"
+            android:background="@mipmap/time_trial_text_extra_space"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/nextLocationButton"/>
+            android:layout_above="@+id/menuPlaceholder"
+            android:layout_marginTop="20dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/playDistanceModeButton"
-            android:background="@mipmap/distance_text"
+            android:background="@mipmap/distance_text_extra_space"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/playButton"
-            android:layout_marginTop="25dp"/>
+            android:layout_below="@+id/menuBestTimeText"
+            android:layout_marginTop="18dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/settingsButton"
-            android:background="@mipmap/options_text"
-            android:layout_below="@+id/playDistanceModeButton"
+            android:background="@mipmap/options_text_extra_space"
+            android:layout_below="@+id/menuDistanceText"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/boxTextView"
-            android:background="@drawable/rectangle"
-            android:layout_alignTop="@+id/menuPlaceholder"
-            android:layout_alignStart="@+id/previousLocationButton"
-            android:layout_alignLeft="@+id/previousLocationButton"
-            android:layout_alignEnd="@+id/nextLocationButton"
-            android:layout_alignRight="@+id/nextLocationButton"
-            android:layout_alignBottom="@+id/settingsButton"/>
+            android:layout_marginTop="18dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -330,36 +372,42 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textAlignment="center"
             android:gravity="top"
-            android:layout_alignTop="@+id/menuPlaceholder"
+            android:layout_above="@+id/playButton"
             android:layout_toRightOf="@+id/previousLocationButton"
             android:layout_toLeftOf="@+id/nextLocationButton"
-            android:layout_marginTop="2dp"/>
+            android:paddingTop="2dp"/>
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="wrap_content"
             android:id="@+id/menuBestTimeText"
             android:text="Best Time: 1:23:45"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textAlignment="center"
+            android:padding="5dp"
             android:layout_alignStart="@+id/boxTextView"
             android:layout_alignLeft="@+id/boxTextView"
             android:layout_alignEnd="@+id/boxTextView"
             android:layout_alignRight="@+id/boxTextView"
             android:layout_below="@+id/playButton"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"/>
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="wrap_content"
             android:id="@+id/menuDistanceText"
             android:text="Longest Run: 12345"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textAlignment="center"
+            android:padding="5dp"
             android:layout_alignStart="@+id/boxTextView"
             android:layout_alignLeft="@+id/boxTextView"
             android:layout_alignEnd="@+id/boxTextView"
             android:layout_alignRight="@+id/boxTextView"
             android:layout_below="@+id/playDistanceModeButton"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -367,6 +415,18 @@
         android:layout_height="match_parent"
         android:id="@+id/pauseMenu"
         android:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pauseMenuBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/resumeButton"
+            android:layout_alignStart="@+id/resumeButton"
+            android:layout_alignLeft="@+id/resumeButton"
+            android:layout_alignEnd="@+id/resumeButton"
+            android:layout_alignRight="@+id/resumeButton"
+            android:layout_alignBottom="@+id/pauseMMButton"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -420,14 +480,26 @@
         android:id="@+id/settingsMenu"
         android:visibility="gone">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settingsTextView"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/creditsButton"
+            android:layout_alignStart="@+id/exitSettingsButton"
+            android:layout_alignLeft="@+id/exitSettingsButton"
+            android:layout_alignEnd="@+id/exitSettingsButton"
+            android:layout_alignRight="@+id/exitSettingsButton"
+            android:layout_alignBottom="@+id/exitSettingsButton"/>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Return to Main Menu"
             android:id="@+id/exitSettingsButton"
+            android:layout_below="@+id/mute_music_button"
             android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="100dp"/>
+            android:layout_marginBottom="5dp"/>
 
         <ToggleButton
             android:layout_width="wrap_content"
@@ -436,7 +508,7 @@
             android:textOff="@string/play_music"
             android:textOn="@string/mute_music"
             android:checked="true"
-            android:layout_above="@id/exitSettingsButton"
+            android:layout_below="@+id/whistleMusicButton"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
 
@@ -448,7 +520,7 @@
             android:checked="false"
             android:enabled="false"
             android:id="@+id/whistleMusicButton"
-            android:layout_above="@id/mute_music_button"
+            android:layout_below="@+id/resetButton"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="25dp"/>
 
@@ -457,8 +529,7 @@
             android:layout_height="wrap_content"
             android:text="Reset Game"
             android:id="@+id/resetButton"
-            android:layout_above="@id/whistleMusicButton"
-            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
             android:layout_marginBottom="25dp"/>
 
         <Button
@@ -478,19 +549,8 @@
             android:id="@+id/creditsButton"
             android:layout_above="@id/resetButton"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="25dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/settingsTextView"
-            android:background="@drawable/rectangle"
-            android:layout_alignTop="@+id/creditsButton"
-            android:layout_alignStart="@+id/exitSettingsButton"
-            android:layout_alignLeft="@+id/exitSettingsButton"
-            android:layout_alignEnd="@+id/exitSettingsButton"
-            android:layout_alignRight="@+id/exitSettingsButton"
-            android:layout_alignBottom="@+id/exitSettingsButton"/>
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="5dp"/>
 
     </RelativeLayout>
 
@@ -500,7 +560,8 @@
         android:id="@+id/creditsText"
         android:text="@string/credits"
         android:textSize="20dp"
-        android:background="@color/colorTransparentLightGray"
+        android:textColor="@android:color/black"
+        android:background="@drawable/rectangle"
         android:textAlignment="center"
         android:gravity="center"
         android:enabled="true"

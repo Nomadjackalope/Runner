@@ -56,10 +56,18 @@ public class Time {
         if(seconds > 9) {
             secondsString = String.valueOf(seconds);
         }else {
-            secondsString = "0" + seconds;
+            secondsString = "0" + String.valueOf(seconds);
         }
         remainder = remainder - seconds * 1000;
         this.milliseconds = remainder;
-        this.timeForDisplay = minutes + ":" + secondsString + "." + milliseconds;
+        String millisecondsString;
+        if(milliseconds > 99) {
+            millisecondsString = String.valueOf(milliseconds);
+        } else if(milliseconds > 9){
+            millisecondsString = "0" + String.valueOf(milliseconds);
+        } else {
+            millisecondsString = "00" + String.valueOf(milliseconds);
+        }
+        this.timeForDisplay = minutes + ":" + secondsString + "." + millisecondsString;
     }
 }

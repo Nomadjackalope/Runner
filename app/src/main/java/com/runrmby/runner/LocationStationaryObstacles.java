@@ -21,7 +21,7 @@ public class LocationStationaryObstacles {
     private float courseDistance = 30000f;  //Currently an arbitrary distance to the finish line.
 
     private Obstacles cone;
-    private int coneResId = R.drawable.cone_xxhdpi;
+    private int coneResId = R.mipmap.cone;
     private int coneXScale = 74;
     private int coneYScale = 104;
     private int maxNumCones = 50;
@@ -48,7 +48,7 @@ public class LocationStationaryObstacles {
 //    private float downTree2YSpeed = 0f;
 
     private Obstacles truck;
-    private int truckResId = R.drawable.race_car_xxhdpi;
+    private int truckResId = R.mipmap.race_car;
     private int truckXScale = 279;
     private int truckYScale = 487;
     private int maxNumTrucks = 1;
@@ -94,7 +94,7 @@ public class LocationStationaryObstacles {
     //float homingObHomingSpeed;
 
     private Obstacles coins;
-    private int coinsResId = R.drawable.coin;
+    private int coinsResId = R.mipmap.coin;
     private int coinScale = 75;
     private int maxNumCoins = 4;
     private float distBetweenCoins = 1200f;
@@ -115,17 +115,17 @@ public class LocationStationaryObstacles {
 //    private float tFSpeed = 0.15f;
 
     private Obstacles footprintsR;
-    private int footprintsRImageResId = R.drawable.right_foot_yellow_xxhdpi;
+    private int footprintsRImageResId = R.mipmap.right_foot_yellow;
     private int footprintsHeight;
     private int footprintsWidth;
     private int footprintsXScale = 80;//100;
-    private int footprintsYScale = 160;//230;
+    private int footprintsYScale = 184;//230;
     private int maxNumFootprints = 1;
 //    private float fRTempX;
 //    private float fRTempY;
 
     private Obstacles footprintsL;
-    private int footprintsLImageResId = R.drawable.left_foot_yellow_xxhdpi;
+    private int footprintsLImageResId = R.mipmap.left_foot_yellow;
 //    private float fLTempX;
 //    private float fLTempY;
 
@@ -191,6 +191,8 @@ public class LocationStationaryObstacles {
         homingOb = new Obstacles(context, homingObWidth, homingObHeight, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, homingObHomingSpeed, backgroundWidth, backgroundHeight + backgroundHeight, false, false, false);
         coins = new Obstacles(context, (int) (sX * coinScale), (int) (sY * coinScale), coinsResId, maxNumCoins, false, distBetweenCoins, coinsHorizontalSpeed, coinsVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
 
+        coins.setLimitSpawnX(coins.getObstacleWidth(), backgroundWidth - coins.getObstacleWidth(), false);
+
         cone.setMultiSpawn(true);
         truck.setLimitSpawnX(100, backgroundWidth - 100, false);
         truck.setSpawnBottom(true);
@@ -200,10 +202,10 @@ public class LocationStationaryObstacles {
         footprintsWidth = (int)(sX * footprintsXScale);
         footprintsHeight = (int)(sY * footprintsYScale);
         footprintsR = new Obstacles(context, footprintsWidth, footprintsHeight, footprintsRImageResId, maxNumFootprints, true, 0, 0, 0, 0, backgroundWidth, backgroundHeight, false, false, false);
-        footprintsR.setRotatedObsImage(R.drawable.right_foot_yellow_transparent_xxhdpi, (int)(sX*242), (int)(sY*556));
+        footprintsR.setRotatedObsImage(R.mipmap.right_foot_yellow_transparent, (int)(sX*171), (int)(sY*394)); // (int)(sX*242), (int)(sY*556));
 //        footprintsR.setBlink(5, 2);
         footprintsL = new Obstacles(context, footprintsWidth, footprintsHeight, footprintsLImageResId, maxNumFootprints, true, 0, 0, 0, 0, backgroundWidth, backgroundHeight, false, false, false);
-        footprintsL.setRotatedObsImage(R.drawable.left_foot_yellow_transparent_xxhdpi, (int)(sX*242), (int)(sY*556));
+        footprintsL.setRotatedObsImage(R.mipmap.left_foot_yellow_transparent, (int)(sX*171), (int)(sY*394)); // (int)(sX*242), (int)(sY*556));
 //        footprintsL.setBlink(5,2);
 
 //        //Initialize touch follower.

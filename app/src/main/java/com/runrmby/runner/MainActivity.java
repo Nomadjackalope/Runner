@@ -244,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
     private float bestD1 = -1;
     private float bestD2 = -1;
     private float bestD3 = -1;
+    private float highScoreT;
+    private float highScoreD;
     private float highScoreT0 = -1;
     private float highScoreT1 = -1;
     private float highScoreT2 = -1;
@@ -543,14 +545,38 @@ public class MainActivity extends AppCompatActivity {
                                 for(int i = 0; i < numLocations; i++) {
                                     String sTime = "bestTime" + String.valueOf(i);
                                     String sDist = "bestDistance" + String.valueOf(i);
+                                    String sHighT = "highScoreT" + String.valueOf(i);
+                                    String sHighD = "highScoreT" + String.valueOf(i);
                                     prefEditor.putLong(sTime, 0L);
                                     prefEditor.putFloat(sDist, 0f);
+                                    prefEditor.putFloat(sHighT, 0f);
+                                    prefEditor.putFloat(sHighD, 0f);
                                 }
-                                prefEditor.putLong("bestTime0_2", 0L);
+                                bestTime.changeTime(0L);
+                                bestDistance = 0f;
+                                bestT0 = -1;
+//                                bestT02 = 0;
+                                bestT1 = 0;
+                                bestT2 = 0;
+                                bestT3 = 0;
+//                                bestD0 = 0;
+                                bestD1 = 0;
+                                bestD2 = 0;
+                                bestD3 = 0;
+                                highScoreT = 0;
+                                highScoreD = 0;
+                                highScoreT0 = 0;
+                                highScoreT1 = 0;
+                                highScoreT2 = 0;
+                                highScoreT3 = 0;
+                                highScoreD1 = 0;
+                                highScoreD2 = 0;
+                                highScoreD3 = 0;
+//                                prefEditor.putLong("bestTime0_2", 0L);
                                 prefEditor.commit();
                                 Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();//TODO: make sure this can't cause a crash
 
-                                setLocationState(locationState);
+                                updateLoc(locationState);
 
                                 dialog.dismiss();
                             }
@@ -761,28 +787,28 @@ public class MainActivity extends AppCompatActivity {
 //                if(gameScreen.distanceMode) {
 //                    endGameHeaderText.setText(getResources().getString(R.string.loc0) + "\nDISTANCE MODE\nRESULTS:");
 //                } else {
-                    endGameHeaderText.setText("WARM-UP\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("Warm-Up\nTIME TRIAL RESULTS");
 //                }
                 break;
             case 1:
                 if(gameScreen.distanceMode) {
-                    endGameHeaderText.setText("RACE TRACK\nDISTANCE MODE RESULTS");
+                    endGameHeaderText.setText("Race Track\nDISTANCE MODE RESULTS");
                 } else {
-                    endGameHeaderText.setText("RACE TRACK\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("Race Track\nTIME TRIAL RESULTS");
                 }
                 break;
             case 2:
                 if(gameScreen.distanceMode) {
-                    endGameHeaderText.setText("THE HIGHWAY\nDISTANCE MODE RESULTS");
+                    endGameHeaderText.setText("The Highway\nDISTANCE MODE RESULTS");
                 } else {
-                    endGameHeaderText.setText("THE HIGHWAY\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("The Highway\nTIME TRIAL RESULTS");
                 }
                 break;
             case 3:
                 if(gameScreen.distanceMode) {
-                    endGameHeaderText.setText("TINY TRAFFIC\nDISTANCE MODE RESULTS");
+                    endGameHeaderText.setText("Tiny Traffic\nDISTANCE MODE RESULTS");
                 } else {
-                    endGameHeaderText.setText("TINY TRAFFIC\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("Tiny Traffic\nTIME TRIAL RESULTS");
                 }
                 break;
         }
@@ -793,7 +819,6 @@ public class MainActivity extends AppCompatActivity {
 //        savedTime = loadBestTime();
         long bT = bestTime.getTime();
         long yT = yourTime.getTime();
-//        int newXP = (locationState + 1)*(int)((20 * gameScreen.courseDistance) / yT);    //TODO: test this out for gaining time trial xp
 
         int steps = gameScreen.steps;
         float adjSteps = steps * 0.1f;
@@ -804,20 +829,21 @@ public class MainActivity extends AppCompatActivity {
         if(gameScreen.yourDistance < distance && !gameScreen.distanceMode){
             adjCoins = coins;
         } else {
-            adjCoins = coins * (1 + locationState * 0.75f);
+            adjCoins = coins * (1.25f + locationState * 0.25f);
         }
-        float adjTime = (yT + 1000*locationState) * 0.001f;
+        float adjTime = yT * 0.001f;
         float denominator = (float)Math.pow((adjSteps + adjTime), 1.5);
-        float runScore = 10*((((adjCoins + (adjDistance * adjDistance)) / denominator) * ((1 + adjCoins) / adjSteps) + (adjCoins * (1+locationState) * 0.25f)) * ((1 + locationState) * 0.25f));
-        int newXP = (int)(0.1 * runScore);
+        float runScore = 5*((((adjCoins + (adjDistance * adjDistance)) / denominator) * ((1 + adjCoins) / adjSteps) + (adjCoins * (1+locationState) * 0.25f)) * ((1 + locationState) * 0.25f));
+        int newXP = (int)(runScore);
         if(newXP == 0){
             newXP = 1;
         }
 
+        //If high score (not best time), get more experience points
         float highScore = loadHighScoreT();
         if(runScore > highScore){
             highScore = runScore;
-            xp += newXP * 1.5f;
+            newXP *= 1.5f;
             saveHighScoreT(highScore);
             endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
         } else {
@@ -840,17 +866,27 @@ public class MainActivity extends AppCompatActivity {
                 saveXP(xp);
                 timeDifferential.changeTime(bT - yT);
                 saveNewBestTime(yT);
-                if(locationsUnlocked < numLocations - 1) {
-                    if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) { //TODO: figure out how to do location/mode unlocked message
-                        locationsUnlocked = xp / xpToUnlockEachLvl;
-                        endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!\n\n" + getResources().getString(R.string.location_unlocked));
-                        saveLocationsUnlocked(locationsUnlocked);
-                    }else {
-                        endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
-                    }
-                } else {
-                    endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + timeDifferential.getTimeForDisplay() + "!");
+
+                String s = "You beat the best time by\n" + timeDifferential.getTimeForDisplay() + "!\n" + getResources().getString(R.string.win1);
+
+                if(xp > 99 && locationsUnlocked < 0){
+                    s += "\nStage 1 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
                 }
+                if(xp > 499 && locationsUnlocked < 1){
+                    s += "\nStage 2 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+                if(xp > 999 && locationsUnlocked < 2){
+                    s += "\nStage 3 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+
+                endGameText.setText(s);
+
                 endGameUserTime.setText("New Best Time:\nPrevious Best:");
                 endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(" + bestTime.getTimeForDisplay() + ")");
                 bestTime.changeTime(yT);
@@ -867,17 +903,26 @@ public class MainActivity extends AppCompatActivity {
                 endGameStats.setText(String.valueOf(distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n__________\n"
                         + String.format("%.2f", runScore) + "\n(" + String.format("%.2f", highScore) + ")\n" + String.valueOf(newXP));
 
-                if(locationsUnlocked < numLocations - 1) {
-                    if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) {
-                        locationsUnlocked = xp / xpToUnlockEachLvl;
-                        endGameText.setText(getResources().getString(R.string.win3) + "\n\n" + getResources().getString(R.string.location_unlocked));
-                        saveLocationsUnlocked(locationsUnlocked);
-                    }else {
-                        endGameText.setText(getResources().getString(R.string.win3));
-                    }
-                } else {
-                    endGameText.setText(getResources().getString(R.string.win3));
+                String s = getResources().getString(R.string.win3);
+
+                if(xp > 99 && locationsUnlocked < 0){
+                    s += "\nStage 1 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
                 }
+                if(xp > 499 && locationsUnlocked < 1){
+                    s += "\nStage 2 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+                if(xp > 999 && locationsUnlocked < 2){
+                    s += "\nStage 3 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+
+                endGameText.setText(s);
+
                 endGameUserTime.setText("Your Run:\nBest Time:");
                 endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(" + bestTime.getTimeForDisplay() + ")");
 
@@ -896,17 +941,27 @@ public class MainActivity extends AppCompatActivity {
 
             saveNewBestTime(yT);
             bestTime.changeTime(yT);
-            if(locationsUnlocked < numLocations - 1) {
-                if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) {
-                    locationsUnlocked = xp / xpToUnlockEachLvl;
-                    endGameText.setText(getResources().getString(R.string.win2) + "\n\n" + getResources().getString(R.string.location_unlocked));
-                    saveLocationsUnlocked(locationsUnlocked);
-                }else {
-                    endGameText.setText(getResources().getString(R.string.win2));
-                }
-            } else {
-                endGameText.setText(getResources().getString(R.string.win2));
+
+            String s = getResources().getString(R.string.win2);
+
+            if(xp > 99 && locationsUnlocked < 0){
+                s += "\nStage 1 unlocked!";
+                locationsUnlocked++;
+                saveLocationsUnlocked(locationsUnlocked);
             }
+            if(xp > 499 && locationsUnlocked < 1){
+                s += "\nStage 2 unlocked!";
+                locationsUnlocked++;
+                saveLocationsUnlocked(locationsUnlocked);
+            }
+            if(xp > 999 && locationsUnlocked < 2){
+                s += "\nStage 3 unlocked!";
+                locationsUnlocked++;
+                saveLocationsUnlocked(locationsUnlocked);
+            }
+
+            endGameText.setText(s);
+
             endGameUserTime.setText("New Best Time:\nPrevious Best");
             endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(-:--:---)");
 
@@ -929,28 +984,28 @@ public class MainActivity extends AppCompatActivity {
 //                if(gameScreen.distanceMode) {
 //                    endGameHeaderText.setText(getResources().getString(R.string.loc0) + "\nDISTANCE MODE\nRESULTS:");
 //                } else {
-                endGameHeaderText.setText("WARM-UP\nTIME TRIAL RESULTS");
+                endGameHeaderText.setText("Warm-Up\nTIME TRIAL RESULTS");
 //                }
                 break;
             case 1:
                 if(gameScreen.distanceMode) {
-                    endGameHeaderText.setText("RACE TRACK\nDISTANCE MODE RESULTS");
+                    endGameHeaderText.setText("Race Track\nDISTANCE MODE RESULTS");
                 } else {
-                    endGameHeaderText.setText("RACE TRACK\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("Race Track\nTIME TRIAL RESULTS");
                 }
                 break;
             case 2:
                 if(gameScreen.distanceMode) {
-                    endGameHeaderText.setText("THE HIGHWAY\nDISTANCE MODE RESULTS");
+                    endGameHeaderText.setText("The Highway\nDISTANCE MODE RESULTS");
                 } else {
-                    endGameHeaderText.setText("THE HIGHWAY\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("The Highway\nTIME TRIAL RESULTS");
                 }
                 break;
             case 3:
                 if(gameScreen.distanceMode) {
-                    endGameHeaderText.setText("TINY TRAFFIC\nDISTANCE MODE RESULTS");
+                    endGameHeaderText.setText("Tiny Traffic\nDISTANCE MODE RESULTS");
                 } else {
-                    endGameHeaderText.setText("TINY TRAFFIC\nTIME TRIAL RESULTS");
+                    endGameHeaderText.setText("Tiny Traffic\nTIME TRIAL RESULTS");
                 }
                 break;
         }
@@ -970,12 +1025,12 @@ public class MainActivity extends AppCompatActivity {
         if(yourDistance < (int)gameScreen.courseDistance && !gameScreen.distanceMode){
             adjCoins = coins;
         } else {
-            adjCoins = coins * (1 + locationState * 0.75f);
+            adjCoins = coins * (1.25f + locationState * 0.25f);
         }
         float adjTime = (yT + 1000*locationState) * 0.001f;
         float denominator = (float)Math.pow(adjSteps + adjTime, 1.5);
-        float runScore = 10*((((adjCoins + (adjDistance * adjDistance)) / denominator) * ((1 + adjCoins) / adjSteps) + (adjCoins * (1+locationState) * 0.25f)) * ((1 + locationState) * 0.25f));
-        int newXP = (int)(0.1 * runScore);
+        float runScore = 5*((((adjCoins + (adjDistance * adjDistance)) / denominator) * ((1 + adjCoins) / adjSteps) + (adjCoins * (1+locationState) * 0.25f)) * ((1 + locationState) * 0.25f));
+        int newXP = (int)(runScore);
 
 
         //Set end game textviews for losing.
@@ -985,7 +1040,7 @@ public class MainActivity extends AppCompatActivity {
             //TODO: make sure can't be higher if you don't finish
             if(runScore > highScore){
                 highScore = runScore;
-                xp += newXP * 1.5f;
+                newXP *= 1.5f;
                 saveHighScoreT(highScore);
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
             } else {
@@ -1004,41 +1059,42 @@ public class MainActivity extends AppCompatActivity {
 //        }
             endGameUserTime.setText("Your Run:\nBest Time");
 //            savedTime = loadBestTime();
+            String s = null;
             if (bT != 0) {
                 //There was a saved best time.
 //                bestTime.changeTime(savedTime);
                 endGameBestTime.setText("DQed\n(" + bestTime.getTimeForDisplay() + ")");
-                if(locationsUnlocked < numLocations - 1) {
-                    if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) {
-                        locationsUnlocked = xp / xpToUnlockEachLvl;
-                        endGameText.setText(getResources().getString(R.string.lose2) + "\n\n" + getResources().getString(R.string.location_unlocked));
-                        saveLocationsUnlocked(locationsUnlocked);
-                    }else {
-                        endGameText.setText(getResources().getString(R.string.lose2));
-                    }
-                } else {
-                    endGameText.setText(getResources().getString(R.string.lose2));
-                }
+                s = getResources().getString(R.string.lose2);
+
             } else {
                 //The loaded best time was null (there has never been a best time saved).
                 endGameBestTime.setText("DQed\n(-:--:---)");
-                if(locationsUnlocked < numLocations - 1) {
-                    if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) {
-                        locationsUnlocked = xp / xpToUnlockEachLvl;
-                        endGameText.setText(getResources().getString(R.string.lose1) + "\n\n" + getResources().getString(R.string.location_unlocked));
-                        saveLocationsUnlocked(locationsUnlocked);
-                    }else {
-                        endGameText.setText(getResources().getString(R.string.lose1));
-                    }
-                } else {
-                    endGameText.setText(getResources().getString(R.string.lose1));
-                }
+                s = getResources().getString(R.string.lose1);
             }
+
+            //TODO: new unlock display
+            if(xp > 99 && locationsUnlocked < 0){
+                s += "\nStage 1 unlocked!";
+                locationsUnlocked++;
+                saveLocationsUnlocked(locationsUnlocked);
+            }
+            if(xp > 499 && locationsUnlocked < 1){
+                s += "\nStage 2 unlocked!";
+                locationsUnlocked++;
+                saveLocationsUnlocked(locationsUnlocked);
+            }
+            if(xp > 999 && locationsUnlocked < 2){
+                s += "\nStage 3 unlocked!";
+                locationsUnlocked++;
+                saveLocationsUnlocked(locationsUnlocked);
+            }
+            endGameText.setText(s);
+
         } else{
             float highScore = loadHighScoreD();
             if(runScore > highScore){
                 highScore = runScore;
-                xp += newXP * 1.5f;
+                newXP *= 1.5f;
                 saveHighScoreD(highScore);
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
             } else {
@@ -1056,17 +1112,27 @@ public class MainActivity extends AppCompatActivity {
                 xp += newXP;
                 endGameUserTime.setText("New Long Run:\nPrevious Best");
                 endGameBestTime.setText(String.valueOf(yourDistance) + "\n(" + String.format("%.0f", bestDistance) + ")");
-                if(locationsUnlocked < numLocations - 1) {
-                    if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) {
-                        locationsUnlocked = xp / xpToUnlockEachLvl - 1;
-                        endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!\n\n" + getResources().getString(R.string.location_unlocked));
-                        saveLocationsUnlocked(locationsUnlocked);
-                    }else {
-                        endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!");
-                    }
-                } else {
-                    endGameText.setText(getResources().getString(R.string.win1) + "\nYou beat the record by\n" + String.valueOf(distanceDifferential) + "!");
+
+                String s = "You beat the longest run by\n" + String.format("%.0f", distanceDifferential) + "!\n" + getResources().getString(R.string.win1);
+
+                if(xp > 99 && locationsUnlocked < 0){
+                    s += "\nStage 1 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
                 }
+                if(xp > 499 && locationsUnlocked < 1){
+                    s += "\nStage 2 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+                if(xp > 999 && locationsUnlocked < 2){
+                    s += "\nStage 3 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+
+                endGameText.setText(s);
+
 //                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
                 //Keep game music going.
                 setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
@@ -1079,17 +1145,27 @@ public class MainActivity extends AppCompatActivity {
                 xp += newXP;
                 endGameUserTime.setText("Your Run:\nLongest Run");
                 endGameBestTime.setText(String.valueOf(yourDistance) + "\n(" + String.format("%.0f", bestDistance) + ")");
-                if(locationsUnlocked < numLocations - 1) {
-                    if (xp > (locationsUnlocked + 1) * xpToUnlockEachLvl - 1) {
-                        locationsUnlocked = xp / xpToUnlockEachLvl;
-                        endGameText.setText(getResources().getString(R.string.lose2) + "\n\n" + getResources().getString(R.string.location_unlocked));
-                        saveLocationsUnlocked(locationsUnlocked);
-                    }else {
-                        endGameText.setText(getResources().getString(R.string.lose2));
-                    }
-                } else {
-                    endGameText.setText(getResources().getString(R.string.lose2));
+
+                String s = getResources().getString(R.string.lose2);
+
+                if(xp > 99 && locationsUnlocked < 0){
+                    s += "\nStage 1 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
                 }
+                if(xp > 499 && locationsUnlocked < 1){
+                    s += "\nStage 2 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+                if(xp > 999 && locationsUnlocked < 2){
+                    s += "\nStage 3 unlocked!";
+                    locationsUnlocked++;
+                    saveLocationsUnlocked(locationsUnlocked);
+                }
+
+                endGameText.setText(s);
+
                 //Keep game music going.
                 setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
             }
@@ -1442,15 +1518,16 @@ public class MainActivity extends AppCompatActivity {
     private void updateLoc(int loc) {
 //        int prevLoc = locationState;
         locationState = loc;
-        experiencePointsText.setText(String.valueOf(xp) + " Runner Points (RP)");
+        experiencePointsText.setText(String.valueOf(xp) + " Runner Points");
+        highScoreT = loadHighScoreT();
+        highScoreD = loadHighScoreD();
+        bestTime.changeTime(loadBestTime());
         if (loc < numLocations && loc > -1) {
             switch (loc) {
                 case 0:
                     timeTrial2Flag = false;
 
-                    //TODO: display xp somewhere on menu
                     menuText.setText(getResources().getString(R.string.loc0));
-                    bestTime.changeTime(loadBestTime());
                     playButton.setEnabled(true);
 //                    playButton.setText(getResources().getString(R.string.time_trial));
                     playMarathonButton.setVisibility(View.GONE);
@@ -1458,7 +1535,7 @@ public class MainActivity extends AppCompatActivity {
 
 //                    Time bestTime2 = new Time();
                     if (bestTime.getTime() == 0L) {
-                        menuTimeText.setText("-:--:---");
+                        menuTimeText.setText("Best Time: -:--:---\nHigh Score: " + String.format("%.2f", highScoreT));
 //                        playMarathonButton.setEnabled(false);
 //                        menuDistanceText.setText("LOCKED: You must complete Time Trial 1 in under 0:10:000.");
                     }
@@ -1469,7 +1546,7 @@ public class MainActivity extends AppCompatActivity {
 //                    }
                     else {
 //                        playMarathonButton.setEnabled(true);
-                        menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());//"Best Time: " + bestTime.getTimeForDisplay());
+                        menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));//"Best Time: " + bestTime.getTimeForDisplay());
 //
 //                        timeTrial2Flag = true;
 //                        bestTime2.changeTime(loadBestTime());
@@ -1489,7 +1566,6 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     timeTrial2Flag = false;
 
-                    //TODO: display xp somewhere on menu
                     menuText.setText(getResources().getString(R.string.loc1));
 //                    playButton.setText(getResources().getString(R.string.time_trial));
 //                    playMarathonButton.setText(getResources().getString(R.string.marathon));
@@ -1497,21 +1573,21 @@ public class MainActivity extends AppCompatActivity {
 
                     if (locationsUnlocked > 0) {
                         playButton.setEnabled(true);
-                        bestTime.changeTime(loadBestTime());
+//                        bestTime.changeTime(loadBestTime());
 
                         if (bestTime.getTime() == 0L) {
-                            menuTimeText.setText("-:--:---");
+                            menuTimeText.setText("Best Time: -:--:---\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc1MarathonLocked));
                         } else if (bestTime.getSeconds() > 29) {
-                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());
+                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc1MarathonLocked));
                         } else {
-                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());
+                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(true);
                             bestDistance = loadBestDistance();
-                            menuDistanceText.setText("Farthest Run: " + String.valueOf(bestDistance)); //TODO: format
+                            menuDistanceText.setText("Longest Run: " + String.format("%.0f", bestDistance) + "\nHigh Score: " + String.format("%.2f", highScoreD));
                         }
 
                     } else {
@@ -1526,34 +1602,33 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2:
                     timeTrial2Flag = false;
-                    //TODO: display xp somewhere on menu
                     menuText.setText(getResources().getString(R.string.loc2));
 //                    playButton.setText(getResources().getString(R.string.time_trial));
 //                    playMarathonButton.setText(getResources().getString(R.string.marathon));
 
                     if (locationsUnlocked > 1) {
                         playButton.setEnabled(true);
-                        bestTime.changeTime(loadBestTime());
+//                        bestTime.changeTime(loadBestTime());
 
                         if (bestTime.getTime() == 0L) {
-                            menuTimeText.setText("-:--:---");
+                            menuTimeText.setText("Best Time: -:--:---\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));
                         } else if (bestTime.getSeconds() > 24) {
-                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());
+                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));
                         } else {
-                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());
+                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(true);
                             bestDistance = loadBestDistance();
-                            menuDistanceText.setText("Farthest Run: " + String.valueOf(bestDistance)); //TODO: format
+                            menuDistanceText.setText("Longest Run: " + String.format("%.0f", bestDistance) + "\nHigh Score: " + String.format("%.2f", highScoreD));
                         }
 
                     } else {
                         playButton.setEnabled(false);
                         playMarathonButton.setEnabled(false);
-                        menuTimeText.setText("LOCKED: 200 RP required.");
+                        menuTimeText.setText("LOCKED: 500 RP required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1568,27 +1643,27 @@ public class MainActivity extends AppCompatActivity {
 
                     if (locationsUnlocked > 2) {
                         playButton.setEnabled(true);
-                        bestTime.changeTime(loadBestTime());
+//                        bestTime.changeTime(loadBestTime());
 
                         if (bestTime.getTime() == 0L) {
-                            menuTimeText.setText("-:--:---");
+                            menuTimeText.setText("Best Time: -:--:---\nHigh Score: \n" + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc3MarathonLocked));
                         } else if (bestTime.getSeconds() > 24) {
-                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());
+                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(false);
                             menuDistanceText.setText(getResources().getString(R.string.loc3MarathonLocked));
                         } else {
-                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay());
+                            menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             playMarathonButton.setEnabled(true);
                             bestDistance = loadBestDistance();
-                            menuDistanceText.setText("Farthest Run: " + String.valueOf(bestDistance)); //TODO: format
+                            menuDistanceText.setText("Longest Run: " + String.format("%.0f", bestDistance) + "\nHigh Score: " + String.format("%.2f", highScoreD));
                         }
 
                     } else {
                         playButton.setEnabled(false);
                         playMarathonButton.setEnabled(false);
-                        menuTimeText.setText("LOCKED: 300 RP required.");
+                        menuTimeText.setText("LOCKED: 1000 RP required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc3MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1605,13 +1680,13 @@ public class MainActivity extends AppCompatActivity {
                 locationRes = R.mipmap.background_0;
                 break;
             case 1:
-                locationRes = R.drawable.cone_xxhdpi;
+                locationRes = R.mipmap.cone;
                 break;
             case 2:
-                locationRes = R.drawable.right_foot_yellow_xxhdpi;
+                locationRes = R.mipmap.right_foot_yellow;
                 break;
             case 3:
-                locationRes = R.drawable.red_bug_xxhdpi;
+                locationRes = R.mipmap.semi;
                 break;
         }
         if (loc < prevLoc) {
@@ -1754,7 +1829,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        if(time == -1) {
+        if(time < 0) {
             String s;
             if (timeTrial2Flag) {
                 s = "bestTime" + String.valueOf(locationState) + "_2";
@@ -1762,6 +1837,25 @@ public class MainActivity extends AppCompatActivity {
                 s = "bestTime" + String.valueOf(locationState);
             }
             time = sharedPref.getLong(s, 0L);
+
+            switch (locationState){
+                case 0:
+//                if(timeTrial2Flag){
+//                    bestT02 = newBestTime;
+//                } else {
+                    bestT0 = time;
+//                }
+                    break;
+                case 1:
+                    bestT1 = time;
+                    break;
+                case 2:
+                    bestT2 = time;
+                    break;
+                case 3:
+                    bestT3 = time;
+                    break;
+            }
         }
 
 //        try {
@@ -1812,9 +1906,24 @@ public class MainActivity extends AppCompatActivity {
                 distance = bestD3;
                 break;
         }
-        if(distance == -1) {
+        if(distance < 0) {
             String s = "bestDistance" + String.valueOf(locationState);
             distance = sharedPref.getFloat(s, 0f);
+
+            switch (locationState){
+                case 0:
+                    //no distance mode
+                    break;
+                case 1:
+                    bestD1 = distance;
+                    break;
+                case 2:
+                    bestD2 = distance;
+                    break;
+                case 3:
+                    bestD3 = distance;
+                    break;
+            }
         }
         return distance;
     }
@@ -1857,9 +1966,24 @@ public class MainActivity extends AppCompatActivity {
                 score = highScoreT3;
                 break;
         }
-        if(score == -1) {
+        if(score < 0) {
             String s = "highScoreTMode" + String.valueOf(locationState);
             score = sharedPref.getFloat(s, 0f);
+
+            switch (locationState){
+                case 0:
+                    highScoreT0 = score;
+                    break;
+                case 1:
+                    highScoreT1 = score;
+                    break;
+                case 2:
+                    highScoreT2 = score;
+                    break;
+                case 3:
+                    highScoreT3 = score;
+                    break;
+            }
         }
         return score;
     }
@@ -1900,9 +2024,24 @@ public class MainActivity extends AppCompatActivity {
                 score = highScoreD3;
                 break;
         }
-        if(score == -1) {
+        if(score < 0) {
             String s = "highScoreDMode" + String.valueOf(locationState);
             score = sharedPref.getFloat(s, 0f);
+
+            switch (locationState){
+                case 0:
+//                    highScoreD0 = score;
+                    break;
+                case 1:
+                    highScoreD1 = score;
+                    break;
+                case 2:
+                    highScoreD2 = score;
+                    break;
+                case 3:
+                    highScoreD3 = score;
+                    break;
+            }
         }
         return score;
     }

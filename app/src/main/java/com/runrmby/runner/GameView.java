@@ -7,11 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -99,13 +101,18 @@ public class GameView extends SurfaceView implements Runnable {
     private static final int GameVersion2 = 1; // Count down
     private int gameVersion;
 
-    int TICKS_PER_SECOND = 25;
-    int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
-    int MAX_FRAMESKIP = 5;
-    int loops;
-    float interpolation;
+//    int TICKS_PER_SECOND = 25;
+//    int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
+//    int MAX_FRAMESKIP = 5;
+//    int loops;
+//    float interpolation;
 
     boolean screenInitialized = false;
+
+    boolean instructionsFlag = true;
+    Bitmap gameInstructions;
+    int instWidth = 916;
+    int instHeight = 467;
 
 
     public GameView(MainActivity mainActivity, Point windowSize) {
@@ -155,10 +162,11 @@ public class GameView extends SurfaceView implements Runnable {
         setBackgroundSizePos(p);
 
         //Initialize finish line.
-        finishLine = BitmapFactory.decodeResource(this.getResources(), R.drawable.finish_xxhdpi, null);
+        finishLine = BitmapFactory.decodeResource(this.getResources(), R.mipmap.finish, null);
 //        finishLine = Bitmap.createScaledBitmap(finishLine, (int)(sX * finishLine.getWidth()), (int)(sY * finishLine.getHeight()), true);
 
 //        resetVariables();
+        gameInstructions = BitmapFactory.decodeResource(this.getResources(), R.mipmap.basic_instructions, null);
     }
 
     public void setBackgroundSizePos(Point p) {
@@ -512,6 +520,15 @@ public class GameView extends SurfaceView implements Runnable {
             }
             //---------------------------------------------------------------------------------
 
+            //TODO: Show basic instructions at beginning of first run.
+            if(instructionsFlag){
+                canvas.drawBitmap(gameInstructions, backgroundWidth/2 - instWidth/2, backgroundHeight/2 - instHeight/2, paint);
+                if(gameRunning) {
+                    instructionsFlag = false;
+                    gameInstructions = null;
+                }
+            }
+
             // Draw all to screen and unlock
             holder.unlockCanvasAndPost(canvas);
         }
@@ -631,6 +648,13 @@ public class GameView extends SurfaceView implements Runnable {
                         steps++;
 
 //                        fpMode.spawnObstacle(0f, touchDownX - fpMode.getObstacleWidth()/2, touchDownY - fpMode.getObstacleHeight()); //Any value <=0 to spawn a footprint. Center x and offset y by height.
+                    }
+
+                    //Check if finish line has been reached.
+                    if(!distanceMode) {
+                        if (distRemaining <= 0) {//odometer > courseDistance){
+                            mA.setGameState(MainActivity.GAME_WON);
+                        }
                     }
 
                     //--------------Check if an obstacle has been touched-----------------------------
@@ -943,6 +967,11 @@ public class GameView extends SurfaceView implements Runnable {
 //            int testW = finishLine.getWidth();
 //            int testH = finishLine.getHeight();
             finishLine = Bitmap.createScaledBitmap(finishLine, (int) (sX * 1080), (int) (sY * 383), true);
+
+            instWidth *= sX;
+            instHeight *= sY;
+            gameInstructions = Bitmap.createScaledBitmap(gameInstructions, instWidth, instHeight, true);
+
             screenInitialized = true;
         }
 
