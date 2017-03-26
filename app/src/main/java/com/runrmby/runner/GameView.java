@@ -991,8 +991,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                    setBackgroundSizePos(windowSize);
                 }
 
-                fpMode = !mA.timeTrial2Flag;
-                levelZero.setFpMode(fpMode);
+//                fpMode = !mA.timeTrial2Flag;
+//                levelZero.setFpMode(fpMode);
 
                 courseDistance = levelZero.getCourseDistance();
                 difficultyIncreaseSeparation = levelZero.getIncreaseDifficultyDistance();
@@ -1015,8 +1015,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                    setBackgroundSizePos(windowSize);
                 }
 
-                fpMode = true;
-                levelOne.setFpMode(fpMode);
+//                fpMode = true;
+//                levelOne.setFpMode(fpMode);
 
                 courseDistance = levelOne.getCourseDistance();
                 difficultyIncreaseSeparation = levelOne.getIncreaseDifficultyDistance();
@@ -1039,8 +1039,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                    setBackgroundSizePos(windowSize);
                 }
 
-                fpMode = true;
-                levelTwo.setFpMode(fpMode);
+//                fpMode = true;
+//                levelTwo.setFpMode(fpMode);
 
                 courseDistance = levelTwo.getCourseDistance();
                 difficultyIncreaseSeparation = levelTwo.getIncreaseDifficultyDistance();
@@ -1063,8 +1063,8 @@ public class GameView extends SurfaceView implements Runnable {
 //                    setBackgroundSizePos(windowSize);
                 }
 
-                fpMode = true;
-                levelThree.setFpMode(fpMode);
+//                fpMode = true;
+//                levelThree.setFpMode(fpMode);
 
                 courseDistance = levelThree.getCourseDistance();
                 difficultyIncreaseSeparation = levelThree.getIncreaseDifficultyDistance();

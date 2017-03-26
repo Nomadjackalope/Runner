@@ -97,7 +97,7 @@ public class LocationStationaryObstacles {
     private int coinsResId = R.mipmap.coin;
     private int coinScale = 75;
     private int maxNumCoins = 4;
-    private float distBetweenCoins = 1200f;
+    private float distBetweenCoins = 1500f;
     private float coinsHorizontalSpeed = 0f;
     private float coinsVerticalSpeed = 0f;
 
@@ -160,13 +160,15 @@ public class LocationStationaryObstacles {
     private int backgroundWidth;
     private int backgroundHeight;
 
+    float factor;
+
     private float lastY;
     private boolean stepFlag;
     boolean hopping;
 
     Context context;
 
-    boolean fpMode = false; //If false, using touchFollower character instead of fpMode.
+    boolean fpMode = true; //If false, using touchFollower character instead of fpMode.
 
 //    boolean timeTrial2Flag = false;
 
@@ -406,7 +408,7 @@ public class LocationStationaryObstacles {
 
     public void updateObstacleSeparation() {
         //TODO: make factor global
-        float factor = (difficultly + 49f) / (difficultly + 50f);
+        factor = (difficultly + 49f) / (difficultly + 50f);
 //        downTree.updateDistanceBetweenObstacles(factor);
 //        downTree2.updateDistanceBetweenObstacles(factor);
         if(!racerTrigger) {

@@ -83,7 +83,7 @@ public class LocationNoObstacles {
     private int coinsResId = R.mipmap.coin;
     private int coinScale = 75;
     private int maxNumCoins = 4;
-    private float distBetweenCoins = 1000f;
+    private float distBetweenCoins = 1500f;
     private float coinsHorizontalSpeed = 0f;
     private float coinsVerticalSpeed = 0f;
 
@@ -151,7 +151,7 @@ public class LocationNoObstacles {
 
     Context context;
 
-    boolean fpMode = false; //If false, using touchFollower character instead of fpMode.
+    boolean fpMode = true; //If false, using touchFollower character instead of fpMode.
 
 //    boolean timeTrial2Flag = false;
 
@@ -175,7 +175,7 @@ public class LocationNoObstacles {
 //        homingOb = new Obstacles(context, homingObWidth, homingObHeight, homingObResID, homingObMaxNum, false, homingObDistBetween, homingObXSpeed, homingObYSpeed, homingObHomingSpeed, backgroundWidth, backgroundHeight + backgroundHeight, true, false);
         coins = new Obstacles(context, (int) (sX * coinScale), (int) (sY * coinScale), coinsResId, maxNumCoins, false, distBetweenCoins, coinsHorizontalSpeed, coinsVerticalSpeed, 0, backgroundWidth, backgroundHeight, true, false, false);
 
-        coins.setLimitSpawnX(coins.getObstacleWidth(), backgroundWidth - coins.getObstacleWidth(), false);
+        coins.setLimitSpawnX(coins.getObstacleWidth() + 50, backgroundWidth - coins.getObstacleWidth() - 50, false);
 
         //Initialize fpMode
         footprintsWidth = (int)(sX * footprintsXScale);

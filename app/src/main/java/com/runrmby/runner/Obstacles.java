@@ -65,6 +65,10 @@ public class Obstacles {
 
     Context context;
 
+    int sx;
+    float hS;
+    float vS;
+
     boolean limitSpawnX = false;
     int xMin;
     int xMax;
@@ -73,6 +77,8 @@ public class Obstacles {
     boolean multiSpawn = false;
     boolean spawnBottom = false;
     boolean flipY = false;
+
+    boolean directionalX = false;
 
     /**
      * @param randomize allows certain parameters to have variation.
@@ -152,7 +158,6 @@ public class Obstacles {
     }
 
     public boolean doAutoSpawn(float distanceToNextObstacle){
-        int sx;
         if(limitSpawnX){
             sx = random.nextInt(xMax - xMin) + xMin;
             if(mirror && random.nextBoolean()){//Will only mirror from left half to right half of screen.
@@ -198,8 +203,8 @@ public class Obstacles {
                         }
                     }
                     spawnTracker[lastSpawnIndex] = SPAWNED;
-                    float hS = horizontalSpeed;
-                    float vS = verticalSpeed;
+                    hS = horizontalSpeed;
+                    vS = verticalSpeed;
 //                    coordinatesArray[lastSpawnIndex][0] = x;
 //                    coordinatesArray[lastSpawnIndex][1] = y;
 //                    speedArray[lastSpawnIndex][0] = horizontalSpeed;
@@ -350,6 +355,13 @@ public class Obstacles {
 //                    //TODO: handle homing here
 //                }
 //                if (coordinatesArray[i][0] < windowWidth) {
+                if(directionalX){//Change orientation if moving left or right.
+                    if(speedArray[i][0] < 0){
+                        orientationArray[i] = 0;
+                    } else if (speedArray[i][0] > 0) {
+                        orientationArray[i] = 2;
+                    }
+                }
                     coordinatesArray[i][0] += speedArray[i][0];
 //                }
 //                if (coordinatesArray[i][1] < windowHeight) {
@@ -557,10 +569,10 @@ public class Obstacles {
         this.rotatedObsImage = Bitmap.createScaledBitmap(this.rotatedObsImage, scaleX, scaleY, true);
     }
 
-//    public void setRotatedObsImage2(int resID, int scaleX, int scaleY){
-//        this.rotatedObsImage2 = BitmapFactory.decodeResource(context.getResources(), resID, null);
-//        this.rotatedObsImage2 = Bitmap.createScaledBitmap(this.rotatedObsImage2, scaleX, scaleY, true);
-//    }
+    public void setRotatedObsImage2(int resID, int scaleX, int scaleY){
+        this.rotatedObsImage2 = BitmapFactory.decodeResource(context.getResources(), resID, null);
+        this.rotatedObsImage2 = Bitmap.createScaledBitmap(this.rotatedObsImage2, scaleX, scaleY, true);
+    }
 
     public void setBlink(int count, int cycles){
         this.blinkTime = count;
@@ -589,6 +601,10 @@ public class Obstacles {
 
     public void setFlipY(boolean b){
         this.flipY = b;
+    }
+
+    public void setDirectionalX(boolean b){
+        this.directionalX = b;
     }
 }
 

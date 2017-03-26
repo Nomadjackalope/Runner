@@ -35,6 +35,6 @@
     <string name="previous_location">&lt;</string>
     <string name="location_unlocked">You unlocked a new location!</string>
 
-    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nBenjamin Gordon and Mark Horton\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
+    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nMark Horton and Benjamin Gordon\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
     
 </resources>

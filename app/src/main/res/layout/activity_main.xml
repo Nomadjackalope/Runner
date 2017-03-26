@@ -13,7 +13,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/background_0"
+        android:background="@mipmap/background_00"
         android:id="@+id/titleScreen"
         android:visibility="visible" />
 
@@ -46,7 +46,7 @@
         android:gravity="center"
         android:visibility="gone"
         android:textAlignment="center"
-        android:text="Loading..."
+        android:text="Loading...\n\n\n\n\n\n"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <!-- This FrameLayout insets its children based on system windows using
@@ -111,12 +111,12 @@
             android:layout_alignTop="@+id/endGameMenuAnchor"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginLeft="45dp"
-            android:layout_marginStart="45dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="45dp"
-            android:layout_marginEnd="45dp" />
+            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -162,31 +162,61 @@
             android:layout_below="@+id/endGameUserTime"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginLeft="45dp"
-            android:layout_marginStart="45dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="45dp"
-            android:layout_marginEnd="45dp"
-            android:text="Distance:\nTime:\nSteps:\nCoins:\n__________\nRun Score:\nHigh Score:\nRP Gained:"
+            android:layout_alignBottom="@+id/endGameScoreValues"
+            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp"
+            android:text="Distance:\nTime:\nSteps:\nRunner Coins:\n__________"
             android:paddingLeft="4dp"
             android:paddingRight="2dp"
             android:paddingTop="5dp"
             android:paddingBottom="4dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/black"
             android:background="@drawable/rectangle_white"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/endGameStats"
-            android:layout_alignTop="@+id/endGameStatNames"
+            android:layout_below="@+id/endGameUserTime"
             android:layout_alignStart="@+id/endGameMenuAnchor"
             android:layout_alignLeft="@+id/endGameMenuAnchor"
             android:layout_alignEnd="@+id/endGameStatNames"
             android:layout_alignRight="@+id/endGameStatNames"
-            android:text="12345\n-:--:---\n123\n123\n__________\n12345"
+            android:text="12345\n-:--:---\n123\n123\n__________"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameScoreText"
+            android:text="Run Score:\nHigh Score:"
+            android:paddingLeft="4dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/endGameStats"
+            android:layout_alignStart="@+id/endGameHeader"
+            android:layout_alignLeft="@+id/endGameHeader"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameScoreValues"
+            android:text="123\n123"
             android:paddingLeft="2dp"
             android:paddingRight="4dp"
             android:paddingTop="5dp"
@@ -194,19 +224,25 @@
             android:textAlignment="viewStart"
             android:gravity="start"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/endGameStats"
+            android:layout_alignStart="@+id/endGameMenuAnchor"
+            android:layout_alignLeft="@+id/endGameMenuAnchor"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/endGameText"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
             android:text="PLACEHOLDER"
             android:paddingLeft="3dp"
             android:paddingRight="3dp"
             android:paddingTop="5dp"
             android:paddingBottom="4dp"
-            android:id="@+id/endGameText"
-            android:layout_below="@+id/endGameStatNames"
+            android:layout_below="@+id/endGameScoreValues"
             android:gravity="center"
             android:background="@drawable/rectangle_white"
             android:layout_alignStart="@+id/endGameHeader"
@@ -224,6 +260,18 @@
             android:layout_alignLeft="@+id/playAgainButton"
             android:layout_alignEnd="@+id/playAgainButton"
             android:layout_alignRight="@+id/playAgainButton"
+            android:layout_alignBottom="@+id/playAgainButton"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameMenuButtonBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/mainMenuButton"
+            android:layout_alignStart="@+id/mainMenuButton"
+            android:layout_alignLeft="@+id/mainMenuButton"
+            android:layout_alignEnd="@+id/mainMenuButton"
+            android:layout_alignRight="@+id/mainMenuButton"
             android:layout_alignBottom="@+id/mainMenuButton"/>
 
         <Button
@@ -268,6 +316,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/experiencePoints"
             android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/textView"
             android:layout_marginTop="2dp"/>
@@ -383,6 +432,7 @@
             android:id="@+id/menuBestTimeText"
             android:text="Best Time: 1:23:45"
             android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
             android:textAlignment="center"
             android:padding="5dp"
             android:layout_alignStart="@+id/boxTextView"
@@ -399,6 +449,7 @@
             android:id="@+id/menuDistanceText"
             android:text="Longest Run: 12345"
             android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
             android:textAlignment="center"
             android:padding="5dp"
             android:layout_alignStart="@+id/boxTextView"
@@ -426,6 +477,18 @@
             android:layout_alignLeft="@+id/resumeButton"
             android:layout_alignEnd="@+id/resumeButton"
             android:layout_alignRight="@+id/resumeButton"
+            android:layout_alignBottom="@+id/resumeButton"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pauseMenu2ButtonBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/pauseMMButton"
+            android:layout_alignStart="@+id/pauseMMButton"
+            android:layout_alignLeft="@+id/pauseMMButton"
+            android:layout_alignEnd="@+id/pauseMMButton"
+            android:layout_alignRight="@+id/pauseMMButton"
             android:layout_alignBottom="@+id/pauseMMButton"/>
 
         <Button
@@ -515,7 +578,7 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="Whistle Music\n(1000 RP)"
+            android:textOff="Whistle Music\n(2000 RC)"
             android:textOn="Original Music"
             android:checked="false"
             android:enabled="false"
@@ -552,6 +615,21 @@
             android:layout_marginBottom="25dp"
             android:layout_marginTop="5dp"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/statsText"
+            android:text="STATS"
+            android:padding = "5dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:textAlignment="center"
+            android:background="@drawable/rectangle_white"
+            android:layout_above="@+id/settingsTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
+
     </RelativeLayout>
 
     <TextView
@@ -561,7 +639,7 @@
         android:text="@string/credits"
         android:textSize="20dp"
         android:textColor="@android:color/black"
-        android:background="@drawable/rectangle"
+        android:background="@color/colorTransparentLightGray"
         android:textAlignment="center"
         android:gravity="center"
         android:enabled="true"
