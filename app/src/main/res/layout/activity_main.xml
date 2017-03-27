@@ -169,12 +169,13 @@
             android:layout_alignBottom="@+id/endGameScoreValues"
             android:layout_marginRight="30dp"
             android:layout_marginEnd="30dp"
-            android:text="Distance:\nTime:\nSteps:\nRunner Coins:\n__________"
+            android:text="Distance:\nTime:\nSteps:\nCoins:\n______________"
             android:paddingLeft="4dp"
             android:paddingRight="2dp"
             android:paddingTop="5dp"
             android:paddingBottom="4dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorDarkGrey"
             android:background="@drawable/rectangle_white"/>
 
         <TextView
@@ -186,14 +187,15 @@
             android:layout_alignLeft="@+id/endGameMenuAnchor"
             android:layout_alignEnd="@+id/endGameStatNames"
             android:layout_alignRight="@+id/endGameStatNames"
-            android:text="12345\n-:--:---\n123\n123\n__________"
+            android:text="12345\n-:--:---\n123\n123\n______________"
             android:paddingLeft="2dp"
             android:paddingRight="4dp"
             android:paddingTop="5dp"
             android:paddingBottom="4dp"
             android:textAlignment="viewStart"
             android:gravity="start"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorDarkGrey"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -644,13 +646,5 @@
         android:gravity="center"
         android:enabled="true"
         android:visibility="gone"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/statsMenu"
-        android:visibility="gone">
-
-    </RelativeLayout>
 
 </FrameLayout>

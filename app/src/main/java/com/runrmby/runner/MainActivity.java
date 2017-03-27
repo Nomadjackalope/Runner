@@ -134,37 +134,19 @@ public class MainActivity extends AppCompatActivity {
     public static final int TRANSIT_TO_MM = 11;
     public static final int SETTINGS =  12;
 
-//    private int colWit;
-//    private int xp;
-//    boolean timeTrial2Flag = false; //Necessary for level 0 because it has a second time trial instead of a marathon mode
-
     private MediaPlayer activeMusic;
     private static final int MENU_MUSIC = 0;
     private static final int GAME_MUSIC_1 = 1;
-//    private static final int LOSE_MUSIC_1 = 2;
-//    private static final int WIN_MUSIC_1 = 3;
-//    private static final int WIN_MUSIC_2 = 4;
-//    private static final int WIN_MUSIC_NEW_RECORD = 5;
-    private static final int WHISTLE_MUSIC = 6;
+    private static final int WHISTLE_MUSIC = 2;
     private int nowPlaying;
     boolean musicMuted;
     boolean musicPausedByLeavingApp;
     int activeMusicPosition;
-//    Thread musicThread;
     private boolean whistleMusicSelected = false;
 
     //Sound effects
     public SoundPool sfx;
-//    public int badSoundId;
-//    public int goodSoundId;
-//    public int crashSoundId;
-//    public int crashSound2Id;
-//    public int crashSound3Id;
-//    public int crashSound4Id;
     public int crashSound5Id;
-//    public int truckHornId;
-//    public int carHornId;
-//    public int wilhelmScreamId;
 
     private Button playButton;
     private Button playMarathonButton;
@@ -180,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton whistleMusicButton;
     private Button nextLocationButton;
     private Button previousLocationButton;
-//    private Button statsButton;
     private Button creditsButton;
 
     private TextView endGameHeaderText;
@@ -217,17 +198,12 @@ public class MainActivity extends AppCompatActivity {
     private Point windowSize = new Point(1000, 2000); // arbitrary values
 
     private int gameState = MAIN_MENU;
-    private int previousGameState = MAIN_MENU;
 
-    public int locationState = 0;  //0=original road artwork, 1 would be next location, etc. todo save variable
+    public int locationState = 0;
     private static int numLocations = 4;
     private int locationRes;
     private int locationsUnlocked;
-//    private static int xpToUnlockEachLvl = 100;    //todo arbitrary value
-//    private Animation fadeOut;
 
-    //private File bestTimeFilePath;
-//    private Long savedTime;
     private Time bestTime = new Time();
     private Time timeDifferential = new Time();
     private Time yourTime;
@@ -238,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
     private long bestT1 = -1;
     private long bestT2 = -1;
     private long bestT3 = -1;
-//    private float bestD0 = -1;
     private float bestD1 = -1;
     private float bestD2 = -1;
     private float bestD3 = -1;
@@ -256,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
     //Temp game won/lost variables.
     long bT;
     long yT;
+    float yourDistance;
     int steps;
     float adjSteps;
     float distance;
@@ -287,11 +263,6 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPref = getSharedPreferences("Runner", MODE_PRIVATE);
         prefEditor = sharedPref.edit();
-//        bestTimeFilePath = new File(this.getFilesDir(), "best_time");
-//        if(!bestTimeFilePath.exists()) {
-//            bestTimeFilePath.mkdir();
-//        }
-        //bestTimeFilePath.delete(); //Deletes best time on start for testing.
 
         //Get saved preferences.
         whistleMusicSelected = loadWhistleMusicSelection();
@@ -311,50 +282,12 @@ public class MainActivity extends AppCompatActivity {
         alternateTitleScreen = findViewById(R.id.titleScreenAlternate);
         gameScreen = new GameView(this, windowSize);
 
-//        //Handle menu swipes.   //TODO: Swipe or buttons? The ability to swipe to change locations isn't obvious
-//        mainMenu.setOnTouchListener(new OnSwipeTouchListener(this){  //Swipe options.
-//            public void onSwipeTop() {
-////                Toast.makeText(root.getContext(), "top", Toast.LENGTH_SHORT).show();
-//            }
-//            public void onSwipeRight() {
-////                Toast.makeText(root.getContext(), "right", Toast.LENGTH_SHORT).show();
-//                setLocationState(locationState - 1);
-//            }
-//            public void onSwipeLeft() {
-////                Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
-//                setLocationState(locationState + 1);
-////                else{
-////                    Toast.makeText(root.getContext(), "left", Toast.LENGTH_SHORT).show();
-////                }
-//            }
-//            public void onSwipeBottom() {
-////                Toast.makeText(root.getContext(), "bottom", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
-//        //Background animation.
-//        fadeOut = AnimationUtils.loadAnimation(titleScreen.getContext(), R.anim.fade_out);
-//        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//            }
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//                titleScreen.setBackgroundResource(locationRes);
-//                Animation fadeOut = AnimationUtils.loadAnimation(titleScreen.getContext(), R.anim.fade_in);
-//                root.startAnimation(fadeOut);
-//            }
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//            }
-//        });
-
 
         root.addView(gameScreen);
 
         gameScreen.setVisibility(View.VISIBLE);
         gameScreen.setTranslationY(windowSize.y);
-        gameScreen.setBackgroundColor(0x00000000); // Wish there was a way to get this from colors.xml
+        gameScreen.setBackgroundColor(getResources().getColor(R.color.transparent, null));
 
         //Music
         musicMuted = sharedPref.getBoolean("musicMuted", false);
@@ -363,9 +296,7 @@ public class MainActivity extends AppCompatActivity {
         setGameState(MAIN_MENU);
 
         //Fonts.
-//        font1 = Typeface.createFromAsset(getAssets(), "fonts/minecraft.ttf");
         pixellari = Typeface.createFromAsset(getAssets(), "fonts/Pixellari.ttf");
-//        font3 = Typeface.createFromAsset(getAssets(), "fonts/3Dventure.ttf");
 
         //Text Views
         timer = (TextView) findViewById(R.id.timer);
@@ -448,10 +379,6 @@ public class MainActivity extends AppCompatActivity {
                 if(!musicMuted && sfx != null){
                     sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                 }
-//                if(timeTrial2Flag) {
-//                    timeTrial2Flag = false;
-//                    bestTime.changeTime(loadBestTime());
-//                }
                 gameScreen.distanceMode = false;
                 setGameState(TRANSIT_TO_GAME);
             }
@@ -465,14 +392,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!musicMuted && sfx != null){
                     sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                 }
-//                if(locationState == 0) {
-//                    timeTrial2Flag = true;
-//                    bestTime.changeTime(loadBestTime());
-//                    gameScreen.distanceMode = false;
-//                } else {
-//                    timeTrial2Flag = false;
-                    gameScreen.distanceMode = true;
-//                }
+                gameScreen.distanceMode = true;
                 setGameState(TRANSIT_TO_GAME);
             }
         });
@@ -510,8 +430,6 @@ public class MainActivity extends AppCompatActivity {
                     sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                 }
                 setGameState(SETTINGS);
-//                hideAllMenus();
-//                settingsMenu.setVisibility(View.VISIBLE);
             }
         });
 
@@ -524,8 +442,6 @@ public class MainActivity extends AppCompatActivity {
                     sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                 }
                 setGameState(MAIN_MENU);
-//                hideAllMenus();
-//                mainMenu.setVisibility(View.VISIBLE);
             }
         });
 
@@ -551,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
                     sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                 }
                 //Reset.
-                AlertDialog.Builder resetWarning = new AlertDialog.Builder(root.getContext());//, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                AlertDialog.Builder resetWarning = new AlertDialog.Builder(root.getContext());
                 resetWarning.setMessage("Are you sure you want to reset EVERYTHING?");
                 resetWarning.setCancelable(true);
                 resetWarning.setPositiveButton(
@@ -561,10 +477,8 @@ public class MainActivity extends AppCompatActivity {
                                 if(!musicMuted && sfx != null){
                                     sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                                 }
-//                                xp = 0; //TODO get rid of this after testing.
-//                                prefEditor.putInt("xP", xp); //TODO get rid of this after testing.
-//                                experiencePointsText.setText(String.valueOf(xp) + " XP"); //TODO get rid of this after testing.
-                                locationsUnlocked = 0; //TODO get rid of this after testing.
+                                locationsUnlocked = 0;
+                                saveLocationsUnlocked(0);
 
                                 for(int i = 0; i < numLocations; i++) {
                                     String sTime = "bestTime" + String.valueOf(i);
@@ -579,11 +493,9 @@ public class MainActivity extends AppCompatActivity {
                                 bestTime.changeTime(0L);
                                 bestDistance = 0f;
                                 bestT0 = -1;
-//                                bestT02 = 0;
                                 bestT1 = 0;
                                 bestT2 = 0;
                                 bestT3 = 0;
-//                                bestD0 = 0;
                                 bestD1 = 0;
                                 bestD2 = 0;
                                 bestD3 = 0;
@@ -603,9 +515,8 @@ public class MainActivity extends AppCompatActivity {
                                 coinsPerSec = 0;
                                 secPerLife = 0;
                                 numRuns = 0;
-//                                prefEditor.putLong("bestTime0_2", 0L);
                                 prefEditor.commit();
-                                Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();//TODO: make sure this can't cause a crash
+                                Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();
 
                                 updateLoc(locationState);
                                 setGameState(gameState);
@@ -654,15 +565,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        statsButton = (Button) findViewById(R.id.statsButton);
-//        statsButton.setTypeface(pixellari);
-//        statsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //TODO
-//            }
-//        });
-
         creditsButton = (Button) findViewById(R.id.creditsButton);
         creditsButton.setTypeface(pixellari);
         creditsButton.setOnClickListener(new View.OnClickListener() {
@@ -687,7 +589,6 @@ public class MainActivity extends AppCompatActivity {
                 if(!musicMuted) {
                     stopMusic();
                     musicMuted = true;
-                    //musicPausedByButton = true;
                 }
                 else {
                     musicMuted = false;
@@ -695,7 +596,6 @@ public class MainActivity extends AppCompatActivity {
                         sfx.play(crashSound5Id, 1, 1, 0, 0, 1);
                     }
                     setMusicState(R.raw.finger_runner_main_menu, MENU_MUSIC, true);
-                    //musicPausedByButton = false;
                 }
 
                 //Store mute preference.
@@ -730,16 +630,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        loadXP();
         loadRunnerCoins();
-        loadDistPerSec();
+        loadStats();
         updateLoc(0); //TODO: probably not necessary, but could save last state to initialize with.
     }
 
     public void setGameState(int state) {
-        if(gameState != state) {
-            previousGameState = gameState;
-        }
         gameState = state;
         hideAllMenus();
 
@@ -787,8 +683,6 @@ public class MainActivity extends AppCompatActivity {
         gameScreen.resetVariables();
         gameScreen.resumeGame();
         setGameState(GAME_PLAYING);
-        //Start music.
-//        setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
     }
 
     public void setGamePlayingState() {
@@ -805,7 +699,6 @@ public class MainActivity extends AppCompatActivity {
         setMusicState(R.raw.finger_runner_game_music_1, GAME_MUSIC_1, true);
 
         gameMenu.setVisibility(View.VISIBLE);
-//        timer.setBackgroundColor(Color.LTGRAY);
         gameScreen.handleTouches = true;
     }
 
@@ -815,13 +708,10 @@ public class MainActivity extends AppCompatActivity {
         gameEndMenu.setVisibility(View.VISIBLE);
         root.removeView(gameEndMenu);
         root.addView(gameEndMenu);
+        endGameText.setBackgroundResource(R.drawable.rectangle_white);
         switch(locationState){
             case 0:
-//                if(gameScreen.distanceMode) {
-//                    endGameHeaderText.setText(getResources().getString(R.string.loc0) + "\nDISTANCE MODE\nRESULTS:");
-//                } else {
-                    endGameHeaderText.setText("Warm-Up\nTIME TRIAL RESULTS");
-//                }
+                endGameHeaderText.setText("Warm-Up\nTIME TRIAL RESULTS");
                 break;
             case 1:
                 if(gameScreen.distanceMode) {
@@ -845,20 +735,18 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
-//        endGameText.setBackgroundColor(Color.RED);
 
         // TODO Shrink this or at least separate it into its functional parts
         yourTime = gameScreen.gameTimer;
-//        savedTime = loadBestTime();
         bT = bestTime.getTime();
         yT = yourTime.getTime();
 
         steps = gameScreen.steps;
         adjSteps = steps * 0.1f;
-        distance = gameScreen.courseDistance;
+        distance = gameScreen.courseDistance / gameScreen.sY;
         adjDistance = distance * 0.001f;
         coins = gameScreen.coins;
-        if(gameScreen.yourDistance < distance && !gameScreen.distanceMode){
+        if((gameScreen.yourDistance  / gameScreen.sY) < distance && !gameScreen.distanceMode){
             adjCoins = coins;
         } else {
             adjCoins = coins * (1.25f + locationState * 0.25f);
@@ -866,42 +754,37 @@ public class MainActivity extends AppCompatActivity {
         adjTime = yT * 0.001f;
         denominator = (float)Math.pow((adjSteps + adjTime), 1.5);
         runScore = 5*((((adjCoins + (adjDistance * adjDistance)) / denominator) * ((1 + adjCoins) / adjSteps) + (adjCoins * (1+locationState) * 0.25f)) * ((1 + locationState) * 0.25f));
-//        int newXP = (int)(runScore);
-//        if(newXP == 0){
-//            newXP = 1;
-//        }
 
         //TODO: make coin spawning rate depend on previous run speed
         distPerSec = (distPerSec + (distance / (yT / 1000L))) / 2;
         distPerStep = (distPerStep + ( distance / (float)steps)) / 2;
         coinsPerSec = (coinsPerSec + ((float)coins / (yT / 1000L))) / 2;
         numRuns++;
-        addRunnerCoins(coins);
 
         //If high score (not best time), get more experience points
         highScore = loadHighScoreT();
         prevHighScore = highScore;
         if(runScore > highScore){
             highScore = runScore;
-//            newXP *= 1.5f;
             saveHighScoreT(highScore);
             endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
-            endGameScoreText.setText("New High Score:\nPrevious High:");
+            endGameScoreText.setText("New High Score:\nPrevious High:\nBONUS:");//\nRunner Coins:");
+            addRunnerCoins(coins * (2 + locationState));
+            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState)) + " coins");//\n" + String.valueOf(runnerCoins));
         } else {
             endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
-            endGameScoreText.setText("Run Score:\nHigh Score:");
+            endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins:");
+            addRunnerCoins(coins);
+            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
         }
 
         if(bT != 0) {
             //A best time exists.
-//            bestTime.changeTime(savedTime); //Put best time into Time class.
             if (yT < bT) {
                 //Your time is a new best time.
+
                 endGameUserTime.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
-//              //TODO: check if good value
-//                newXP += (locationState * 2 * newXP);
-//                xp += newXP;
-                endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n__________");
+                endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 
 
 //                saveXP(xp);
@@ -909,25 +792,47 @@ public class MainActivity extends AppCompatActivity {
                 saveNewBestTime(yT);
 
                 String s = "You beat the best time by\n" + timeDifferential.getTimeForDisplay() + "!\n" + getResources().getString(R.string.win1);
+                switch(locationState){
+                    case 0:
+                        //no distance mode to unlock
+                        break;
+                    case 1:
+                        if(bT > 24999){
+                            if(yT < 25000){
+                                s += "\nStage 1 Distance Mode unlocked!";
+                                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                            }
+                        }
+                        break;
+                    case 2:
+                        if(bT > 24999){
+                            if(yT < 25000){
+                                s += "\nStage 2 Distance Mode unlocked!";
+                                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                            }
+                        }
+                        break;
+                    case 3:
+                        if(bT > 24999){
+                            if(yT < 25000){
+                                s += "\nStage 3 Distance Mode unlocked!";
+                                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                            }
+                        }
+                        break;
+                }
                 s += checkStagesUnlocked();
 
                 endGameText.setText(s);
 
                 endGameUserTime.setText("New Best Time:\nPrevious Best:");
                 endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(" + bestTime.getTimeForDisplay() + ")");
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");
                 bestTime.changeTime(yT);
-
-                //Start win music.
-//                    setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
 
             } else {
                 //Your time isn't a new best time.
                 endGameUserTime.setBackgroundResource(R.drawable.rectangle_white);
-//              //TODO: check if good value
-//                newXP += (locationState * newXP);
-//                xp += newXP;
-                endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n__________");
+                endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 
                 String s = getResources().getString(R.string.win3);
                 s += checkStagesUnlocked();
@@ -936,37 +841,49 @@ public class MainActivity extends AppCompatActivity {
 
                 endGameUserTime.setText("Your Run:\nBest Time:");
                 endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(" + bestTime.getTimeForDisplay() + ")");
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");
-                //Start win music.
-//                    setMusicState(R.raw.finger_runner_win_2, WIN_MUSIC_2, false);
             }
         } else {
             //No best time has been saved (a run has never been completed), so your time is a new best time.
             endGameUserTime.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
-//          //TODO: check if good value
-//            newXP += (locationState * 2 * newXP);
-//            xp += newXP;
-            endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n__________");
+            endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 
 
             saveNewBestTime(yT);
             bestTime.changeTime(yT);
 
             String s = getResources().getString(R.string.win2);
+            switch(locationState) {
+                case 0:
+                    //no distance mode to unlock
+                    break;
+                case 1:
+                    if (yT < 25000) {
+                        s += "\nStage 1 Distance Mode unlocked!";
+                        endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                    }
+                    break;
+                case 2:
+                    if (yT < 25000) {
+                        s += "\nStage 2 Distance Mode unlocked!";
+                        endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                    }
+                    break;
+                case 3:
+                    if (yT < 25000) {
+                        s += "\nStage 3 Distance Mode unlocked!";
+                        endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                    }
+                    break;
+            }
             s += checkStagesUnlocked();
 
             endGameText.setText(s);
 
             endGameUserTime.setText("New Best Time:\nPrevious Best:");
             endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(-:--:---)");
-            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");
-
-            //Start win music.
-//                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
         }
 
-        saveDistPerSec();
-//        saveXP(xp);
+        saveStats();
     }
 
     public void setGameLostState() {
@@ -975,14 +892,11 @@ public class MainActivity extends AppCompatActivity {
         gameEndMenu.setVisibility(View.VISIBLE);
         root.removeView(gameEndMenu);
         root.addView(gameEndMenu);
+        endGameText.setBackgroundResource(R.drawable.rectangle_white);
 
         switch(locationState){
             case 0:
-//                if(gameScreen.distanceMode) {
-//                    endGameHeaderText.setText(getResources().getString(R.string.loc0) + "\nDISTANCE MODE\nRESULTS:");
-//                } else {
                 endGameHeaderText.setText("Warm-Up\nTIME TRIAL RESULTS");
-//                }
                 break;
             case 1:
                 if(gameScreen.distanceMode) {
@@ -1007,9 +921,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-//        int newXP = gameScreen.collisionsWitnessed; //TODO: test this way of gaining xp for marathon (add distance somehow)
-
-        float yourDistance = gameScreen.yourDistance;
+        distance = gameScreen.courseDistance / gameScreen.sY;
+        yourDistance = gameScreen.yourDistance / gameScreen.sY;
         distanceDifferential = yourDistance - bestDistance;
 
         yourTime = gameScreen.gameTimer;
@@ -1018,7 +931,7 @@ public class MainActivity extends AppCompatActivity {
         adjSteps = steps * 0.1f;
         adjDistance = yourDistance * 0.001f;
         coins = gameScreen.coins;
-        if(yourDistance < (int)gameScreen.courseDistance && !gameScreen.distanceMode){
+        if(yourDistance < (int)(gameScreen.courseDistance / gameScreen.sY) && !gameScreen.distanceMode){
             adjCoins = coins;
         } else {
             adjCoins = coins * (1.25f + locationState * 0.25f);
@@ -1026,14 +939,12 @@ public class MainActivity extends AppCompatActivity {
         adjTime = (yT + 1000*locationState) * 0.001f;
         denominator = (float)Math.pow(adjSteps + adjTime, 1.5);
         runScore = 5*((((adjCoins + (adjDistance * adjDistance)) / denominator) * ((1 + adjCoins) / adjSteps) + (adjCoins * (1+locationState) * 0.25f)) * ((1 + locationState) * 0.25f));
-//        int newXP = (int)(runScore);
 
         //TODO: make coin spawning rate depend on previous run speed
         distPerSec = (distPerSec + (yourDistance / (yT / 1000L))) / 2;
         distPerStep = (distPerStep + (yourDistance / (float)steps)) / 2;
         coinsPerSec = (coinsPerSec + ((float)coins / (yT / 1000L))) / 2;
         numRuns++;
-        addRunnerCoins(coins);
 
         //Set end game textviews for losing.
         if(!gameScreen.distanceMode) {
@@ -1043,41 +954,39 @@ public class MainActivity extends AppCompatActivity {
             //TODO: make sure can't be higher if you don't finish
             if(runScore > highScore){
                 highScore = runScore;
-//                newXP *= 1.5f;
                 saveHighScoreT(highScore);
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
-                endGameScoreText.setText("New High Score:\nPrevious High:");
+                endGameScoreText.setText("New High Score:\nPrevious High:\nBONUS:");//\nRunner Coins:");
+                addRunnerCoins(coins * (2 + locationState));
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState)) + " coins");//\n" + String.valueOf(runnerCoins));
             } else {
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
-                endGameScoreText.setText("Run Score:\nHigh Score:");
+                endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins:");
+                addRunnerCoins(coins);
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
             }
-            endGameStats.setText(String.format("%.0f", yourDistance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n__________");
+            endGameStats.setText(String.format("%.0f", yourDistance) + " (" + String.format("%.0f", (yourDistance)/distance*100) + "%)\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 
 //            xp += newXP;
 
             long bT = bestTime.getTime();
 
             //Start lose music.
-//        if(nowPlaying != LOSE_MUSIC_1) {
-//            setMusicState(R.raw.finger_runner_lose_1, LOSE_MUSIC_1, false);
-//        }
             endGameUserTime.setText("Your Run:\nBest Time:");
 //            savedTime = loadBestTime();
             String s;
             if (bT != 0) {
                 //There was a saved best time.
-//                bestTime.changeTime(savedTime);
-                endGameBestTime.setText("DQed\n(" + bestTime.getTimeForDisplay() + ")");
+                endGameBestTime.setText("DISQUALIFIED\n(" + bestTime.getTimeForDisplay() + ")");
                 s = getResources().getString(R.string.lose2);
 
             } else {
                 //The loaded best time was null (there has never been a best time saved).
-                endGameBestTime.setText("DQed\n(-:--:---)");
+                endGameBestTime.setText("DISQUALIFIED\n(-:--:---)");
                 s = getResources().getString(R.string.lose1);
             }
             s += checkStagesUnlocked();
             endGameText.setText(s);
-            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");
 
         } else{
             secPerLife = (secPerLife + ((yT / 1000) / 3)) / 2;
@@ -1088,13 +997,17 @@ public class MainActivity extends AppCompatActivity {
 //                newXP *= 1.5f;
                 saveHighScoreD(highScore);
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
-                endGameScoreText.setText("New High Score:\nPrevious High:");
+                endGameScoreText.setText("New High Score:\nPrevious High:\nBONUS:");//\nRunner Coins:");
+                addRunnerCoins(coins * (2 + locationState));
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState)) + " coins");//\n" + String.valueOf(runnerCoins));
             } else {
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
-                endGameScoreText.setText("Run Score:\nHigh Score:");
+                endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins");
+                addRunnerCoins(coins);
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
             }
 
-            endGameStats.setText(String.format("%.0f", yourDistance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n__________");
+            endGameStats.setText(String.format("%.0f", yourDistance) + " (" + String.format("%.0f", (yourDistance)/distance*100) + "%)\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 //            bestDistance = loadBestDistance();
 
             if(distanceDifferential > 0){
@@ -1104,7 +1017,6 @@ public class MainActivity extends AppCompatActivity {
 //                xp += newXP;
                 endGameUserTime.setText("New Long Run:\nPrevious Best:");
                 endGameBestTime.setText(String.format("%.0f", yourDistance) + "\n(" + String.format("%.0f", bestDistance) + ")");
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");
 
                 String s = "You beat the longest run by\n" + String.format("%.0f", distanceDifferential) + "!\n" + getResources().getString(R.string.win1);
                 s += checkStagesUnlocked();
@@ -1123,7 +1035,6 @@ public class MainActivity extends AppCompatActivity {
 //                xp += newXP;
                 endGameUserTime.setText("Your Run:\nLongest Run:");
                 endGameBestTime.setText(String.format("%.0f", yourDistance) + "\n(" + String.format("%.0f", bestDistance) + ")");
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");
 
                 String s = getResources().getString(R.string.lose2);
                 s += checkStagesUnlocked();
@@ -1135,7 +1046,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        saveDistPerSec();
+        saveStats();
 //        saveXP(xp);
     }
 
@@ -1157,8 +1068,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTransitMMState() {
-        //Have music fade out?
-//        fadeoutMusic();
 
         gameScreen.animate()
                 .translationY(windowSize.y)
@@ -1175,11 +1084,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTransitGameState() {
-        //Have music fade out.
-//        fadeoutMusic();
-
-
-        //TODO: show it's loading
+        //show it's loading
         loadingText.setVisibility(View.VISIBLE);
 
         lt = new Thread() {
@@ -1212,31 +1117,12 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         lt.start();
-//
-//        gameScreen.animate()
-//                .translationY(0)//-windowSize.y)
-//                .setDuration(1000);
-//        Update gameScreen to look reset.
-//        gameScreen.resetVariables();
-//        titleScreen.animate()
-//                .translationY(-windowSize.y)
-//                .setDuration(1000)
-//                .withEndAction(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        setGameState(GAME_INITIALIZING);
-//                    }
-//                });
-//
-//        //Make button and timer visible.
-//        root.removeView(gameMenu);
-//        root.addView(gameMenu);
     }
 
     public void setSettingsState() {
         hideAllMenus();
         creditsText.setVisibility(View.GONE);
-        statsText.setText("STATS\nRuns: " + String.valueOf(numRuns) + "\nAvg. Speed = " + String.format("%.0f", distPerSec) + " pix/sec\nAvg. Lifespan (Dist.) = " + String.format("%.2f", secPerLife) + " sec\nRunner Income = " + String.format("%.2f", coinsPerSec) + " coins/sec");
+//        statsText.setText("STATS\nRuns: " + String.valueOf(numRuns) + "\nAvg. Speed = " + String.format("%.0f", distPerSec) + " pix/sec\nAvg. Lifespan (Dist.) = " + String.format("%.2f", secPerLife) + " sec\nRunner Income = " + String.format("%.2f", coinsPerSec) + " coins/sec");
 
         settingsMenu.setVisibility(View.VISIBLE);
         if(runnerCoins > 1999){
@@ -1269,21 +1155,9 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-//        if(musicThread != null){
-//            if(musicThread.isAlive()){
-//                try {
-//                    musicThread.join();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
         if(!musicPausedByLeavingApp) {
             final int finalId = id;
             final int finalMusicState = musicState;
-//            musicThread = new Thread(new Runnable() {
-//                @Override
-//                public void run() {
                     stopMusic();
 
                     activeMusic = MediaPlayer.create(root.getContext(), finalId);
@@ -1298,9 +1172,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     nowPlaying = finalMusicState;
-//                }
-//            });
-//            musicThread.start();
         } else {
             musicPausedByLeavingApp = false;
         }
@@ -1317,48 +1188,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    public void fadeoutMusic(){
-//        if(activeMusic != null) {
-//            musicThread = new Thread((new Runnable() {
-//                @Override
-//                public void run() {
-//                    float volume;
-//                    for(int i = 100; i >= 0; i--){
-//                        volume = i / 100f;
-//                        final float v = volume;
-//                        handler.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if(activeMusic != null) {
-//                                    activeMusic.setVolume(v, v);
-//                                }
-//                            }
-//                        });
-//                        try {
-//                            musicThread.sleep(5);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//            }));
-//            musicThread.start();
-//        }
-//    }
-
     public void setSFX() {
         if (sfx == null) {
 //        soundEffects = new SoundPool.Builder().setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
             sfx = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
-//            badSoundId = sfx.load(this, R.raw.finger_runner_bad_sound, 1);
-//            goodSoundId = sfx.load(this, R.raw.finger_runner_good_sound, 1);
-//            crashSound2Id = sfx.load(this, R.raw.finger_runner_crash_sound_2, 1);
-//            crashSound3Id = sfx.load(this, R.raw.finger_runner_crash_sound_3, 1);
-//            crashSound4Id = sfx.load(this, R.raw.finger_runner_crash_sound_4, 1);
             crashSound5Id = sfx.load(this, R.raw.finger_runner_crash_sound_5, 1);
-//            truckHornId = sfx.load(this, R.raw.finger_runner_bad_truck_horn, 1);
-//            carHornId = sfx.load(this, R.raw.finger_runner_bad_car_horn, 1);
-//            wilhelmScreamId = sfx.load(this, R.raw.wilhelm_scream, 1);
         }
     }
 
@@ -1438,10 +1272,6 @@ public class MainActivity extends AppCompatActivity {
             }
             activeMusicPosition = activeMusic.getCurrentPosition();
         }
-//        if(musicThread != null) {
-//            musicThread.interrupt();
-//            musicThread = null;
-//        }
         stopMusic();
         releaseSFX();
     }
@@ -1460,18 +1290,12 @@ public class MainActivity extends AppCompatActivity {
         if(gameState == PAUSED){
             //Game_Playing must be set first or else a blue screen appears.
             setGameState(GAME_PLAYING);
-//
-            // TODO: Resuming to PAUSED state doesn't seem to work unless it's slightly delayed, so currently it's set manually so it happens quicker.
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    setGameState(PAUSED);
-//                }
-//            }, 300);
+
             //Manually set paused state.
             gameMenu.setVisibility(View.INVISIBLE);
             gameScreen.pauseGame();
             setSFX();
+            setMusicState(R.raw.finger_runner_game_music_1,GAME_MUSIC_1, true);
             pauseMenu.setVisibility(View.VISIBLE);
             root.removeView(pauseMenu);
             root.addView(pauseMenu);
@@ -1479,17 +1303,17 @@ public class MainActivity extends AppCompatActivity {
         } else if (gameState == GAME_LOST || gameState == GAME_WON) {
             gameScreen.pauseGame();
             setSFX();
+            setMusicState(R.raw.finger_runner_game_music_1,GAME_MUSIC_1, true);
             gameEndMenu.setVisibility(View.VISIBLE);
             root.removeView(gameEndMenu);
             root.addView(gameEndMenu);
         } else {
             setSFX();
-            setGameState(gameState);//setGameState(previousGameState);
+            setGameState(gameState);
         }
     }
 
     private void updateLoc(int loc) {
-//        int prevLoc = locationState;
         locationState = loc;
         experiencePointsText.setText(String.valueOf(runnerCoins) + " Runner Coins");
         highScoreT = loadHighScoreT();
@@ -1498,8 +1322,6 @@ public class MainActivity extends AppCompatActivity {
         if (loc < numLocations && loc > -1) {
             switch (loc) {
                 case 0:
-//                    timeTrial2Flag = false;
-
                     menuText.setText(getResources().getString(R.string.loc0));
                     if(!playButton.isEnabled()) {
                         playButton.setEnabled(true);
@@ -1508,39 +1330,17 @@ public class MainActivity extends AppCompatActivity {
                     playMarathonButton.setVisibility(View.GONE);
                     menuDistanceText.setVisibility(View.GONE);
 
-//                    Time bestTime2 = new Time();
                     if (bestTime.getTime() == 0L) {
                         menuTimeText.setText("Best Time: -:--:---\nHigh Score: " + String.format("%.2f", highScoreT));
-//                        playMarathonButton.setEnabled(false);
-//                        menuDistanceText.setText("LOCKED: You must complete Time Trial 1 in under 0:10:000.");
                     }
-//                    else if (bestTime.getSeconds() > 9){
-//                        menuTimeText.setText(bestTime.getTimeForDisplay());
-//                        playMarathonButton.setEnabled(false);
-//                        menuDistanceText.setText("LOCKED: You must complete Time Trial 1 in under 0:10:000.");
-//                    }
                     else {
-//                        playMarathonButton.setEnabled(true);
-                        menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));//"Best Time: " + bestTime.getTimeForDisplay());
-//
-//                        timeTrial2Flag = true;
-//                        bestTime2.changeTime(loadBestTime());
-//                        timeTrial2Flag = false;
-//                        if(bestTime2.getTime() == 0L){
-//                            menuDistanceText.setText("-:--:---");
-//                        } else {
-//                            menuDistanceText.setText(bestTime2.getTimeForDisplay());
-//                        }
+                        menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                     }
-//                    playMarathonButton.setText("Time Trial 2");
 
                     previousLocationButton.setVisibility(View.INVISIBLE);    //For the first location, this button should not be seen.
                     nextLocationButton.setVisibility(View.VISIBLE);    //For the last location, this button should not be seen.
-                    //titleScreen.startAnimation(fadeOut);
                     break;
                 case 1:
-//                    timeTrial2Flag = false;
-
                     menuText.setText(getResources().getString(R.string.loc1));
                     menuDistanceText.setVisibility(View.VISIBLE);
                     playMarathonButton.setVisibility(View.VISIBLE);
@@ -1558,7 +1358,7 @@ public class MainActivity extends AppCompatActivity {
                                 playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                             }
                             menuDistanceText.setText(getResources().getString(R.string.loc1MarathonLocked));
-                        } else if (bestTime.getSeconds() > 29) {
+                        } else if (bestTime.getSeconds() > 24) {
                             menuTimeText.setText("Best Time: " + bestTime.getTimeForDisplay() + "\nHigh Score: " + String.format("%.2f", highScoreT));
                             if(playMarathonButton.isEnabled()) {
                                 playMarathonButton.setEnabled(false);
@@ -1584,12 +1384,11 @@ public class MainActivity extends AppCompatActivity {
                             playMarathonButton.setEnabled(false);
                             playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                         }
-                        menuTimeText.setText("LOCKED: 100 runner coins required.");
+                        menuTimeText.setText("LOCKED: 75 coins required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc1MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
                     nextLocationButton.setVisibility(View.VISIBLE);
-                    //titleScreen.startAnimation(fadeOut);
                     break;
                 case 2:
 //                    timeTrial2Flag = false;
@@ -1635,7 +1434,7 @@ public class MainActivity extends AppCompatActivity {
                             playMarathonButton.setEnabled(false);
                             playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                         }
-                        menuTimeText.setText("LOCKED: 500 runner coins required.");
+                        menuTimeText.setText("LOCKED: 400 coins required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1686,7 +1485,7 @@ public class MainActivity extends AppCompatActivity {
                             playMarathonButton.setEnabled(false);
                             playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                         }
-                        menuTimeText.setText("LOCKED: 1000 runner coins required.");
+                        menuTimeText.setText("LOCKED: 1000 coins required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc3MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1726,19 +1525,6 @@ public class MainActivity extends AppCompatActivity {
                     .setDuration(500);
 
             updateLoc(loc);
-//            lt = new Thread() {
-//                @Override
-//                public void run() {
-//                    gameScreen.resetVariables();
-////                    runOnUiThread(new Runnable() {
-////                        @Override
-////                        public void run() {
-////                            mainMenu.setVisibility(View.VISIBLE);
-////                        }
-////                    });
-//                }
-//            };
-//            lt.start();
 
             titleScreen.animate()
                     .translationX(0)
@@ -1751,20 +1537,6 @@ public class MainActivity extends AppCompatActivity {
             titleScreen.setBackgroundResource(locationRes);
             titleScreen.setTranslationX(windowSize.x);
             titleScreen.setVisibility(View.VISIBLE);
-
-//                Thread t = new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        gameScreen.resetVariables();
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mainMenu.setVisibility(View.VISIBLE);
-//                            }
-//                        });
-//                    }
-//                });
-//                t.start();
 
             alternateTitleScreen.animate()
                     .translationX(-windowSize.x)
@@ -1779,20 +1551,23 @@ public class MainActivity extends AppCompatActivity {
 
     private String checkStagesUnlocked(){
         String s = "";
-        if(runnerCoins > 99 && locationsUnlocked < 0){
+        if(runnerCoins > 74 && locationsUnlocked < 1){
             s += "\nStage 1 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
+            endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
         }
-        if(runnerCoins > 499 && locationsUnlocked < 1){
+        if(runnerCoins > 399 && locationsUnlocked < 2){
             s += "\nStage 2 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
+            endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
         }
-        if(runnerCoins > 999 && locationsUnlocked < 2){
+        if(runnerCoins > 999 && locationsUnlocked < 3){
             s += "\nStage 3 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
+            endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
         }
         return s;
     }
@@ -1800,11 +1575,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveNewBestTime(long newBestTime){
         switch (locationState){
             case 0:
-//                if(timeTrial2Flag){
-//                    bestT02 = newBestTime;
-//                } else {
-                    bestT0 = newBestTime;
-//                }
+                bestT0 = newBestTime;
                 break;
             case 1:
                 bestT1 = newBestTime;
@@ -1817,33 +1588,16 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         String s;
-//        if(timeTrial2Flag){
-//            s = "bestTime" + String.valueOf(locationState) + "_2";
-//        } else {
             s = "bestTime" + String.valueOf(locationState);
-//        }
         prefEditor.putLong(s, newBestTime);
         prefEditor.commit();
-//        try {
-//            FileOutputStream fileOut = new FileOutputStream(bestTimeFilePath);
-//            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-//            out.writeObject(newBestTime);
-//            out.close();
-//            fileOut.close();
-//        } catch (IOException i) {
-//            i.printStackTrace();
-//        }
     }
 
     private Long loadBestTime (){
         long time = -1;
         switch (locationState){
             case 0:
-//                if(timeTrial2Flag){
-//                    time = bestT02;
-//                } else {
-                    time = bestT0;
-//                }
+                time = bestT0;
                 break;
             case 1:
                 time = bestT1;
@@ -1858,18 +1612,11 @@ public class MainActivity extends AppCompatActivity {
 
         if(time < 0) {
             String s;
-//            if (timeTrial2Flag) {
-//                s = "bestTime" + String.valueOf(locationState) + "_2";
-//            } else {
-                s = "bestTime" + String.valueOf(locationState);
-//            }
+            s = "bestTime" + String.valueOf(locationState);
             time = sharedPref.getLong(s, 0L);
 
             switch (locationState){
                 case 0:
-//                if(timeTrial2Flag){
-//                    bestT02 = newBestTime;
-//                } else {
                     bestT0 = time;
 //                }
                     break;
@@ -1884,16 +1631,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-
-//        try {
-//            FileInputStream fileIn = new FileInputStream(bestTimeFilePath);
-//            ObjectInputStream in = new ObjectInputStream(fileIn);
-//            time = (long) in.readObject();
-//            in.close();
-//            fileIn.close();
-//        } catch (IOException | ClassNotFoundException i){
-//            i.printStackTrace();
-//        }
         return time;
     }
 
@@ -2057,7 +1794,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (locationState){
                 case 0:
-//                    highScoreD0 = score;
+                    //no distance mode
                     break;
                 case 1:
                     highScoreD1 = score;
@@ -2072,16 +1809,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return score;
     }
-
-//    private void saveXP(int xP){
-//        prefEditor.putInt("xP", xP);
-//        prefEditor.commit();
-//    }
-//
-//    private int loadXP(){
-//        xp = sharedPref.getInt("xP", 0);
-//        return xp;
-//    }
 
     private void saveWhistleMusicSelection(boolean b){
         prefEditor.putBoolean("whistleMusic", b);
@@ -2114,7 +1841,7 @@ public class MainActivity extends AppCompatActivity {
         return runnerCoins;
     }
 
-    private void saveDistPerSec(){
+    private void saveStats(){
         prefEditor.putFloat("distPerSec", distPerSec);
         prefEditor.putFloat("coinsPerSec", coinsPerSec);
         prefEditor.putFloat("distPerStep", distPerStep);
@@ -2123,7 +1850,7 @@ public class MainActivity extends AppCompatActivity {
         prefEditor.commit();
     }
 
-    private void loadDistPerSec(){
+    private void loadStats(){
         distPerSec = sharedPref.getFloat("distPerSec", 0);
         coinsPerSec  = sharedPref.getFloat("coinsPerSec", 0);
         distPerStep = sharedPref.getFloat("distPerStep", 0);

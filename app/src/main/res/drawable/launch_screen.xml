@@ -6,7 +6,7 @@
 
     <item>
         <bitmap
-            android:src="@mipmap/temp_launcher"
+            android:src="@mipmap/left_foot_yellow"
             android:gravity="center"/>
     </item>
 
