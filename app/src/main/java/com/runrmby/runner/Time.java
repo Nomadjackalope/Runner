@@ -20,7 +20,7 @@ public class Time {
         this.minutes = 0;
         this.seconds = 0;
         this.milliseconds = 0;
-        this.timeForDisplay = "0:00:00";
+        this.timeForDisplay = "0:00:000";
     }
 
     public long getTime(){
@@ -53,13 +53,21 @@ public class Time {
         int remainder = (int) time - minutes * 60000;
         this.seconds = (int) remainder / 1000;
         String secondsString;
-        if(seconds > 10) {
+        if(seconds > 9) {
             secondsString = String.valueOf(seconds);
         }else {
-            secondsString = "0" + seconds;
+            secondsString = "0" + String.valueOf(seconds);
         }
         remainder = remainder - seconds * 1000;
         this.milliseconds = remainder;
-        this.timeForDisplay = minutes + ":" + secondsString + "." + milliseconds;
+        String millisecondsString;
+        if(milliseconds > 99) {
+            millisecondsString = String.valueOf(milliseconds);
+        } else if(milliseconds > 9){
+            millisecondsString = "0" + String.valueOf(milliseconds);
+        } else {
+            millisecondsString = "00" + String.valueOf(milliseconds);
+        }
+        this.timeForDisplay = minutes + ":" + secondsString + "." + millisecondsString;
     }
 }

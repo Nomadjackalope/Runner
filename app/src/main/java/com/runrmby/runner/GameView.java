@@ -1,6 +1,5 @@
 package com.runrmby.runner;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -32,12 +31,13 @@ public class GameView extends SurfaceView implements Runnable {
 
     SurfaceHolder holder;
 
-    volatile boolean playing;
+    volatile boolean playing = false;
 
     Canvas canvas;
     Paint paint;
 
     Bitmap background;
+    BitmapFactory.Options ops = new BitmapFactory.Options();
     float backgroundPositionY;
     float backgroundPositionY2;
     int backgroundWidth;
@@ -52,48 +52,37 @@ public class GameView extends SurfaceView implements Runnable {
 
     ArrayList<Integer> fingers = new ArrayList<>();
 
-    //------Obstacles and course length------------------------------------------------------
+//    //------Obstacles and course length------------------------------------------------------
+    boolean distanceMode = false; //TODO: create selection interface
     float odometer = 0f;
-    //Currently an arbitrary course distance to test.
-    float courseDistance = 10000f;
-    //Integer courseLength = 10; //Units of background art
+    float courseDistance;
+    float courseLeft;               //Distance left for the finish line to reach the bottom of the screen.
+    float distRemaining;            //Distance left for touchFollower to reach the finish line.
+    public float yourDistance;
+    Bitmap finishLine;
 
-    Obstacles obsA;
-    int obsAImageResID = R.drawable.practice3_small;
-    int obsAMaxNumObs = 4;
-    float obsADistBetweenObs = 500f;
-    float obsAHorizontalSpeed = 0f;
-    float obsAVerticalSpeed = -1f;
+    float toNextDiffIncrease;
+    float difficultyIncreaseSeparation;
+    int difficultly;
 
-    Obstacles obsB;
-    int obsBImageResID = R.drawable.practice3_small;
-    int obsBMaxNumObs = 2;
-    float obsBDistBetweenObs = 600f;
-    float obsBHorizontalSpeed = 2f;
-    float obsBVerticalSpeed = 0f;
+    float sX;
+    float sY;
 
-    Obstacles obsC;
-    int obsCImageResID = R.drawable.practice3_small;
-    int obsCMaxNumObs = 2;
-    float obsCDistBetweenObs = 400f;
-    float obsCHorizontalSpeed = -2f;
-    float obsCVerticalSpeed = 2f;
-
-    Obstacles obsD;
-    int obsDImageResID = R.drawable.practice3_small;
-    int obsDMaxNumObs = 1;
-    float obsDDistBetweenObs = 900f;
-    float obsDHorizontalSpeed = 3f;
-    float obsDVerticalSpeed = 10f;
-
-    Bitmap touchFollower;
-    float tFX;
-    float tFY;
-    float tFXOffset;
-    float tFYOffset;
+    int coins;
+    int steps;
+    int livesLeft;
+    int collisionsWitnessed;
+    LocationNoObstacles levelZero;
+    LocationStationaryObstacles levelOne;
+    LocationNormalRoad levelTwo;
+    LocationCrazyRoad levelThree;
     //-----------------------------------------------------------------------------------------
 
+    boolean handleTouches = false;
+    boolean simulatedTouch = false;
+
     MainActivity mA;
+    int locationState;
 
     // Time
     long gameTimeLeft;
@@ -108,6 +97,19 @@ public class GameView extends SurfaceView implements Runnable {
     private static final int GameVersion2 = 1; // Count down
     private int gameVersion;
 
+//    int TICKS_PER_SECOND = 25;
+//    int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
+//    int MAX_FRAMESKIP = 5;
+//    int loops;
+//    float interpolation;
+
+    boolean screenInitialized = false;
+
+    boolean instructionsFlag = true;
+    Bitmap gameInstructions;
+    int instWidth = 916;
+    int instHeight = 467;
+
 
     public GameView(MainActivity mainActivity, Point windowSize) {
         super(mainActivity.getApplicationContext());
@@ -115,105 +117,55 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void init(Point p, MainActivity mainActivity) {
-
+        mA = mainActivity;
         this.windowSize = p;
         holder = getHolder();
         paint = new Paint();
 
-        BitmapFactory.Options ops = new BitmapFactory.Options();
-
         ops.inPreferredConfig = Bitmap.Config.RGB_565;
 
-        background = BitmapFactory.decodeResource(this.getResources(), R.drawable.road, ops);
-
-        System.out.println("GV| bitmap type: " + background.getConfig().name());
-
-        //background = decodeSampledBitmapFromResource(getResources(), R.drawable.road, p.x, p.y);
+        background = BitmapFactory.decodeResource(this.getResources(), R.mipmap.road_0, ops);
 
         setBackgroundSizePos(p);
 
-        //-----------------Initialize obstacles----------------------------------------------------
-        obsA = new Obstacles(this.getContext(), obsAImageResID, obsAMaxNumObs, obsADistBetweenObs, obsAHorizontalSpeed, obsAVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsB = new Obstacles(this.getContext(), obsBImageResID, obsBMaxNumObs, obsBDistBetweenObs, obsBHorizontalSpeed, obsBVerticalSpeed, backgroundWidth, backgroundHeight, false);
-        obsC = new Obstacles(this.getContext(), obsCImageResID, obsCMaxNumObs, obsCDistBetweenObs, obsCHorizontalSpeed, obsCVerticalSpeed, backgroundWidth, backgroundHeight, true);
-        obsD = new Obstacles(this.getContext(), obsDImageResID, obsDMaxNumObs, obsDDistBetweenObs, obsDHorizontalSpeed, obsDVerticalSpeed, backgroundWidth, backgroundHeight, true);
+        //Initialize finish line.
+        finishLine = BitmapFactory.decodeResource(this.getResources(), R.mipmap.finish, null);
 
-        //Initialize touch follower.
-        touchFollower = BitmapFactory.decodeResource(this.getResources(), R.drawable.practice3_small, null);
-        tFXOffset = -touchFollower.getWidth() / 2;
-        tFYOffset = -touchFollower.getHeight();
-        //-----------------------------------------------------------------------------------------
-
-        mA = mainActivity;
-
-        resetVariables();
-
+        gameInstructions = BitmapFactory.decodeResource(this.getResources(), R.mipmap.basic_instructions, null);
     }
 
     public void setBackgroundSizePos(Point p) {
         background = Bitmap.createScaledBitmap(background, p.x, p.y, true);
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
-        //For some reason, these need to be here to get initialized correctly the first time.
         backgroundWidth = background.getWidth();
         backgroundHeight = background.getHeight();
-        tFX = tFXOffset + backgroundWidth/2;
-        tFY = tFYOffset + backgroundHeight;
     }
-
-    // Bitmap processing
-    // http://stackoverflow.com/questions/17839388/creating-a-scaled-bitmap-with-createscaledbitmap-in-android#17839663
-    // https://developer.android.com/training/displaying-bitmaps/load-bitmap.html
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        // If image is larger in either dimesion than the requested dimension
-        if(height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width
-            while((halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) <= reqWidth) {
-                inSampleSize *=2;
-            }
-        }
-
-        return inSampleSize;
-    }
-
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                         int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
-    }
-
-
 
     @Override
     public void run() {
         while(playing) {
+//            while(mA.initialized) {
+                update();
 
-            update();
-
-            draw();
-
+                draw(0);
+//            }
         }
+
+//        //http://webcache.googleusercontent.com/search?q=cache:http://www.koonsolo.com/news/dewitters-gameloop/
+//        long next_game_tick = System.currentTimeMillis();
+//        while( playing ) {
+//
+//            loops = 0;
+//            while( System.currentTimeMillis() > next_game_tick && loops < MAX_FRAMESKIP) {
+//                update();
+//
+//                next_game_tick += SKIP_TICKS;
+//                loops++;
+//            }
+//            interpolation = ( System.currentTimeMillis() + SKIP_TICKS - next_game_tick ) / ( SKIP_TICKS );
+//            draw(interpolation);
+//        }
     }
 
     public void update() {
@@ -222,24 +174,46 @@ public class GameView extends SurfaceView implements Runnable {
         if(fingers.isEmpty()) {
             // We don't want this running all the time using up cpu
             if(velocity > 1) {
-                advanceRoad(velocity); ///0.016f);
-                velocity *= 0.75;//0.8f;//0.9f;
+                advanceRoad(velocity);
+
+                switch (locationState){
+                    case 0:
+                        velocity *= levelZero.getVelocityFactor();
+                        break;
+                    case 1:
+                        velocity *= levelOne.getVelocityFactor();
+                        break;
+                    case 2:
+                        velocity *= levelTwo.getVelocityFactor();
+                        break;
+                    case 3:
+                        velocity *= levelThree.getVelocityFactor();
+                        break;
+                }
             }
-            //--------------TODO: Check if an obstacle has run into touch follower when no fingers are down-----------------------------
-            if (checkObstaclesTouched()){
-                mA.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis()+100, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
-//                    mA.requestGameState(MainActivity.LOSE);
-                    }
-                });
+
+            //--------------Check if an obstacle has run into touchFollower when no fingers are down-----------------------------
+            switch (locationState){
+                case 0:
+                    //no obstacles
+                    break;
+                case 1:
+                    levelOne.checkIfObstacleRanIntoTouchFollower(livesLeft);
+                    break;
+                case 2:
+                    levelTwo.checkIfObstacleRanIntoTouchFollower(livesLeft);
+                    break;
+                case 3:
+                    levelThree.checkIfObstacleRanIntoTouchFollower(livesLeft);
+                    break;
             }
             //---------------------------------------------------------------------------
         }
 
         if(fingerMoveDist > 0) {
             advanceRoad(fingerMoveDist);
+            fingerMoveDist = 0;
+        } else {
             fingerMoveDist = 0;
         }
 
@@ -248,14 +222,94 @@ public class GameView extends SurfaceView implements Runnable {
             gameTimeLeft -= System.currentTimeMillis() - previousTime;
             previousTime = System.currentTimeMillis();
 
-            //Update touch follower position. Could put outside of if(gameRunning) if want to resume movement after game paused while touchFollower is moving
-            //...but then you could possibly cheat the timer by pausing right after the start of a big move.
-            if(tFX != activeFinger.x + tFXOffset) {
-                tFX += 0.1 * (activeFinger.x + tFXOffset - tFX);
+            //------------------------Update homing obstacle-------------------------------
+            switch (locationState){
+                case 0:
+//                  //no obstacles
+                    break;
+                case 1:
+                    levelOne.updateHomingObstacle();
+                    break;
+                case 2:
+                    levelTwo.updateHomingObstacle();
+                    break;
+                case 3:
+                    levelThree.updateHomingObstacle();
+                    break;
             }
-            if(tFY != activeFinger.y + tFYOffset){
-                tFY += 0.1 * (activeFinger.y + tFYOffset - tFY);
+            //--------------------------------------------------------------------------------------
+
+            //For the touchFollower crossing the finish line to trigger course completion, use the following:
+            switch (locationState){
+                case 0:
+                    distRemaining = courseLeft - backgroundHeight + levelZero.getTouchDownY() - levelZero.getFootprintHeight()/2;
+                    break;
+                case 1:
+                    distRemaining = courseLeft - backgroundHeight + levelOne.getTouchDownY() - levelOne.getFootprintHeight()/2;
+                    break;
+                case 2:
+                    distRemaining = courseLeft - backgroundHeight + levelTwo.getTouchDownY() - levelTwo.getFootprintHeight()/2;
+                    break;
+                case 3:
+                    distRemaining = courseLeft - backgroundHeight + levelThree.getTouchDownY() - levelThree.getFootprintHeight()/2;
+                    break;
             }
+            //For a touch past the finish line to trigger course completion, use the following line instead of the previous:
+//            distRemaining = courseLeft - backgroundHeight + touchDownY;
+
+            //----------Increase difficulty during distance mode.-----------------------------------
+            if(toNextDiffIncrease <= 0) {
+                difficultly++;
+                switch (locationState) {
+                    case 0:
+                        //no obstacles
+                        break;
+                    case 1:
+                        levelOne.updateDifficulty(difficultly);
+                        break;
+                    case 2:
+                        levelTwo.updateDifficulty(difficultly);
+                        break;
+                    case 3:
+                        levelThree.updateDifficulty(difficultly);
+                        break;
+                }
+
+                toNextDiffIncrease = difficultyIncreaseSeparation;
+
+            }
+            //--------------------------------------------------------------------------------------
+
+            //Check if finish line has been reached.
+            if(distanceMode == false) {
+                if (distRemaining <= 0) {
+                    //Dispatch a touch event to check if finish line crossed so that MainActivity isn't called in this thread.
+                    mA.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            simulatedTouch = true;
+                            getRootView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 1, MotionEvent.ACTION_DOWN, 0f, 0f, 0));
+                        }
+                    });
+                }
+            }
+
+            //------Move obstacles(any movement independent from the road).-----
+            switch (locationState){
+                case 0:
+                    levelZero.move();
+                    break;
+                case 1:
+                    levelOne.move();
+                    break;
+                case 2:
+                    levelTwo.move();
+                    break;
+                case 3:
+                    levelThree.move();
+                    break;
+            }
+            //------------------------------------------------------------------
         }
 
         switch (gameVersion) {
@@ -274,28 +328,21 @@ public class GameView extends SurfaceView implements Runnable {
         mA.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                int minutes = (int) time / 60000;
-//                int remainder = (int) time - minutes * 60000;
-//                int seconds = (int) remainder / 1000;
-//                String secondsString;
-//                if(seconds > 10) {
-//                    secondsString = String.valueOf(seconds);
-//                }else {
-//                    secondsString = "0" + seconds;
-//                }
-//                remainder = remainder - seconds * 1000;
-//                int milSec = remainder;
-//                String string = minutes + ":" + secondsString + "." + milSec;
-//                mA.timer.setText(string);
+                yourDistance = courseDistance - distRemaining;
                 gameTimer.changeTime(time);
-                mA.timer.setText(gameTimer.getTimeForDisplay());
+                if(!distanceMode) {
+                    mA.timer.setText(gameTimer.getTimeForDisplay() + "\n" + String.format("%.0f", (yourDistance)/courseDistance*100) + "%\nCoins: " + String.valueOf(coins));
+                } else {
+                    //Display distance instead of time for distance mode.
+                    mA.timer.setText(String.format("%.1f", yourDistance) + "\nCoins: " + String.valueOf(coins) + "\nLives: " + String.valueOf(livesLeft));
+                }
             }
         });
 
     }
 
 
-    public void draw() {
+    public void draw(float interpolation) {
 
         if(holder.getSurface().isValid()) {
 
@@ -305,19 +352,46 @@ public class GameView extends SurfaceView implements Runnable {
             // Recolor canvas so to not have artifacts
             canvas.drawColor(Color.argb(255,255,0,0));
 
+            //TODO: Interpolation for game loop.
+//            float ibackgroundPositionY = backgroundPositionY + (velocity * interpolation);
+//            float ibackgroundPositionY2 = backgroundPositionY2 + (velocity * interpolation);
+
             // Draw road
             canvas.drawBitmap(background, 0, backgroundPositionY, paint);
             canvas.drawBitmap(background, 0, backgroundPositionY2, paint);
 
-            //---------------------Draw obstacles---------------------------------------------
-            obsA.drawObstacles(canvas, paint);
-            obsB.drawObstacles(canvas, paint);
-            obsC.drawObstacles(canvas, paint);
-            obsD.drawObstacles(canvas, paint);
+            //Draw finish line.
+            if(!distanceMode) {
+                if (courseLeft < backgroundHeight) {   //Don't check using distRemaining because that can vary without the road advancing.
+                    canvas.drawBitmap(finishLine, 0, backgroundHeight - courseLeft - finishLine.getHeight(), paint);
+                }
+            }
 
-            //Draw touch follower.
-            canvas.drawBitmap(touchFollower, tFX, tFY, paint);
+            //---------------------Draw obstacles---------------------------------------------
+            switch (locationState){
+                case 0:
+                    levelZero.draw(canvas, paint, interpolation, velocity);
+                    break;
+                case 1:
+                    levelOne.draw(canvas, paint, interpolation, velocity);
+                    break;
+                case 2:
+                    levelTwo.draw(canvas, paint, interpolation, velocity);
+                    break;
+                case 3:
+                    levelThree.draw(canvas, paint, interpolation, velocity);
+                    break;
+            }
             //---------------------------------------------------------------------------------
+
+            //TODO: Show basic instructions at beginning of first run.
+            if(instructionsFlag){
+                canvas.drawBitmap(gameInstructions, backgroundWidth/2 - instWidth/2, backgroundHeight/2 - instHeight/2, paint);
+                if(gameRunning) {
+                    instructionsFlag = false;
+                    gameInstructions = null;
+                }
+            }
 
             // Draw all to screen and unlock
             holder.unlockCanvasAndPost(canvas);
@@ -328,33 +402,73 @@ public class GameView extends SurfaceView implements Runnable {
     // The first touch is ACITON_DOWN
 
     // ACTION_POINTER_DOWN is for extra pointers that enter the screen beyond the first
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        if(!handleTouches) {
+            return true;
+        }
 
         switch(event.getAction() & MotionEvent.ACTION_MASK) {
 
             case MotionEvent.ACTION_DOWN:
-
-                activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
-                fingers.add(event.getPointerId(0));
-
-                //--------------Check if an obstacle has been touched-----------------------------
-                if (checkObstaclesTouched()){
-                    mA.requestGameState(MainActivity.LOSE);
-                }
-                //---------------------------------------------------------------------------
-
-                //Check if finish line has been reached.
-                if(odometer > courseDistance){
-                    mA.requestGameState(MainActivity.WIN);
-                }
-
                 if(!gameRunning) {
                     gameRunning = true;
                     previousTime = System.currentTimeMillis();
                 }
+
+                if(!simulatedTouch) {
+                    activeFinger.setNew(event.getPointerId(0), event.getX(), event.getY());
+                    fingers.add(event.getPointerId(0));
+
+                    switch (locationState) {
+                        case 0:
+                            levelZero.setTouchDownX(activeFinger.x);
+                            levelZero.setTouchDownY(activeFinger.y);
+                            break;
+                        case 1:
+                            levelOne.setTouchDownX(activeFinger.x);
+                            levelOne.setTouchDownY(activeFinger.y);
+                            break;
+                        case 2:
+                            levelTwo.setTouchDownX(activeFinger.x);
+                            levelTwo.setTouchDownY(activeFinger.y);
+                            break;
+                        case 3:
+                            levelThree.setTouchDownX(activeFinger.x);
+                            levelThree.setTouchDownY(activeFinger.y);
+                            break;
+                    }
+                    steps++;
+                } else{
+                    simulatedTouch = false;
+                }
+
+                //Check if finish line has been reached.
+                if(!distanceMode) {
+                    if (distRemaining <= 0) {
+                        mA.setGameState(MainActivity.GAME_WON);
+                    }
+                }
+
+
+
+                //--------------Check if an obstacle has been touched-----------------------------
+                switch (locationState){
+                    case 0:
+                        levelZero.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 1:
+                        levelOne.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 2:
+                        levelTwo.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 3:
+                        levelThree.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                }
+                //---------------------------------------------------------------------------
 
                 break;
 
@@ -365,12 +479,52 @@ public class GameView extends SurfaceView implements Runnable {
                         activeFinger.setXY(event.getX(event.findPointerIndex(activeFinger.id)),
                                 event.getY(event.findPointerIndex(activeFinger.id)));
                         fingers.add(event.getPointerId(i));
+
+                        switch (locationState){
+                            case 0:
+                                levelZero.setTouchDownX(activeFinger.x);
+                                levelZero.setTouchDownY(activeFinger.y);
+                                break;
+                            case 1:
+                                levelOne.setTouchDownX(activeFinger.x);
+                                levelOne.setTouchDownY(activeFinger.y);
+                                break;
+                            case 2:
+                                levelTwo.setTouchDownX(activeFinger.x);
+                                levelTwo.setTouchDownY(activeFinger.y);
+                                break;
+                            case 3:
+                                levelThree.setTouchDownX(activeFinger.x);
+                                levelThree.setTouchDownY(activeFinger.y);
+                                break;
+                        }
+                        steps++;
+
                     }
-//                    //--------------Check if an obstacle has been touched-----------------------------
-//                    if (checkObstaclesTouched()){
-//                        mA.requestGameState(MainActivity.LOSE);
-//                    }
-//                    //---------------------------------------------------------------------------
+
+                    //Check if finish line has been reached.
+                    if(!distanceMode) {
+                        if (distRemaining <= 0) {
+                            mA.setGameState(MainActivity.GAME_WON);
+                        }
+                    }
+
+                    //--------------Check if an obstacle has been touched-----------------------------
+                    switch (locationState){
+                        case 0:
+                            levelZero.checkIfObstacleWasTouched(livesLeft);
+                            break;
+                        case 1:
+                            levelOne.checkIfObstacleWasTouched(livesLeft);
+                            break;
+                        case 2:
+                            levelTwo.checkIfObstacleWasTouched(livesLeft);
+                            break;
+                        case 3:
+                            levelThree.checkIfObstacleWasTouched(livesLeft);
+                            break;
+                    }
+                    //---------------------------------------------------------------------------
                 }
 
 
@@ -382,21 +536,36 @@ public class GameView extends SurfaceView implements Runnable {
                     if(gameTimeLeft != 0) {
                         addToFingerMoveDist(event.getY(event.findPointerIndex(activeFinger.id)) - activeFinger.y);
                         activeFinger.y = event.getY(event.findPointerIndex(activeFinger.id));
+                        activeFinger.x = event.getX(event.findPointerIndex(activeFinger.id));
                     }
                 }
                 //--------------Check if an obstacle has been touched-----------------------------
-                if (checkObstaclesTouched()){
-                    mA.requestGameState(MainActivity.LOSE);
+                switch (locationState){
+                    case 0:
+                        levelZero.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 1:
+                        levelOne.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 2:
+                        levelTwo.checkIfObstacleWasTouched(livesLeft);
+                        break;
+                    case 3:
+                        levelThree.checkIfObstacleWasTouched(livesLeft);
+                        break;
                 }
                 //---------------------------------------------------------------------------
+
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
                 // Figure out what number isn't in pointers
-                fingers.remove(Integer.valueOf(event.getActionIndex()));
-                if(event.getActionIndex() == activeFinger.id) {
+                fingers.remove(Integer.valueOf(event.getPointerId(event.getActionIndex())));
+                if(event.getPointerId(event.getActionIndex()) == activeFinger.id) {
                     int f = fingers.get(fingers.size() - 1);
-                    activeFinger.setNew(f, event.getX(event.findPointerIndex(f)), event.getY(event.findPointerIndex(f)));
+                    if(event.findPointerIndex(f) >= 0) {
+                        activeFinger.setNew(f, event.getX(event.findPointerIndex(f)), event.getY(event.findPointerIndex(f)));
+                    }
                 }
 
                 break;
@@ -415,36 +584,77 @@ public class GameView extends SurfaceView implements Runnable {
     // This gets called from onTouch thread which then lets update call advanceRoad
     //  this should keep two sections of road closer together
     void addToFingerMoveDist(float dist) {
-        dist *= 0.75;
-        System.out.println("GV| addToFingerMoveDist: " + dist);
+        switch (locationState){
+            case 0:
+                dist *= levelZero.getDistanceFactor();
+                break;
+            case 1:
+                dist *= levelOne.getDistanceFactor();
+                break;
+            case 2:
+                dist *= levelTwo.getDistanceFactor();
+                break;
+            case 3:
+                dist *= levelThree.getDistanceFactor();
+                break;
+        }
+
         fingerMoveDist += dist;
     }
 
     public void advanceRoad(float distance) {
         // Don't go backward
-        if(distance < 0) { return; }
+        if(distance < 0) {
+            return;
+        }
 
-        distance *= 0.75;
-
-        System.out.println("GV| distance moved: " + distance);
-        //distance = distance;
+        switch (locationState){
+            case 0:
+                //Reduce velocity by factor.
+                velocity *= levelZero.getInertiaFactor();
+                //Reduce distance by factor.
+                distance *= levelZero.getDistanceFactor();
+                //Update touchFollower and obstacles.
+                levelZero.updateTouchDownY(distance);
+                levelZero.updateObs(distance);
+                break;
+            case 1:
+                //Reduce velocity by factor.
+                velocity *= levelOne.getInertiaFactor();
+                //Reduce distance by factor.
+                distance *= levelOne.getDistanceFactor();
+                //Update touchFollower and obstacles.
+                levelOne.updateTouchDownY(distance);
+                levelOne.updateObs(distance);
+                break;
+            case 2:
+                //Reduce velocity by factor.
+                velocity *= levelTwo.getInertiaFactor();
+                //Reduce distance by factor.
+                distance *= levelTwo.getDistanceFactor();
+                //Update touchFollower and obstacles.
+                levelTwo.updateTouchDownY(distance);
+                levelTwo.updateObs(distance);
+                break;
+            case 3:
+                //Reduce velocity by factor.
+                velocity *= levelThree.getInertiaFactor();
+                //Reduce distance by factor.
+                distance *= levelThree.getDistanceFactor();
+                //Update touchFollower and obstacles.
+                levelThree.updateTouchDownY(distance);
+                levelThree.updateObs(distance);
+                break;
+        }
         backgroundPositionY += distance;
         backgroundPositionY2 += distance;
 
-        velocity = distance;
 
         odometer += distance;
+        courseLeft -= distance;
+        toNextDiffIncrease -= distance;
 
-        //---------------Update Obstacles---------------------------------------------------
-        obsA.updateObstacles(distance);
-        obsB.updateObstacles(distance);
-        obsC.updateObstacles(distance);
-        obsD.updateObstacles(distance);
-        //-----------------------------------------------------------------------------
-
-        //backgroundPositionY += 15; // This should be set by the person's touches
-        //backgroundPositionY2 += 15;
-        // 15 needs to be the amount that the background not being moved has travelled
+        // Loop backgrounds
         if(backgroundPositionY > background.getHeight()) {
             backgroundPositionY = -background.getHeight() + backgroundPositionY2;
         }
@@ -453,9 +663,71 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    public void setGameAudio() {
+        //Set audio.
+        switch (locationState) {
+            case 0:
+                if (levelZero != null) {
+                    levelZero.setAudio();
+                }
+                break;
+            case 1:
+                if (levelOne != null) {
+                    levelOne.setAudio();
+                }
+                break;
+            case 2:
+                if (levelTwo != null) {
+                    levelTwo.setAudio();
+                }
+                break;
+            case 3:
+                if (levelThree != null) {
+                    levelThree.setAudio();
+                }
+                break;
+        }
+    }
+
+    public void releaseGameAudio() {
+        //Release audio.
+        if (levelZero != null) {
+            levelZero.releaseAudio();
+        }
+        if (levelOne != null) {
+            levelOne.releaseAudio();
+        }
+        if (levelTwo != null) {
+            levelTwo.releaseAudio();
+        }
+        if (levelThree != null) {
+            levelThree.releaseAudio();
+        }
+    }
+
+
+    public void pauseGame() {
+        System.out.println("GV| pauseGame called");
+        handleTouches = false;
+        gameRunning = false;
+        velocity = 0;
+    }
+
+    public void resumeGame() {
+        System.out.println("GV| resumeGame called");
+        playing = true;
+        handleTouches = true;
+        gameRunning = false;
+        velocity = 0;
+    }
+
     // Call this from activity
     public void pause() {
+        releaseGameAudio();
+
+        pauseGame();
         playing = false;
+
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -465,22 +737,20 @@ public class GameView extends SurfaceView implements Runnable {
 
     // Call this from activity
     public void resume() {
-        playing = true;
-        //resetVariables();
-        velocity = 0;
+        if(mA.initialized) {
+            resumeGame();
+        }
+
+        setGameAudio();
+
         gameThread = new Thread(this);
         gameThread.start();
-        previousTime = System.currentTimeMillis();
-        gameRunning = false;
     }
 
     public class FingerPoint {
         float x, y;
 
         int id;
-
-        // Using this vs null because then we don't create a bunch of these objects
-        //boolean isNull = true;
 
         public void setXY(float x, float y) {
             System.out.println("GV| finger1 y: " + y);
@@ -495,48 +765,120 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    //--------------Check if an obstacle was touched-----------------------------
-    public Boolean checkObstaclesTouched() {
-        //First check if active finger is touching obstacle.
-        if(!fingers.isEmpty()) {
-            if (obsA.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
-                return true;
-            } else if (obsB.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
-                return true;
-            } else if (obsC.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
-                return true;
-            } else if (obsD.wasObstacleTouched(activeFinger.x, activeFinger.y, 0f, 0f)) {
-                return true;
-            }
-        }
-
-        //Now check if touch follower is touching an obstacle.
-        if (obsA.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (obsB.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (obsC.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else if (obsD.wasObstacleTouched(tFX, tFY, touchFollower.getWidth(), touchFollower.getHeight())){//(activeFinger.x, activeFinger.y)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-//---------------------------------------------------------------------------
-
     public void resetVariables(){
-        odometer = 0f;
-        //--------------------------Reset obstacles------------------------------------------
-        obsA.resetObstacles();
-        obsB.resetObstacles();
-        obsC.resetObstacles();
-        obsD.resetObstacles();
 
-        //TODO: Reset touch follower to bottom middle of screen. This isn't working the very first time through.
-        tFX = tFXOffset + backgroundWidth/2;
-        tFY = tFYOffset + backgroundHeight;
-        //-----------------------------------------------------------------------------------
+        odometer = 0f;
+
+        coins = 0;
+        steps = 0;
+
+        if(!mA.initialized || !screenInitialized) {
+            sX = windowSize.x / 1080.0f;
+            sY = windowSize.y / 1920.0f;
+            //Scale finish line.
+            finishLine = Bitmap.createScaledBitmap(finishLine, (int) (sX * 1080), (int) (sY * 383), true);
+
+            instWidth *= sX;
+            instHeight *= sY;
+            gameInstructions = Bitmap.createScaledBitmap(gameInstructions, instWidth, instHeight, true);
+
+            screenInitialized = true;
+        }
+
+        switch (mA.locationState){
+            case 0:
+                if(levelZero == null){
+                    levelZero = new LocationNoObstacles(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                }
+                if(locationState != mA.locationState) {
+                    locationState = mA.locationState;
+                    releaseGameAudio();
+                    levelOne = null;
+                    levelTwo = null;
+                    levelThree = null;
+                    setGameAudio();
+                }
+
+                courseDistance = levelZero.getCourseDistance();
+                difficultyIncreaseSeparation = levelZero.getIncreaseDifficultyDistance();
+                levelZero.setBackgroundWidth(backgroundWidth);
+                levelZero.setBackgroundHeight(backgroundHeight);
+                levelZero.resetObstacles();
+                break;
+            case 1:
+                if(levelOne == null){
+                    levelOne = new LocationStationaryObstacles(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                }
+                if(locationState != mA.locationState) {
+                    locationState = mA.locationState;
+                    releaseGameAudio();
+                    levelZero = null;
+                    levelTwo = null;
+                    levelThree = null;
+                    setGameAudio();
+                }
+
+                courseDistance = levelOne.getCourseDistance();
+                difficultyIncreaseSeparation = levelOne.getIncreaseDifficultyDistance();
+                levelOne.setBackgroundWidth(backgroundWidth);
+                levelOne.setBackgroundHeight(backgroundHeight);
+                levelOne.resetObstacles();
+                break;
+            case 2:
+                if(levelTwo == null){
+                    levelTwo = new LocationNormalRoad(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                }
+                if(locationState != mA.locationState) {
+                    locationState = mA.locationState;
+                    releaseGameAudio();
+                    levelZero = null;
+                    levelOne = null;
+                    levelThree = null;
+                    setGameAudio();
+                }
+
+                courseDistance = levelTwo.getCourseDistance();
+                difficultyIncreaseSeparation = levelTwo.getIncreaseDifficultyDistance();
+                levelTwo.setBackgroundWidth(backgroundWidth);
+                levelTwo.setBackgroundHeight(backgroundHeight);
+                levelTwo.resetObstacles();
+                break;
+            case 3:
+                if(levelThree == null){
+                    levelThree = new LocationCrazyRoad(mA, this, sX, sY, backgroundWidth, backgroundHeight);
+                }
+                if(locationState != mA.locationState) {
+                    locationState = mA.locationState;
+                    releaseGameAudio();
+                    levelZero = null;
+                    levelOne = null;
+                    levelTwo = null;
+                    setGameAudio();
+                }
+
+                courseDistance = levelThree.getCourseDistance();
+                difficultyIncreaseSeparation = levelThree.getIncreaseDifficultyDistance();
+                levelThree.setBackgroundWidth(backgroundWidth);
+                levelThree.setBackgroundHeight(backgroundHeight);
+                levelThree.resetObstacles();
+                break;
+        }
+        courseLeft = courseDistance;
+        distRemaining = courseDistance;
+        difficultly = 0;
+        toNextDiffIncrease = difficultyIncreaseSeparation;
+
+        yourDistance = 0f;
+
+        if(!distanceMode){
+            livesLeft = 0;
+        } else {
+            livesLeft = 2;
+        }
+        collisionsWitnessed = 0;
+
+        simulatedTouch = false;
+
         backgroundPositionY = 0;
         backgroundPositionY2 = -background.getHeight();
         fingers.clear();

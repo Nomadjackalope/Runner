@@ -13,7 +13,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/fingerrunner"
+        android:background="@mipmap/background_00"
         android:id="@+id/titleScreen"
         android:visibility="visible" />
 
@@ -39,7 +39,15 @@
         android:textStyle="bold"
         android:visibility="invisible" />
 
-
+    <TextView
+        android:id="@+id/loadingText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textAlignment="center"
+        android:text="Loading...\n\n\n\n\n\n"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
@@ -53,18 +61,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
             android:text="Timer 1:23.45"
             android:id="@+id/timer"
             android:layout_gravity="left|top"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:background="@drawable/rectangle"
+            android:padding="5dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Main Menu"
             android:id="@+id/tempButton"
-            android:layout_gravity="top|right" />
+            android:layout_gravity="top|right"
+            android:background="@mipmap/pause_symbol"
+            android:layout_marginTop="2dp" />
+
     </FrameLayout>
 
     <RelativeLayout
@@ -73,114 +86,429 @@
         android:id="@+id/gameEndMenu"
         android:visibility="gone">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/play_again"
-            android:id="@+id/playAgainButton"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/main_menu"
-            android:id="@+id/mainMenuButton"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="PLACEHOLDER"
-            android:id="@+id/endGameText"
+            android:id="@+id/endGameMenuAnchor"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="100dp"
-            android:layout_alignLeft="@+id/endGameUserTime"
-            android:layout_alignStart="@+id/endGameUserTime"
-            android:layout_alignRight="@+id/endGameBestTime"
-            android:layout_alignEnd="@+id/endGameBestTime"
-            android:gravity="center" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="75dp"
+            android:text=" " />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time: 1:23.45"
-            android:id="@+id/endGameUserTime"
-            android:layout_centerVertical="true"
+            android:id="@+id/endGameHeader"
+            android:text="RESULTS"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAlignment="center"
+            android:background="@drawable/rectangle_white"
+            android:textStyle="bold"
+            android:layout_alignTop="@+id/endGameMenuAnchor"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginLeft="45dp"
-            android:layout_marginStart="45dp" />
+            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Best: 1:23.45"
+            android:id="@+id/endGameUserTime"
+            android:text="Time: 1:23.45"
+            android:paddingLeft="4dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:background="@drawable/rectangle_white"
+            android:layout_below="@+id/endGameHeader"
+            android:layout_alignStart="@+id/endGameHeader"
+            android:layout_alignLeft="@+id/endGameHeader"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/endGameBestTime"
-            android:layout_centerVertical="true"
+            android:text="Best: 1:23.45"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/endGameHeader"
+            android:layout_alignStart="@+id/endGameMenuAnchor"
+            android:layout_alignLeft="@+id/endGameMenuAnchor"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameStatNames"
+            android:layout_below="@+id/endGameUserTime"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="45dp"
-            android:layout_marginEnd="45dp" />
+            android:layout_alignBottom="@+id/endGameScoreValues"
+            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp"
+            android:text="Distance:\nTime:\nSteps:\nCoins:\n______________"
+            android:paddingLeft="4dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorDarkGrey"
+            android:background="@drawable/rectangle_white"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameStats"
+            android:layout_below="@+id/endGameUserTime"
+            android:layout_alignStart="@+id/endGameMenuAnchor"
+            android:layout_alignLeft="@+id/endGameMenuAnchor"
+            android:layout_alignEnd="@+id/endGameStatNames"
+            android:layout_alignRight="@+id/endGameStatNames"
+            android:text="12345\n-:--:---\n123\n123\n______________"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorDarkGrey"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameScoreText"
+            android:text="Run Score:\nHigh Score:"
+            android:paddingLeft="4dp"
+            android:paddingRight="2dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/endGameStats"
+            android:layout_alignStart="@+id/endGameHeader"
+            android:layout_alignLeft="@+id/endGameHeader"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameScoreValues"
+            android:text="123\n123"
+            android:paddingLeft="2dp"
+            android:paddingRight="4dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/endGameStats"
+            android:layout_alignStart="@+id/endGameMenuAnchor"
+            android:layout_alignLeft="@+id/endGameMenuAnchor"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameText"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:text="PLACEHOLDER"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="4dp"
+            android:layout_below="@+id/endGameScoreValues"
+            android:gravity="center"
+            android:background="@drawable/rectangle_white"
+            android:layout_alignStart="@+id/endGameHeader"
+            android:layout_alignLeft="@+id/endGameHeader"
+            android:layout_alignEnd="@+id/endGameHeader"
+            android:layout_alignRight="@+id/endGameHeader"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameButtonsBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/playAgainButton"
+            android:layout_alignStart="@+id/playAgainButton"
+            android:layout_alignLeft="@+id/playAgainButton"
+            android:layout_alignEnd="@+id/playAgainButton"
+            android:layout_alignRight="@+id/playAgainButton"
+            android:layout_alignBottom="@+id/playAgainButton"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/endGameMenuButtonBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/mainMenuButton"
+            android:layout_alignStart="@+id/mainMenuButton"
+            android:layout_alignLeft="@+id/mainMenuButton"
+            android:layout_alignEnd="@+id/mainMenuButton"
+            android:layout_alignRight="@+id/mainMenuButton"
+            android:layout_alignBottom="@+id/mainMenuButton"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playAgainButton"
+            android:background="@mipmap/play_again_text"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/endGameText"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="40dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mainMenuButton"
+            android:background="@mipmap/menu_text"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/playAgainButton"/>
 
     </RelativeLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/mainMenu"
         android:visibility="gone">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/play"
-            android:id="@+id/playButton"
-            android:layout_gravity="center_horizontal|bottom" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/mute_music_button"
-            android:textOff="@string/play_music"
-            android:textOn="@string/mute_music"
-            android:checked="true" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="36dp"
             android:text="@string/finger_runner"
             android:id="@+id/textView"
-            android:layout_gravity="center_horizontal|top"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
             android:layout_marginTop="75dp" />
-    </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/experiencePoints"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/textView"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/menuPlaceholder"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/boxTextView"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/menuText"
+            android:layout_alignStart="@+id/previousLocationButton"
+            android:layout_alignLeft="@+id/previousLocationButton"
+            android:layout_alignEnd="@+id/nextLocationButton"
+            android:layout_alignRight="@+id/nextLocationButton"
+            android:layout_alignBottom="@+id/settingsButton"/>
+
+        <!--TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ttBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/playButton"
+            android:layout_alignStart="@+id/playButton"
+            android:layout_alignLeft="@+id/playButton"
+            android:layout_alignEnd="@+id/playButton"
+            android:layout_alignRight="@+id/playButton"
+            android:layout_alignBottom="@+id/menuBestTimeText"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/playDistanceModeButton"
+            android:layout_alignStart="@+id/playDistanceModeButton"
+            android:layout_alignLeft="@+id/playDistanceModeButton"
+            android:layout_alignEnd="@+id/playDistanceModeButton"
+            android:layout_alignRight="@+id/playDistanceModeButton"
+            android:layout_alignBottom="@+id/menuDistanceText"/-->
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/nextLocationButton"
+            android:background="@mipmap/right_arrow"
+            android:layout_alignBottom="@+id/menuText"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/previousLocationButton"
+            android:background="@mipmap/left_arrow"
+            android:layout_alignBottom="@+id/menuText"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:visibility="invisible"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playButton"
+            android:background="@mipmap/time_trial_text_extra_space"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@+id/menuPlaceholder"
+            android:layout_marginTop="20dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playDistanceModeButton"
+            android:background="@mipmap/distance_text_extra_space"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/menuBestTimeText"
+            android:layout_marginTop="18dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settingsButton"
+            android:background="@mipmap/options_text_extra_space"
+            android:layout_below="@+id/menuDistanceText"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="18dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/menuText"
+            android:text="@string/loc0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAlignment="center"
+            android:gravity="top"
+            android:layout_above="@+id/playButton"
+            android:layout_toRightOf="@+id/previousLocationButton"
+            android:layout_toLeftOf="@+id/nextLocationButton"
+            android:paddingTop="2dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/menuBestTimeText"
+            android:text="Best Time: 1:23:45"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:textAlignment="center"
+            android:padding="5dp"
+            android:layout_alignStart="@+id/boxTextView"
+            android:layout_alignLeft="@+id/boxTextView"
+            android:layout_alignEnd="@+id/boxTextView"
+            android:layout_alignRight="@+id/boxTextView"
+            android:layout_below="@+id/playButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/menuDistanceText"
+            android:text="Longest Run: 12345"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:textAlignment="center"
+            android:padding="5dp"
+            android:layout_alignStart="@+id/boxTextView"
+            android:layout_alignLeft="@+id/boxTextView"
+            android:layout_alignEnd="@+id/boxTextView"
+            android:layout_alignRight="@+id/boxTextView"
+            android:layout_below="@+id/playDistanceModeButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"/>
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/pauseMenu"
-        android:visibility="gone">
+        android:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pauseMenuBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/resumeButton"
+            android:layout_alignStart="@+id/resumeButton"
+            android:layout_alignLeft="@+id/resumeButton"
+            android:layout_alignEnd="@+id/resumeButton"
+            android:layout_alignRight="@+id/resumeButton"
+            android:layout_alignBottom="@+id/resumeButton"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pauseMenu2ButtonBackground"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/pauseMMButton"
+            android:layout_alignStart="@+id/pauseMMButton"
+            android:layout_alignLeft="@+id/pauseMMButton"
+            android:layout_alignEnd="@+id/pauseMMButton"
+            android:layout_alignRight="@+id/pauseMMButton"
+            android:layout_alignBottom="@+id/pauseMMButton"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/resume"
             android:id="@+id/resumeButton"
+            android:background="@mipmap/resume_text"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_menu"
             android:id="@+id/pauseMMButton"
+            android:background="@mipmap/menu_text"
             android:layout_below="@+id/resumeButton"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="60dp" />
     </RelativeLayout>
 
     <FrameLayout
@@ -210,5 +538,113 @@
         </LinearLayout>
 
     </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/settingsMenu"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settingsTextView"
+            android:background="@drawable/rectangle"
+            android:layout_alignTop="@+id/creditsButton"
+            android:layout_alignStart="@+id/exitSettingsButton"
+            android:layout_alignLeft="@+id/exitSettingsButton"
+            android:layout_alignEnd="@+id/exitSettingsButton"
+            android:layout_alignRight="@+id/exitSettingsButton"
+            android:layout_alignBottom="@+id/exitSettingsButton"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Return to Main Menu"
+            android:id="@+id/exitSettingsButton"
+            android:layout_below="@+id/mute_music_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"/>
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mute_music_button"
+            android:textOff="@string/play_music"
+            android:textOn="@string/mute_music"
+            android:checked="true"
+            android:layout_below="@+id/whistleMusicButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="Whistle Music\n(2000 RC)"
+            android:textOn="Original Music"
+            android:checked="false"
+            android:enabled="false"
+            android:id="@+id/whistleMusicButton"
+            android:layout_below="@+id/resetButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Game"
+            android:id="@+id/resetButton"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="25dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Statistics"
+            android:id="@+id/statsButton"
+            android:layout_above="@id/resetButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"
+            android:visibility="gone"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Credits"
+            android:id="@+id/creditsButton"
+            android:layout_above="@id/resetButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/statsText"
+            android:text="STATS"
+            android:padding = "5dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:textAlignment="center"
+            android:background="@drawable/rectangle_white"
+            android:layout_above="@+id/settingsTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/creditsText"
+        android:text="@string/credits"
+        android:textSize="20dp"
+        android:textColor="@android:color/black"
+        android:background="@color/colorTransparentLightGray"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:enabled="true"
+        android:visibility="gone"/>
 
 </FrameLayout>

@@ -3,20 +3,38 @@
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="play_music">Play Music</string>
-    <string name="mute_music">Mute Music</string>
+    <string name="play_music">Unmute Sound</string>
+    <string name="mute_music">Mute Sound</string>
 
     <string name="play">Play</string>
     <string name="finger_runner">Finger Runner</string>
     <string name="play_again">Play Again</string>
     <string name="main_menu">Main Menu</string>
     <string name="resume">Resume</string>
+    <string name="pause">Pause</string>
+    <string name="quit">Quit</string>
     
-    <string name="lose1">That was pretty bad</string>
-    <string name="lose2">You really can do better</string>
-    <string name="lose3">You suck. Here\'s an add</string>
-    <string name="win1">Wow, you beat yourself.\nBut are you really any competition?</string>
+    <string name="lose1">That was pretty bad.</string>
+    <string name="lose2">You really can do better.</string>
+    <string name="lose3">You suck. Here\'s an ad.</string>
+    <string name="win1">Wow, you beat yourself,\nbut are you really any competition?</string>
     <string name="win2">Woot woot! A new high score!</string>
-    <string name="win3">That was an alright run</string>
+    <string name="win3">That was an alright run.</string>
+
+    <string name="loc0">Stage 0:\nWarm-Up</string>
+    <string name="loc1">Stage 1:\nRace Track</string>
+    <string name="loc1MarathonLocked">"LOCKED:\nYou must complete Stage 1 Time Trial in under 0:25:000."</string>
+    <string name="loc2">Stage 2:\nThe Highway</string>
+    <string name="loc2MarathonLocked">LOCKED:\nYou must complete Stage 2 Time Trial in under 0:25:000."</string>
+    <string name="loc3">Stage 3:\nTiny Traffic</string>
+    <string name="loc3MarathonLocked">LOCKED:\nYou must complete Stage 3 Time Trial in under 0:25:000."</string>
+
+    <string name="time_trial">Time Trial</string>
+    <string name="marathon">Distance</string>
+    <string name="next_location">&gt;</string>
+    <string name="previous_location">&lt;</string>
+    <string name="location_unlocked">You unlocked a new location!</string>
+
+    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nMark Horton and Benjamin Gordon\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
     
 </resources>
