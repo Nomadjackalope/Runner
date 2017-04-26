@@ -1779,17 +1779,17 @@ public class MainActivity extends AppCompatActivity {
 
     private String checkStagesUnlocked(){
         String s = "";
-        if(runnerCoins > 99 && locationsUnlocked < 0){
+        if(runnerCoins > 99 && locationsUnlocked < 1){
             s += "\nStage 1 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
         }
-        if(runnerCoins > 499 && locationsUnlocked < 1){
+        if(runnerCoins > 499 && locationsUnlocked < 2){
             s += "\nStage 2 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
         }
-        if(runnerCoins > 999 && locationsUnlocked < 2){
+        if(runnerCoins > 999 && locationsUnlocked < 3){
             s += "\nStage 3 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
