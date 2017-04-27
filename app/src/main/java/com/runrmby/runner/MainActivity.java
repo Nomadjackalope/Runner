@@ -709,6 +709,7 @@ public class MainActivity extends AppCompatActivity {
         root.removeView(gameEndMenu);
         root.addView(gameEndMenu);
         endGameText.setBackgroundResource(R.drawable.rectangle_white);
+        endGameUserTime.setBackgroundResource(R.drawable.rectangle_white);
         switch(locationState){
             case 0:
                 endGameHeaderText.setText("Warm-Up\nTIME TRIAL RESULTS");
@@ -746,7 +747,7 @@ public class MainActivity extends AppCompatActivity {
         distance = gameScreen.courseDistance / gameScreen.sY;
         adjDistance = distance * 0.001f;
         coins = gameScreen.coins;
-        if((gameScreen.yourDistance  / gameScreen.sY) < distance && !gameScreen.distanceMode){
+        if((gameScreen.yourDistance / gameScreen.sY) < distance && !gameScreen.distanceMode){
             adjCoins = coins;
         } else {
             adjCoins = coins * (1.25f + locationState * 0.25f);
@@ -761,16 +762,19 @@ public class MainActivity extends AppCompatActivity {
         coinsPerSec = (coinsPerSec + ((float)coins / (yT / 1000L))) / 2;
         numRuns++;
 
-        //If high score (not best time), get more experience points
+        //If high score (not best time), get bonus coins
         highScore = loadHighScoreT();
         prevHighScore = highScore;
+        String highScoreText = "";
         if(runScore > highScore){
             highScore = runScore;
             saveHighScoreT(highScore);
             endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+            endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
             endGameScoreText.setText("New High Score:\nPrevious High:\nBONUS:");//\nRunner Coins:");
-            addRunnerCoins(coins * (2 + locationState));
-            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState)) + " coins");//\n" + String.valueOf(runnerCoins));
+            addRunnerCoins(coins * (1 + locationState) + 5);
+            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState) + 5) + " coins");//\n" + String.valueOf(runnerCoins));
+            highScoreText = getResources().getString(R.string.new_high_score);
         } else {
             endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
             endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins:");
@@ -791,7 +795,7 @@ public class MainActivity extends AppCompatActivity {
                 timeDifferential.changeTime(bT - yT);
                 saveNewBestTime(yT);
 
-                String s = "You beat the best time by\n" + timeDifferential.getTimeForDisplay() + "!\n" + getResources().getString(R.string.win1);
+                String s = getResources().getString(R.string.new_best_time) + timeDifferential.getTimeForDisplay() + "!";
                 switch(locationState){
                     case 0:
                         //no distance mode to unlock
@@ -821,9 +825,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                 }
+                s += highScoreText;
                 s += checkStagesUnlocked();
 
                 endGameText.setText(s);
+                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
 
                 endGameUserTime.setText("New Best Time:\nPrevious Best:");
                 endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(" + bestTime.getTimeForDisplay() + ")");
@@ -835,11 +841,12 @@ public class MainActivity extends AppCompatActivity {
                 endGameStats.setText(String.format("%.0f", distance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 
                 String s = getResources().getString(R.string.win3);
+                s += highScoreText;
                 s += checkStagesUnlocked();
 
                 endGameText.setText(s);
 
-                endGameUserTime.setText("Your Run:\nBest Time:");
+                endGameUserTime.setText("Your Time:\nBest Time:");
                 endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(" + bestTime.getTimeForDisplay() + ")");
             }
         } else {
@@ -851,7 +858,7 @@ public class MainActivity extends AppCompatActivity {
             saveNewBestTime(yT);
             bestTime.changeTime(yT);
 
-            String s = getResources().getString(R.string.win2);
+            String s = getResources().getString(R.string.first_best_time);
             switch(locationState) {
                 case 0:
                     //no distance mode to unlock
@@ -875,9 +882,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
             }
+            s += highScoreText;
             s += checkStagesUnlocked();
 
             endGameText.setText(s);
+            endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
 
             endGameUserTime.setText("New Best Time:\nPrevious Best:");
             endGameBestTime.setText(yourTime.getTimeForDisplay() + "\n(-:--:---)");
@@ -893,6 +902,7 @@ public class MainActivity extends AppCompatActivity {
         root.removeView(gameEndMenu);
         root.addView(gameEndMenu);
         endGameText.setBackgroundResource(R.drawable.rectangle_white);
+        endGameUserTime.setBackgroundResource(R.drawable.rectangle_white);
 
         switch(locationState){
             case 0:
@@ -920,6 +930,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
+        String highScoreText = "";
 
         distance = gameScreen.courseDistance / gameScreen.sY;
         yourDistance = gameScreen.yourDistance / gameScreen.sY;
@@ -931,7 +942,7 @@ public class MainActivity extends AppCompatActivity {
         adjSteps = steps * 0.1f;
         adjDistance = yourDistance * 0.001f;
         coins = gameScreen.coins;
-        if(yourDistance < (int)(gameScreen.courseDistance / gameScreen.sY) && !gameScreen.distanceMode){
+        if(yourDistance < (int)(distance) && !gameScreen.distanceMode){
             adjCoins = coins;
         } else {
             adjCoins = coins * (1.25f + locationState * 0.25f);
@@ -951,14 +962,15 @@ public class MainActivity extends AppCompatActivity {
             endGameUserTime.setBackgroundResource(R.drawable.rectangle_white_border_red);
             highScore = loadHighScoreT();
             prevHighScore = highScore;
-            //TODO: make sure can't be higher if you don't finish
             if(runScore > highScore){
                 highScore = runScore;
                 saveHighScoreT(highScore);
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
                 endGameScoreText.setText("New High Score:\nPrevious High:\nBONUS:");//\nRunner Coins:");
-                addRunnerCoins(coins * (2 + locationState));
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState)) + " coins");//\n" + String.valueOf(runnerCoins));
+                addRunnerCoins(coins * (1 + locationState) + 5);
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState) + 5) + " coins");//\n" + String.valueOf(runnerCoins));
+                highScoreText = getResources().getString(R.string.new_high_score);
             } else {
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
                 endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins:");
@@ -972,7 +984,7 @@ public class MainActivity extends AppCompatActivity {
             long bT = bestTime.getTime();
 
             //Start lose music.
-            endGameUserTime.setText("Your Run:\nBest Time:");
+            endGameUserTime.setText("Your Time:\nBest Time:");
 //            savedTime = loadBestTime();
             String s;
             if (bT != 0) {
@@ -985,6 +997,7 @@ public class MainActivity extends AppCompatActivity {
                 endGameBestTime.setText("DISQUALIFIED\n(-:--:---)");
                 s = getResources().getString(R.string.lose1);
             }
+            s += highScoreText;
             s += checkStagesUnlocked();
             endGameText.setText(s);
 
@@ -997,9 +1010,11 @@ public class MainActivity extends AppCompatActivity {
 //                newXP *= 1.5f;
                 saveHighScoreD(highScore);
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
+                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
                 endGameScoreText.setText("New High Score:\nPrevious High:\nBONUS:");//\nRunner Coins:");
-                addRunnerCoins(coins * (2 + locationState));
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState)) + " coins");//\n" + String.valueOf(runnerCoins));
+                addRunnerCoins(coins * (1 + locationState) + 5);
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + String.valueOf(coins * (1 + locationState) + 5) + " coins");//\n" + String.valueOf(runnerCoins));
+                highScoreText = getResources().getString(R.string.new_high_score);
             } else {
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
                 endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins");
@@ -1007,21 +1022,23 @@ public class MainActivity extends AppCompatActivity {
                 endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
             }
 
-            endGameStats.setText(String.format("%.0f", yourDistance) + " (" + String.format("%.0f", (yourDistance)/distance*100) + "%)\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
+            endGameStats.setText(String.format("%.0f", yourDistance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 //            bestDistance = loadBestDistance();
 
             if(distanceDifferential > 0){
                 //New record!
                 endGameUserTime.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
-//                newXP *= 1.5;   //TODO: check if good value
+//                newXP *= 1.5;
 //                xp += newXP;
                 endGameUserTime.setText("New Long Run:\nPrevious Best:");
                 endGameBestTime.setText(String.format("%.0f", yourDistance) + "\n(" + String.format("%.0f", bestDistance) + ")");
 
-                String s = "You beat the longest run by\n" + String.format("%.0f", distanceDifferential) + "!\n" + getResources().getString(R.string.win1);
+                String s = getResources().getString(R.string.new_longest_run) + "\n" + String.format("%.0f", distanceDifferential) + "!";
+                s += highScoreText;
                 s += checkStagesUnlocked();
 
                 endGameText.setText(s);
+                endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
 
 //                setMusicState(R.raw.finger_runner_win_new_record, WIN_MUSIC_NEW_RECORD, false);
                 //Keep game music going.
@@ -1031,12 +1048,13 @@ public class MainActivity extends AppCompatActivity {
                 saveBestDistance(bestDistance);
             } else {
                 //Not a record.
-                endGameUserTime.setBackgroundResource(R.drawable.rectangle_white);
+                //endGameUserTime.setBackgroundResource(R.drawable.rectangle_white);
 //                xp += newXP;
                 endGameUserTime.setText("Your Run:\nLongest Run:");
                 endGameBestTime.setText(String.format("%.0f", yourDistance) + "\n(" + String.format("%.0f", bestDistance) + ")");
 
                 String s = getResources().getString(R.string.lose2);
+                s += highScoreText;
                 s += checkStagesUnlocked();
 
                 endGameText.setText(s);

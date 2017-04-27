@@ -39,7 +39,7 @@ public class LocationNoObstacles {
     private int footprintsLImageResId = R.mipmap.left_foot_yellow;
 
     private float velocityFactor = .75f; //Must be less than 1 or else road will advance exponentially.
-    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
+//    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
     private float inertiaFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
 
     //Sound effects
@@ -90,7 +90,7 @@ public class LocationNoObstacles {
     }
 
     public float getCourseDistance(){
-        return (this.courseDistance * sY);
+        return (this.courseDistance);
     }
 
     public float getIncreaseDifficultyDistance(){
@@ -101,9 +101,9 @@ public class LocationNoObstacles {
         return inertiaFactor;
     }
 
-    public float getDistanceFactor(){
-        return distanceFactor;
-    }
+//    public float getDistanceFactor(){
+//        return distanceFactor;
+//    }
 
     public float getVelocityFactor(){
         return velocityFactor;

@@ -120,7 +120,7 @@ public class LocationNormalRoad {
     private int footprintsLImageResId = R.mipmap.left_foot_yellow;
 
     private float velocityFactor = .75f; //Must be less than 1 or else road will advance exponentially.
-    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
+//    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
     private float inertiaFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
 
     //Sound effects
@@ -206,7 +206,7 @@ public class LocationNormalRoad {
     }
 
     public float getCourseDistance(){
-        return (this.courseDistance * sY);
+        return (this.courseDistance);
     }
 
     public float getIncreaseDifficultyDistance(){
@@ -217,9 +217,9 @@ public class LocationNormalRoad {
         return inertiaFactor;
     }
 
-    public float getDistanceFactor(){
-        return distanceFactor;
-    }
+//    public float getDistanceFactor(){
+//        return distanceFactor;
+//    }
 
     public float getVelocityFactor(){
         return velocityFactor;
@@ -365,8 +365,8 @@ public class LocationNormalRoad {
         guy.drawObstacles(canvas, paint, interpolation, velocity);
         crowd.drawObstacles(canvas, paint, interpolation, velocity);
         homingOb.drawObstacles(canvas, paint, interpolation, velocity);
-        car.drawObstacles(canvas, paint, interpolation, velocity);
         car2.drawObstacles(canvas, paint, interpolation, velocity);
+        car.drawObstacles(canvas, paint, interpolation, velocity);
         truck.drawObstacles(canvas, paint, interpolation, velocity);
         semi.drawObstacles(canvas, paint, interpolation, velocity);
 
@@ -701,10 +701,17 @@ public class LocationNormalRoad {
                     }
                     gS.collisionsWitnessed++;
                 }
+                if (truck.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
                 if (car2.wasObstacleTouched(car.coordinatesArray[i][0], car.coordinatesArray[i][1], car.obstacleWidth, car.obstacleHeight, false, false, false, false) != -1) {
                     if (!mA.musicMuted) {
                         soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                     }
+                    car.hitObstacle(i, false, false, false, false);
                     gS.collisionsWitnessed++;
                 }
                 if (car.checkOverlap(i, false) != -1) {
@@ -733,6 +740,18 @@ public class LocationNormalRoad {
                 if (homingOb.wasObstacleTouched(car2.coordinatesArray[i][0], car2.coordinatesArray[i][1], car2.obstacleWidth, car2.obstacleHeight, false, true, false, false) != -1) {
                     if (!mA.musicMuted) {
                         soundEffects.play(wilhelmScreamId, 0.5f, 0.5f, 0, 0, 1.2f);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (truck.wasObstacleTouched(car2.coordinatesArray[i][0], car2.coordinatesArray[i][1], car2.obstacleWidth, car2.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
+                    }
+                    gS.collisionsWitnessed++;
+                }
+                if (car.wasObstacleTouched(car2.coordinatesArray[i][0], car2.coordinatesArray[i][1], car2.obstacleWidth, car2.obstacleHeight, false, false, false, false) != -1) {
+                    if (!mA.musicMuted) {
+                        soundEffects.play(crashSound2Id, 0.5f, 0.5f, 0, 0, 1);
                     }
                     gS.collisionsWitnessed++;
                 }

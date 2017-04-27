@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Runner</string>
+    <string name="app_name">Finger Runner</string>
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
@@ -18,7 +18,10 @@
     <string name="lose2">You really can do better.</string>
     <string name="lose3">You suck. Here\'s an ad.</string>
     <string name="win1">Wow, you beat yourself,\nbut are you really any competition?</string>
-    <string name="win2">Woot woot! A new high score!</string>
+    <string name="first_best_time">Woot, woot! You set a record time!</string>
+    <string name="new_best_time">Wow, you beat the best time by\n</string>
+    <string name="new_longest_run">Oh, yeah! You beat the long run by</string>
+    <string name="new_high_score">\nBoom! You got a new high score!</string>
     <string name="win3">That was an alright run.</string>
 
     <string name="loc0">Stage 0:\nWarm-Up</string>
@@ -35,6 +38,6 @@
     <string name="previous_location">&lt;</string>
     <string name="location_unlocked">You unlocked a new location!</string>
 
-    <string name="credits">FINGER RUNNER\n\nDEVELOPER TEAM NAME\n\nProgramming:\nMark Horton and Benjamin Gordon\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
+    <string name="credits">FINGER RUNNER\n\nProgramming:\nMark Horton and Benjamin Gordon\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
     
 </resources>

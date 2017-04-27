@@ -278,7 +278,6 @@ public class Obstacles {
                     speedArray[lastSpawnIndex][2] = homingSpeed * 0.75f;
                     speedArray[lastSpawnIndex][3] = homingSpeed;
 
-                    //TODO: testing this
                     if(multiSpawn && random.nextBoolean()){
                         doAutoSpawn(0);
                     }
@@ -336,13 +335,13 @@ public class Obstacles {
                     orientationArray[obsIndex]++;
                 }
             }
-            if(move) {
-                if (random.nextBoolean()) {
-                    coordinatesArray[obsIndex][0] += (float) obstacleWidth;
-                } else {
-                    coordinatesArray[obsIndex][0] -= (float) obstacleWidth;
-                }
-            }
+//            if(move) {
+//                if (random.nextBoolean()) {
+//                    coordinatesArray[obsIndex][0] += (float) random.nextInt(obstacleWidth/2);
+//                } else {
+//                    coordinatesArray[obsIndex][0] -= (float) random.nextInt(obstacleWidth/2);
+//                }
+//            }
         }
         return true;
     }
@@ -423,7 +422,7 @@ public class Obstacles {
     public int wasObstacleTouched(float x, float y, float width, float height, boolean isTF, boolean trigger, boolean destroy, boolean checkOnly) {
         for (int i = 0; i < maxNumberOfObstacles; i++) {
             if (spawnTracker[i] != DESTROYED) {
-                if((spawnTracker[i] == TRIGGERED && isTF) || (spawnTracker[i] == HIT_AND_TRIGGERED && isTF)) {
+                if((spawnTracker[i] == TRIGGERED && isTF) || (spawnTracker[i] == HIT_AND_TRIGGERED && isTF || (spawnTracker[i] == HIT_BY_OBSTACLE && !isTF))) {
                     continue;
                 }
                 if (orientationArray[i] == 0 || orientationArray[i] == 2) {
@@ -463,7 +462,7 @@ public class Obstacles {
     }
 
     public int checkOverlap(int i, boolean checkOnly){
-            if(spawnTracker[i] != DESTROYED){
+            if(spawnTracker[i] != DESTROYED && spawnTracker[i] != HIT_BY_OBSTACLE){
                 for(int j = 0; j < maxNumberOfObstacles; j++){
                     if(i == j){
                         continue;
