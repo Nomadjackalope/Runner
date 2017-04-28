@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "239376833621",
+    "firebase_url": "https://finger-runner.firebaseio.com",
+    "project_id": "finger-runner",
+    "storage_bucket": "finger-runner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239376833621:android:e97ec85c3d768099",
+        "android_client_info": {
+          "package_name": "com.runrmby.runner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239376833621-lb062cn15n041c4oefdrgag0spb3aenu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA89Leejf5AWaa3wWMerM7ECZkJ2HKT9vQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

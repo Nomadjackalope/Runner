@@ -12,7 +12,7 @@ import android.media.SoundPool;
 
 public class LocationNoObstacles {
 
-    private float courseDistance = 10000f;
+    private float courseDistance = 15000f;
 
     private float increaseDifficultyDistance = 10000f;
 

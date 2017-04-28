@@ -38,6 +38,9 @@
     <string name="previous_location">&lt;</string>
     <string name="location_unlocked">You unlocked a new location!</string>
 
-    <string name="credits">FINGER RUNNER\n\nProgramming:\nMark Horton and Benjamin Gordon\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton\n\nPixellari font by Zacchary Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
-    
+    <string name="credits">FINGER RUNNER\n\nProgramming:\nMark Horton and Benjamin Gordon\n\nArtwork:\nRyan Lofthouse\n\nMusic:\nMark Horton - themarkhorton.com\n\nAdditional Resources:\nPixellari font by Z. Dempsey-Plante\n\n(Tap anywhere to go back.)</string>
+
+    <string name="banner_ad_run_results_id">ca-app-pub-8990832516330819/7815130489</string>
+    <string name="banner_ad_game_menu_id">ca-app-pub-8990832516330819/2804678085</string>
+    <string name="banner_ad_pause_menu_id">ca-app-pub-8990832516330819/5801843689</string>
 </resources>

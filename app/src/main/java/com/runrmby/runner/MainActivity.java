@@ -21,6 +21,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -122,6 +124,11 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
+
+    // Ads
+    private AdView mAdView;
+    private AdView mAdView2;
+    private AdView mAdView3;
 
     // NEW STATES
     public static final int MAIN_MENU = 4;
@@ -270,6 +277,17 @@ public class MainActivity extends AppCompatActivity {
 
         root = (FrameLayout) findViewById(R.id.root);
 
+        // Ads
+        mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        mAdView2 = (AdView) findViewById(R.id.adView2);
+        mAdView2.loadAd(adRequest);
+
+        mAdView3 = (AdView) findViewById(R.id.adView3);
+        mAdView3.loadAd(adRequest);
+
         // Menus
         mainMenu = (RelativeLayout) findViewById(R.id.mainMenu);
         gameMenu = (FrameLayout) findViewById(R.id.gameMenu);
@@ -287,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
 
         gameScreen.setVisibility(View.VISIBLE);
         gameScreen.setTranslationY(windowSize.y);
-        gameScreen.setBackgroundColor(getResources().getColor(R.color.transparent, null));
+        gameScreen.setBackgroundColor(0x00000000);//getResources().getColor(R.color.transparent, null));
 
         //Music
         musicMuted = sharedPref.getBoolean("musicMuted", false);
@@ -516,7 +534,7 @@ public class MainActivity extends AppCompatActivity {
                                 secPerLife = 0;
                                 numRuns = 0;
                                 prefEditor.commit();
-                                Toast.makeText(root.getContext(), "Records reset.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(root.getContext(), "Game reset.", Toast.LENGTH_SHORT).show();
 
                                 updateLoc(locationState);
                                 setGameState(gameState);
@@ -1271,7 +1289,17 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onPause(){
-        super.onPause();
+
+        if (mAdView != null) {
+            mAdView.pause();
+        }
+        if (mAdView2 != null) {
+            mAdView2.pause();
+        }
+        if (mAdView3 != null) {
+            mAdView3.pause();
+        }
+
         if(gameState == GAME_PLAYING){
             setGameState(PAUSED);
         }
@@ -1292,6 +1320,8 @@ public class MainActivity extends AppCompatActivity {
         }
         stopMusic();
         releaseSFX();
+
+        super.onPause();
     }
 
     /**
@@ -1300,8 +1330,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        hide();
 
+        if (mAdView != null) {
+            mAdView.resume();
+        }
+        if (mAdView2 != null) {
+            mAdView2.resume();
+        }
+        if (mAdView3 != null) {
+            mAdView3.resume();
+        }
+
+        hide();
 
         gameScreen.resume();
 
@@ -1329,6 +1369,20 @@ public class MainActivity extends AppCompatActivity {
             setSFX();
             setGameState(gameState);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
+        if (mAdView2 != null) {
+            mAdView2.destroy();
+        }
+        if (mAdView3 != null) {
+            mAdView3.destroy();
+        }
+        super.onDestroy();
     }
 
     private void updateLoc(int loc) {
