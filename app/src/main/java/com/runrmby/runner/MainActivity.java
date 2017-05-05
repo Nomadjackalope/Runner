@@ -795,9 +795,9 @@ public class MainActivity extends AppCompatActivity {
             highScoreText = getResources().getString(R.string.new_high_score);
         } else {
             endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
-            endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins:");
-            addRunnerCoins(coins);
-            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
+            endGameScoreText.setText("Run Score:\nHigh Score:\nBONUS");//\nRunner Coins:");
+            addRunnerCoins(coins + 1);
+            endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + 1 + " coins");//\n" + String.valueOf(runnerCoins));
         }
 
         if(bT != 0) {
@@ -991,9 +991,9 @@ public class MainActivity extends AppCompatActivity {
                 highScoreText = getResources().getString(R.string.new_high_score);
             } else {
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
-                endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins:");
-                addRunnerCoins(coins);
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
+                endGameScoreText.setText("Run Score:\nHigh Score:\nBONUS");//\nRunner Coins:");
+                addRunnerCoins(coins + 1);
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + 1 + " coins");//\n" + String.valueOf(runnerCoins));
             }
             endGameStats.setText(String.format("%.0f", yourDistance) + " (" + String.format("%.0f", (yourDistance)/distance*100) + "%)\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
 
@@ -1035,9 +1035,9 @@ public class MainActivity extends AppCompatActivity {
                 highScoreText = getResources().getString(R.string.new_high_score);
             } else {
                 endGameStatNames.setBackgroundResource(R.drawable.rectangle_white);
-                endGameScoreText.setText("Run Score:\nHigh Score:");//\nRunner Coins");
-                addRunnerCoins(coins);
-                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")");//\n" + String.valueOf(runnerCoins));
+                endGameScoreText.setText("Run Score:\nHigh Score:\nBONUS");//\nRunner Coins");
+                addRunnerCoins(coins + 1);
+                endGameScoreValues.setText(String.format("%.2f", runScore) + "\n(" + String.format("%.2f", prevHighScore) + ")\n+" + 1 + " coins");//\n" + String.valueOf(runnerCoins));
             }
 
             endGameStats.setText(String.format("%.0f", yourDistance) + "\n" + yourTime.getTimeForDisplay() + "\n" + String.valueOf(steps) + "\n" + String.valueOf(coins) + "\n______________");
@@ -1161,7 +1161,7 @@ public class MainActivity extends AppCompatActivity {
 //        statsText.setText("STATS\nRuns: " + String.valueOf(numRuns) + "\nAvg. Speed = " + String.format("%.0f", distPerSec) + " pix/sec\nAvg. Lifespan (Dist.) = " + String.format("%.2f", secPerLife) + " sec\nRunner Income = " + String.format("%.2f", coinsPerSec) + " coins/sec");
 
         settingsMenu.setVisibility(View.VISIBLE);
-        if(runnerCoins > 1999){
+        if(runnerCoins > 999){
             if(!whistleMusicButton.isEnabled()) {
                 whistleMusicButton.setEnabled(true);
             }
@@ -1456,7 +1456,7 @@ public class MainActivity extends AppCompatActivity {
                             playMarathonButton.setEnabled(false);
                             playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                         }
-                        menuTimeText.setText("LOCKED: 75 coins required.");
+                        menuTimeText.setText("LOCKED: 25 coins required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc1MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1506,7 +1506,7 @@ public class MainActivity extends AppCompatActivity {
                             playMarathonButton.setEnabled(false);
                             playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                         }
-                        menuTimeText.setText("LOCKED: 400 coins required.");
+                        menuTimeText.setText("LOCKED: 250 coins required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc2MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1557,7 +1557,7 @@ public class MainActivity extends AppCompatActivity {
                             playMarathonButton.setEnabled(false);
                             playMarathonButton.setBackgroundResource(R.mipmap.distance_text_locked);
                         }
-                        menuTimeText.setText("LOCKED: 1000 coins required.");
+                        menuTimeText.setText("LOCKED: 500 coins required.");
                         menuDistanceText.setText(getResources().getString(R.string.loc3MarathonLocked));
                     }
                     previousLocationButton.setVisibility(View.VISIBLE);
@@ -1623,19 +1623,19 @@ public class MainActivity extends AppCompatActivity {
 
     private String checkStagesUnlocked(){
         String s = "";
-        if(runnerCoins > 74 && locationsUnlocked < 1){
+        if(runnerCoins > 24 && locationsUnlocked < 1){
             s += "\nStage 1 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
             endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
         }
-        if(runnerCoins > 399 && locationsUnlocked < 2){
+        if(runnerCoins > 249 && locationsUnlocked < 2){
             s += "\nStage 2 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);
             endGameText.setBackgroundResource(R.drawable.rectangle_white_border_yellow);
         }
-        if(runnerCoins > 999 && locationsUnlocked < 3){
+        if(runnerCoins > 499 && locationsUnlocked < 3){
             s += "\nStage 3 unlocked!";
             locationsUnlocked++;
             saveLocationsUnlocked(locationsUnlocked);

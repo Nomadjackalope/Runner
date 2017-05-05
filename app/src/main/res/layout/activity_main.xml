@@ -327,7 +327,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="36dp"
-            android:text="@string/finger_runner"
+            android:text="@string/app_name"
             android:id="@+id/textView"
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
@@ -610,7 +610,7 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="Whistle Music\n(2000 coins)"
+            android:textOff="Whistle Music\n(1000 coins)"
             android:textOn="Original Music"
             android:checked="false"
             android:enabled="false"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Finger Runner</string>
+    <string name="app_name">Thumb Runner</string>
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
@@ -7,7 +7,6 @@
     <string name="mute_music">Mute Sound</string>
 
     <string name="play">Play</string>
-    <string name="finger_runner">Finger Runner</string>
     <string name="play_again">Play Again</string>
     <string name="main_menu">Main Menu</string>
     <string name="resume">Resume</string>
