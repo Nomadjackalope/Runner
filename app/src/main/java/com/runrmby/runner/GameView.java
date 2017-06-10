@@ -605,12 +605,15 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void advanceRoad(float distance) {
         // Don't go backward
-        if(distance < 0 || backgroundHeight - activeFinger.y < sX * 100) {
+        if(distance < 0) {
             return;
         }
 
         switch (locationState){
             case 0:
+                if(backgroundHeight - levelZero.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelZero.getInertiaFactor();
                 //Reduce distance by factor.
@@ -620,6 +623,9 @@ public class GameView extends SurfaceView implements Runnable {
                 levelZero.updateObs(distance);
                 break;
             case 1:
+                if(backgroundHeight - levelOne.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelOne.getInertiaFactor();
                 //Reduce distance by factor.
@@ -629,6 +635,9 @@ public class GameView extends SurfaceView implements Runnable {
                 levelOne.updateObs(distance);
                 break;
             case 2:
+                if(backgroundHeight - levelTwo.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelTwo.getInertiaFactor();
                 //Reduce distance by factor.
@@ -638,6 +647,9 @@ public class GameView extends SurfaceView implements Runnable {
                 levelTwo.updateObs(distance);
                 break;
             case 3:
+                if(backgroundHeight - levelThree.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelThree.getInertiaFactor();
                 //Reduce distance by factor.

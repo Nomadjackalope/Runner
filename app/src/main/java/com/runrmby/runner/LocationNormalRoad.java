@@ -245,7 +245,7 @@ public class LocationNormalRoad {
     public void spawnFootprint(){
         float x = touchDownX - footprintsWidth/2;
         float y = touchDownY - footprintsHeight/2;
-        if(footprintsL.spawnTracker[0] != 2 && footprintsR.spawnTracker[0] != 2 || footprintsL.spawnTracker[0] == 0 && footprintsR.spawnTracker[0] == 0) {//both or no fpMode spawned
+        if(footprintsL.spawnTracker[0] != 2 && footprintsR.spawnTracker[0] != 2 || footprintsL.spawnTracker[0] == 0) {//both or no fpMode spawned
 //            if(fRTempY == fLTempY){//neither foot ahead (start)
             if (touchDownX < backgroundWidth / 2) {//if touch is on left half of screen, spawn left footprint, otherwise spawn right
                 footprintsL.spawnObstacle(0f, x, y, true);
@@ -881,6 +881,18 @@ public class LocationNormalRoad {
                     gS.collisionsWitnessed++;
                 }
             }
+        }
+    }
+
+    public float getFootDownYLocation(){
+        if(footprintsR.spawnTracker[0] == 1){
+            //Right foot is down
+            return footprintsR.coordinatesArray[0][1] + footprintsHeight/2;
+        } else if(footprintsL.spawnTracker[0] == 1) {
+            //Left foot is down
+            return footprintsL.coordinatesArray[0][1] + footprintsHeight/2;
+        } else {
+            return 0f;
         }
     }
 
