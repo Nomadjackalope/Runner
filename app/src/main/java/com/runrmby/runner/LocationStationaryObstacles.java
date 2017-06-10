@@ -22,7 +22,7 @@ public class LocationStationaryObstacles {
     private int coneXScale = 74;
     private int coneYScale = 104;
     private int maxNumCones = 50;
-    private float distBetweenCones = 800f;
+    private float distBetweenCones = 1000f;
     private float coneXSpeed = 0f;
     private float coneYSpeed = 0f;
 
@@ -78,7 +78,7 @@ public class LocationStationaryObstacles {
     private Matrix matrixRotateCounterClockwise = new Matrix();
 
     private float velocityFactor = .75f; //Must be less than 1 or else road will advance exponentially.
-    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
+//    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
     private float inertiaFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
 
     //Sound effects
@@ -127,7 +127,7 @@ public class LocationStationaryObstacles {
         coins.setLimitSpawnX(coins.getObstacleWidth() + (int)(sX * 50), backgroundWidth - coins.getObstacleWidth() - (int)(sX * 50), false);
 
         cone.setMultiSpawn(true);
-        raceCar.setLimitSpawnX((int)(sX * 100), backgroundWidth - (int)(sX * 100), false);
+        raceCar.setLimitSpawnX((int)(sX * 200), backgroundWidth - (int)(sX * 200), false);
         raceCar.setSpawnBottom(true);
         raceCar.setFlipY(true);
 
@@ -148,7 +148,7 @@ public class LocationStationaryObstacles {
     }
 
     public float getCourseDistance(){
-        return (this.courseDistance * sY);
+        return (this.courseDistance);
     }
 
     public float getIncreaseDifficultyDistance(){
@@ -159,9 +159,9 @@ public class LocationStationaryObstacles {
         return inertiaFactor;
     }
 
-    public float getDistanceFactor(){
-        return distanceFactor;
-    }
+//    public float getDistanceFactor(){
+//        return distanceFactor;
+//    }
 
     public float getVelocityFactor(){
         return velocityFactor;
@@ -187,7 +187,7 @@ public class LocationStationaryObstacles {
     public void spawnFootprint(){
         float x = touchDownX - footprintsWidth/2;
         float y = touchDownY - footprintsHeight/2;
-        if(footprintsL.spawnTracker[0] != 2 && footprintsR.spawnTracker[0] != 2 || footprintsL.spawnTracker[0] == 0 && footprintsR.spawnTracker[0] == 0) {//both or no fpMode spawned
+        if(footprintsL.spawnTracker[0] != 2 && footprintsR.spawnTracker[0] != 2 || footprintsL.spawnTracker[0] == 0) {//both or no fpMode spawned
             if (touchDownX < backgroundWidth / 2) {//if touch is on left half of screen, spawn left footprint, otherwise spawn right
                 footprintsL.spawnObstacle(0f, x, y, true);
                 if (footprintsR.spawnTracker[0] == 1) {
@@ -271,7 +271,7 @@ public class LocationStationaryObstacles {
     public void updateObstacleSeparation() {
         //TODO: make factor global
         factor = (difficultly + 49f) / (difficultly + 50f);
-        if(!racerTrigger) {
+        if(racerTrigger) {
             raceCar.updateDistanceBetweenObstacles(factor);
         }
         homingOb.updateDistanceBetweenObstacles(factor);
@@ -282,7 +282,7 @@ public class LocationStationaryObstacles {
         factor = (difficultly + 9f) / (difficultly + 10f);
         cone.updateDistanceBetweenObstacles(factor);
 
-//        updateHomingSpeed(1f / (difficultly + 8f));
+//        updateHomingSpeed(1f / (difficulty + 8f));
     }
 
     public void setTouchDownX(float x){
@@ -377,14 +377,14 @@ public class LocationStationaryObstacles {
             }
         }
         //Give car velocity after certain distance so it's hard to go really far.
-        if(gS.odometer > 40000 && !racerTrigger){
+        if(gS.odometer > (sY * 40000) && !racerTrigger){
             racerTrigger = true;
-            raceCar.verticalSpeed = -26;
+            raceCar.verticalSpeed = -40 * sY;
             raceCar.doAutoSpawn(0);
             if (!mA.musicMuted) {
                 soundEffects.play(driveSoundId, 0.5f, 0.5f, 1, 0, 2);
             }
-            raceCar.setDistanceBetweenObstacles(10000);
+            raceCar.setDistanceBetweenObstacles(sY * 10000);
         }
         homingOb.updateObstacles(distance, true);
 
@@ -506,6 +506,18 @@ public class LocationStationaryObstacles {
                     homingOb.speedArray[i][3] *= 0;
                 }
             }
+        }
+    }
+
+    public float getFootDownYLocation(){
+        if(footprintsR.spawnTracker[0] == 1){
+            //Right foot is down
+            return footprintsR.coordinatesArray[0][1] + footprintsHeight/2;
+        } else if(footprintsL.spawnTracker[0] == 1) {
+            //Left foot is down
+            return footprintsL.coordinatesArray[0][1] + footprintsHeight/2;
+        } else {
+            return 0f;
         }
     }
 

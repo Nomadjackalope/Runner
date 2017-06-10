@@ -80,11 +80,21 @@
 
     </FrameLayout>
 
-    <RelativeLayout
+    <RelativeLayout xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/gameEndMenu"
         android:visibility="gone">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/banner_ad_run_results_id">
+        </com.google.android.gms.ads.AdView>
 
         <TextView
             android:layout_width="wrap_content"
@@ -92,7 +102,7 @@
             android:id="@+id/endGameMenuAnchor"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="75dp"
+            android:layout_marginTop="90dp"
             android:text=" " />
 
         <TextView
@@ -296,22 +306,32 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <RelativeLayout xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/mainMenu"
         android:visibility="gone">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/banner_ad_game_menu_id">
+        </com.google.android.gms.ads.AdView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="36dp"
-            android:text="@string/finger_runner"
+            android:text="@string/app_name"
             android:id="@+id/textView"
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="75dp" />
+            android:layout_marginTop="95dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -463,11 +483,21 @@
             android:layout_marginTop="10dp"/>
     </RelativeLayout>
 
-    <RelativeLayout
+    <RelativeLayout xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/pauseMenu"
         android:visibility="visible">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/banner_ad_pause_menu_id">
+        </com.google.android.gms.ads.AdView>
 
         <TextView
             android:layout_width="wrap_content"
@@ -580,7 +610,7 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textOff="Whistle Music\n(2000 RC)"
+            android:textOff="Whistle Music\n(1000 coins)"
             android:textOn="Original Music"
             android:checked="false"
             android:enabled="false"

@@ -63,7 +63,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     float toNextDiffIncrease;
     float difficultyIncreaseSeparation;
-    int difficultly;
+    int difficulty;
 
     float sX;
     float sY;
@@ -242,16 +242,16 @@ public class GameView extends SurfaceView implements Runnable {
             //For the touchFollower crossing the finish line to trigger course completion, use the following:
             switch (locationState){
                 case 0:
-                    distRemaining = courseLeft - backgroundHeight + levelZero.getTouchDownY() - levelZero.getFootprintHeight()/2;
+                    distRemaining = courseLeft - backgroundHeight + activeFinger.y - levelZero.getFootprintHeight()/2;
                     break;
                 case 1:
-                    distRemaining = courseLeft - backgroundHeight + levelOne.getTouchDownY() - levelOne.getFootprintHeight()/2;
+                    distRemaining = courseLeft - backgroundHeight + activeFinger.y - levelOne.getFootprintHeight()/2;
                     break;
                 case 2:
-                    distRemaining = courseLeft - backgroundHeight + levelTwo.getTouchDownY() - levelTwo.getFootprintHeight()/2;
+                    distRemaining = courseLeft - backgroundHeight + activeFinger.y - levelTwo.getFootprintHeight()/2;
                     break;
                 case 3:
-                    distRemaining = courseLeft - backgroundHeight + levelThree.getTouchDownY() - levelThree.getFootprintHeight()/2;
+                    distRemaining = courseLeft - backgroundHeight + activeFinger.y - levelThree.getFootprintHeight()/2;
                     break;
             }
             //For a touch past the finish line to trigger course completion, use the following line instead of the previous:
@@ -259,19 +259,19 @@ public class GameView extends SurfaceView implements Runnable {
 
             //----------Increase difficulty during distance mode.-----------------------------------
             if(toNextDiffIncrease <= 0) {
-                difficultly++;
+                difficulty++;
                 switch (locationState) {
                     case 0:
                         //no obstacles
                         break;
                     case 1:
-                        levelOne.updateDifficulty(difficultly);
+                        levelOne.updateDifficulty(difficulty);
                         break;
                     case 2:
-                        levelTwo.updateDifficulty(difficultly);
+                        levelTwo.updateDifficulty(difficulty);
                         break;
                     case 3:
-                        levelThree.updateDifficulty(difficultly);
+                        levelThree.updateDifficulty(difficulty);
                         break;
                 }
 
@@ -362,7 +362,7 @@ public class GameView extends SurfaceView implements Runnable {
 
             //Draw finish line.
             if(!distanceMode) {
-                if (courseLeft < backgroundHeight) {   //Don't check using distRemaining because that can vary without the road advancing.
+                if (courseLeft < backgroundHeight) {
                     canvas.drawBitmap(finishLine, 0, backgroundHeight - courseLeft - finishLine.getHeight(), paint);
                 }
             }
@@ -447,6 +447,7 @@ public class GameView extends SurfaceView implements Runnable {
                 //Check if finish line has been reached.
                 if(!distanceMode) {
                     if (distRemaining <= 0) {
+                        yourDistance = courseDistance - distRemaining;
                         mA.setGameState(MainActivity.GAME_WON);
                     }
                 }
@@ -584,20 +585,20 @@ public class GameView extends SurfaceView implements Runnable {
     // This gets called from onTouch thread which then lets update call advanceRoad
     //  this should keep two sections of road closer together
     void addToFingerMoveDist(float dist) {
-        switch (locationState){
-            case 0:
-                dist *= levelZero.getDistanceFactor();
-                break;
-            case 1:
-                dist *= levelOne.getDistanceFactor();
-                break;
-            case 2:
-                dist *= levelTwo.getDistanceFactor();
-                break;
-            case 3:
-                dist *= levelThree.getDistanceFactor();
-                break;
-        }
+//        switch (locationState){
+//            case 0:
+//                dist *= levelZero.getDistanceFactor();
+//                break;
+//            case 1:
+//                dist *= levelOne.getDistanceFactor();
+//                break;
+//            case 2:
+//                dist *= levelTwo.getDistanceFactor();
+//                break;
+//            case 3:
+//                dist *= levelThree.getDistanceFactor();
+//                break;
+//        }
 
         fingerMoveDist += dist;
     }
@@ -610,37 +611,49 @@ public class GameView extends SurfaceView implements Runnable {
 
         switch (locationState){
             case 0:
+                if(backgroundHeight - levelZero.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelZero.getInertiaFactor();
                 //Reduce distance by factor.
-                distance *= levelZero.getDistanceFactor();
+                //distance *= levelZero.getDistanceFactor();
                 //Update touchFollower and obstacles.
                 levelZero.updateTouchDownY(distance);
                 levelZero.updateObs(distance);
                 break;
             case 1:
+                if(backgroundHeight - levelOne.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelOne.getInertiaFactor();
                 //Reduce distance by factor.
-                distance *= levelOne.getDistanceFactor();
+                //distance *= levelOne.getDistanceFactor();
                 //Update touchFollower and obstacles.
                 levelOne.updateTouchDownY(distance);
                 levelOne.updateObs(distance);
                 break;
             case 2:
+                if(backgroundHeight - levelTwo.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelTwo.getInertiaFactor();
                 //Reduce distance by factor.
-                distance *= levelTwo.getDistanceFactor();
+                //distance *= levelTwo.getDistanceFactor();
                 //Update touchFollower and obstacles.
                 levelTwo.updateTouchDownY(distance);
                 levelTwo.updateObs(distance);
                 break;
             case 3:
+                if(backgroundHeight - levelThree.getFootDownYLocation() < sX * 100){
+                    return;
+                }
                 //Reduce velocity by factor.
                 velocity *= levelThree.getInertiaFactor();
                 //Reduce distance by factor.
-                distance *= levelThree.getDistanceFactor();
+                //distance *= levelThree.getDistanceFactor();
                 //Update touchFollower and obstacles.
                 levelThree.updateTouchDownY(distance);
                 levelThree.updateObs(distance);
@@ -707,14 +720,12 @@ public class GameView extends SurfaceView implements Runnable {
 
 
     public void pauseGame() {
-        System.out.println("GV| pauseGame called");
         handleTouches = false;
         gameRunning = false;
         velocity = 0;
     }
 
     public void resumeGame() {
-        System.out.println("GV| resumeGame called");
         playing = true;
         handleTouches = true;
         gameRunning = false;
@@ -753,7 +764,6 @@ public class GameView extends SurfaceView implements Runnable {
         int id;
 
         public void setXY(float x, float y) {
-            System.out.println("GV| finger1 y: " + y);
             this.x = x;
             this.y = y;
         }
@@ -863,9 +873,10 @@ public class GameView extends SurfaceView implements Runnable {
                 levelThree.resetObstacles();
                 break;
         }
+        courseDistance *= sY;
         courseLeft = courseDistance;
         distRemaining = courseDistance;
-        difficultly = 0;
+        difficulty = 0;
         toNextDiffIncrease = difficultyIncreaseSeparation;
 
         yourDistance = 0f;

@@ -12,7 +12,7 @@ import android.media.SoundPool;
 
 public class LocationNoObstacles {
 
-    private float courseDistance = 10000f;
+    private float courseDistance = 15000f;
 
     private float increaseDifficultyDistance = 10000f;
 
@@ -39,7 +39,7 @@ public class LocationNoObstacles {
     private int footprintsLImageResId = R.mipmap.left_foot_yellow;
 
     private float velocityFactor = .75f; //Must be less than 1 or else road will advance exponentially.
-    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
+//    private float distanceFactor = 1.00f;  //Must be <= 1 or else road will advance exponentially.
     private float inertiaFactor = 0.75f; //Must be less than 1 or else road will advance exponentially.
 
     //Sound effects
@@ -90,7 +90,7 @@ public class LocationNoObstacles {
     }
 
     public float getCourseDistance(){
-        return (this.courseDistance * sY);
+        return (this.courseDistance);
     }
 
     public float getIncreaseDifficultyDistance(){
@@ -101,9 +101,9 @@ public class LocationNoObstacles {
         return inertiaFactor;
     }
 
-    public float getDistanceFactor(){
-        return distanceFactor;
-    }
+//    public float getDistanceFactor(){
+//        return distanceFactor;
+//    }
 
     public float getVelocityFactor(){
         return velocityFactor;
@@ -129,7 +129,7 @@ public class LocationNoObstacles {
     public void spawnFootprint(){
         float x = touchDownX - footprintsWidth/2;
         float y = touchDownY - footprintsHeight/2;
-        if(footprintsL.spawnTracker[0] != 2 && footprintsR.spawnTracker[0] != 2 || footprintsL.spawnTracker[0] == 0 && footprintsR.spawnTracker[0] == 0) {//both or no fpMode spawned
+        if(footprintsL.spawnTracker[0] != 2 && footprintsR.spawnTracker[0] != 2 || footprintsL.spawnTracker[0] == 0) {//both or no fpMode spawned
             if (touchDownX < backgroundWidth / 2) {//if touch is on left half of screen, spawn left footprint, otherwise spawn right
                 footprintsL.spawnObstacle(0f, x, y, true);
                 if (footprintsR.spawnTracker[0] == 1) {
@@ -272,6 +272,18 @@ public class LocationNoObstacles {
     //Move obstacles(any movement independent from the road).
     public void move(){
         coins.moveObstacles();
+    }
+
+    public float getFootDownYLocation(){
+        if(footprintsR.spawnTracker[0] == 1){
+            //Right foot is down
+            return footprintsR.coordinatesArray[0][1] + footprintsHeight/2;
+        } else if(footprintsL.spawnTracker[0] == 1) {
+            //Left foot is down
+            return footprintsL.coordinatesArray[0][1] + footprintsHeight/2;
+        } else {
+            return 0f;
+        }
     }
 
     //--------------------------Reset obstacles------------------------------------------
